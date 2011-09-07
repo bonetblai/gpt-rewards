@@ -1,0 +1,78 @@
+//  Theseus
+//  QMDP.h -- QMDP Heuristic for Beliefs
+//
+//  Blai Bonet, Hector Geffner
+//  Universidad Simon Bolivar (c) 1998-2008
+
+#ifndef _QMDP_INCLUDE_
+#define _QMDP_INCLUDE_
+
+#include <iostream>
+#include <Heuristic.h>
+#include <Problem.h>
+#include <RtStandard.h>
+#include <SB.h>
+#include <QBelief.h>
+#include <Quantization.h>
+#include <Utils.h>
+
+class Belief;
+class StandardModel;
+
+class QMDPHeuristic : public Heuristic {
+protected:
+  const StandardModel *model_;
+  double discount_;
+  double *table_;
+  int size_;
+public:
+  QMDPHeuristic( const StandardModel *model = 0, double discount = 1 ) : model_(model), discount_(discount), table_(0), size_(0) { compute(); }
+  virtual ~QMDPHeuristic() { delete[] table_; }
+  void compute();
+
+  double value( const StandardBelief &belief ) const
+  {
+    double sum = 0.0;
+    for( StandardBelief::const_iterator it = belief.begin(); it != belief.end(); ++it ) {
+      double val = value((*it).first);
+      sum += (*it).second * val;
+    }
+    return(sum);
+  }
+  double value( const QBelief &belief ) const { throw(0); return(0); }
+  virtual double value( int state ) const { return(table_[state]); }
+  virtual double value( const Belief &belief ) const
+  {
+    const StandardBelief *sbelief = dynamic_cast<const StandardBelief*>(&belief);
+    if( sbelief != 0 )
+      return(value(*sbelief));
+    else {
+      const QBelief *qbelief = dynamic_cast<const QBelief*>(&belief);
+      if( qbelief != 0 )
+        return(value(*qbelief));
+      else
+        return(0);
+    }
+  }
+
+  // serialization
+  static QMDPHeuristic* constructor() { return(new QMDPHeuristic); }
+  virtual void write( std::ostream& os ) const
+  {
+    Heuristic::write(os);
+    Serialize::safeWrite(&discount_,sizeof(double),1,os);
+    Serialize::safeWrite(&size_,sizeof(int),1,os);
+    Serialize::safeWrite(&table_,sizeof(double),size_,os);
+  }
+  static void read( std::istream& is, QMDPHeuristic &qmdp )
+  {
+    Heuristic::read(is,qmdp);
+    Serialize::safeRead(&qmdp.discount_,sizeof(double),1,is);
+    Serialize::safeRead(&qmdp.size_,sizeof(int),1,is);
+    qmdp.table_ = new double[qmdp.size_];
+    Serialize::safeRead(qmdp.table_,sizeof(double),qmdp.size_,is);
+  }
+};
+
+#endif // _QMDP_INCLUDE
+
