@@ -46,10 +46,10 @@ typedef enum { mc_none, mc_trans_single, mc_trans_row, mc_trans_all,
 #ifdef __cplusplus
 int yyparse();
 extern int yylex();
-extern void yyerror(char *string);
+extern void yyerror(const char *string);
 #else
 extern int yylex();
-extern void yyerror(char *string);
+extern void yyerror(const char *string);
 #endif
 
 /* Forward declaration for action routines which appear at end of file */
@@ -809,7 +809,7 @@ optional_sign	: PLUSTOK
 Constant_Block *aConst;
 
 /******************************************************************************/
-void yyerror(char *string)
+void yyerror(const char *string)
 {
    ERR_enter("Parser<yyparse>", currentLineNumber, PARSE_ERR,"");
 }  /* yyerror */
