@@ -148,7 +148,7 @@ int CheckReserved() {
 
 }  /* CheckReserved */
 /**********************************************************************/
-//extern "C" int yywrap();
+extern "C" int yywrap();
 int yywrap()
 {
    return 1;

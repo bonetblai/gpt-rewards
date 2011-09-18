@@ -134,7 +134,7 @@ parser.tab.c:	parser.y  parse_err.h mdp.h \
 
 clean:
 	@echo "*** Cleaning `pwd`"
-	@$(RM) *.o lex.yy.c y.tab.c *~
+	@$(RM) *.o lex.yy.c y.tab.c parser.tab.c parser.tab.h *~
 
 ######################################################################
 
