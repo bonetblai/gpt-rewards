@@ -17,10 +17,8 @@
 
 extern unsigned glookups, gfound;
 
-void
-StandardPOMDP::learnAlgorithm( Result& result )
-{
-  assert( !PD.pddlProblem_ || ISPOMDP(PD.handle_->problemType) || ISNDPOMDP(PD.handle_->problemType) );
+void StandardPOMDP::learnAlgorithm(Result& result) {
+  assert(!PD.pddlProblem_ || ISPOMDP(PD.handle_->problemType) || ISNDPOMDP(PD.handle_->problemType));
   std::stack<BeliefHash::Entry> stack; // for stopping rule
 
   // initialize result
@@ -33,14 +31,14 @@ StandardPOMDP::learnAlgorithm( Result& result )
 
   // set initial belief
   StandardBelief belief(model_->numStates());
-  int absorbing = ((StandardModel*)model_)->absorbing_;
+  int absorbing = static_cast<const StandardModel*>(model_)->absorbing_;
   int state = model_->initialBelief_->sampleState();
 
   belief = static_cast<const StandardBelief&>(*model_->initialBelief_);
   BeliefCache::Entry *cache_entry = cache_.lookup(belief);
-  if( !cache_entry ) cache_entry = cache_.insert(belief,numActions_,numObs_);
+  if( !cache_entry ) cache_entry = cache_.insert(belief, numActions_, numObs_);
 
-  std::pair<const Belief*,BeliefHash::Data> p = beliefHash_->lookup(belief,false,true);
+  std::pair<const Belief*, BeliefHash::Data> p = beliefHash_->lookup(belief, false, true);
   QBelief qbelief = *static_cast<const QBelief*>(p.first);
   BeliefHash::Data qdata = p.second;
   result.initialValue_ = qdata.value_;
@@ -67,41 +65,49 @@ StandardPOMDP::learnAlgorithm( Result& result )
     }
 #endif
     //if( isGoal(belief) ) { result.goalReached_ = true; break; }
-    if( model_->isGoal(state) ) { result.goalReached_ = true; break; }
+    if( model_->isGoal(state) ) {
+        result.goalReached_ = true;
+        break;
+    }
    
     // compute the best QValues and update value
-    bestQValue(belief,*qresult_,cache_entry,beliefHash_);
-    beliefHash_->update(qbelief,qresult_->value_);
-    if( PD.useStopRule_ ) { stack.push(beliefHash_->fetch(qbelief)); }
+    bestQValue(belief, *qresult_, cache_entry, beliefHash_);
+    beliefHash_->update(qbelief, qresult_->value_);
+    if( PD.useStopRule_ ) {
+        stack.push(beliefHash_->fetch(qbelief));
+    }
 
     // greedy selection of best action
     int bestAction = -1;
     if( qresult_->numTies_ > 0 ) {
-      int index = (!randomTies_?0:lrand48()%qresult_->numTies_);
+      int index = !randomTies_? 0 : lrand48() % qresult_->numTies_;
       bestAction = qresult_->ties_[index];
     }
     else { // we have a dead-end
-      beliefHash_->update(qbelief,DBL_MAX,true);
-      result.push_back(state,-1,-1);
+      beliefHash_->update(qbelief, DBL_MAX, true);
+      result.push_back(state, -1, -1);
       break;
     }
-    if( (epsilonGreedy() > 0) && (drand48() < epsilonGreedy()) ) bestAction = (lrand48()%model_->numActions());
+    if( (epsilonGreedy() > 0) && (drand48() < epsilonGreedy()) )
+        bestAction = lrand48() % model_->numActions();
 
     // sample state and observation
-    int nstate = model_->sampleNextState(state,bestAction);
-    while( nstate == absorbing ) { nstate = model_->sampleNextState(state,bestAction); }
-    int observation = model_->sampleNextObservation(nstate,bestAction);
-    result.push_back(state,bestAction,observation);
+    int nstate = model_->sampleNextState(state, bestAction);
+    while( nstate == absorbing ) {
+        nstate = model_->sampleNextState(state, bestAction);
+    }
+    int observation = model_->sampleNextObservation(nstate, bestAction);
+    result.push_back(state, bestAction, observation);
 
     // update belief (using cache)
-    const Belief *belief_ao = static_cast<const StandardBelief*>(cache_entry->belief_ao(bestAction,observation,numActions_));
-    assert( belief_ao != 0 );
+    const Belief *belief_ao = static_cast<const StandardBelief*>(cache_entry->belief_ao(bestAction, observation, numActions_));
+    assert(belief_ao != 0);
     state = nstate;
     belief = *belief_ao;
 
     cache_entry = cache_.lookup(belief);
-    if( !cache_entry ) cache_entry = cache_.insert(belief,numActions_,numObs_);
-    p = beliefHash_->lookup(belief,false,true);
+    if( !cache_entry ) cache_entry = cache_.insert(belief, numActions_, numObs_);
+    p = beliefHash_->lookup(belief, false, true);
     qbelief = *static_cast<const QBelief*>(p.first);
     qdata = p.second;
 
@@ -116,7 +122,9 @@ StandardPOMDP::learnAlgorithm( Result& result )
   if( PD.signal_ >= 0 ) { // cleanup
     int signal = PD.signal_;
     PD.signal_ = -1;
-    if( PD.useStopRule_ ) while( !stack.empty() ) stack.pop();
+    if( PD.useStopRule_ ) {
+      while( !stack.empty() ) stack.pop();
+    }
     throw(SignalException(signal));
   }
 
@@ -128,14 +136,14 @@ StandardPOMDP::learnAlgorithm( Result& result )
       stack.pop();
       if( !entry.second->solved_ ) { // if not solved, attempt labeling
         closed.clear();
-        if( checkSolved(entry,closed) ) {
+        if( checkSolved(entry, closed) ) {
           for( std::list<BeliefHash::Entry>::iterator it = closed.begin(); it != closed.end(); ++it ) {
             (*it).second->solved_ = true;
             *PD.outputFile_ << "solved belief=" << *(*it).first << ", value=" << (*it).second->value_ << std::endl;
           }
-        }
-        else
+        } else {
           break;
+        }
       }
     }
   }
@@ -143,15 +151,13 @@ StandardPOMDP::learnAlgorithm( Result& result )
   result.stopTimer();
 
   // set initial belief data
-  p = beliefHash_->lookup(*model_->initialBelief_,false,true);
+  p = beliefHash_->lookup(*model_->initialBelief_, false, true);
   result.initialValue_ = p.second.value_;
   result.solved_ = p.second.solved_;
 }
 
-void
-StandardPOMDP::controlAlgorithm( Result& result, const Sondik *sondik ) const
-{
-  assert( !PD.pddlProblem_ || ISPOMDP(PD.handle_->problemType) || ISNDPOMDP(PD.handle_->problemType) );
+void StandardPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const {
+  assert(!PD.pddlProblem_ || ISPOMDP(PD.handle_->problemType) || ISNDPOMDP(PD.handle_->problemType));
 
   // initialize result
   result.runType_ = 0;
@@ -173,14 +179,14 @@ StandardPOMDP::controlAlgorithm( Result& result, const Sondik *sondik ) const
 
   // set initial belief and state
   StandardBelief belief(model_->numStates());
-  int absorbing = ((StandardModel*)model_)->absorbing_;
+  int absorbing = static_cast<const StandardModel*>(model_)->absorbing_;
   int state = model_->initialBelief_->sampleState();
 
   belief = static_cast<const StandardBelief&>(*model_->initialBelief_);
   BeliefCache::Entry *cache_entry = cache_.lookup(belief);
-  if( !cache_entry ) cache_entry = cache_.insert(belief,numActions_,numObs_);
+  if( !cache_entry ) cache_entry = cache_.insert(belief, numActions_, numObs_);
 
-  std::pair<const Belief*,BeliefHash::Data> p = hash->lookup(belief,false,true);
+  std::pair<const Belief*, BeliefHash::Data> p = hash->lookup(belief, false, true);
   QBelief qbelief = *static_cast<const QBelief*>(p.first);
   result.initialValue_ = p.second.value_;
   result.solved_ = p.second.solved_;
@@ -190,62 +196,65 @@ StandardPOMDP::controlAlgorithm( Result& result, const Sondik *sondik ) const
   // go for it!!!
   while( (PD.signal_ < 0) && (result.numSteps_ < cutoff_) ) {
     //if( isGoal(belief) ) { result.goalReached_ = true; break; }
-    if( model_->isGoal(state) ) { result.goalReached_ = true; break; }
+    if( model_->isGoal(state) ) {
+      result.goalReached_ = true;
+      break;
+    }
+
     int bestAction = -1;
     if( !sondik ) {
-      bestQValue(belief,*qresult_,cache_entry,hash);
-      if( PD.controlUpdates_ ) hash->update(qbelief,qresult_->value_);
+      bestQValue(belief, *qresult_, cache_entry,hash);
+      if( PD.controlUpdates_ ) hash->update(qbelief, qresult_->value_);
       if( qresult_->numTies_ > 0 ) {
-        int index = (!randomTies_?0:lrand48()%qresult_->numTies_);
+        int index = !randomTies_ ? 0 : lrand48() % qresult_->numTies_;
         bestAction = qresult_->ties_[index];
-      }
-      else {
-        if( PD.controlUpdates_ ) hash->update(qbelief,DBL_MAX,true);
-        result.push_back(state,-1,-1);
+      } else {
+        if( PD.controlUpdates_ ) hash->update(qbelief, DBL_MAX, true);
+        result.push_back(state, -1, -1);
         break;
       }
-    }
-    else {
-      std::pair<double,int> p = sondik->value(belief);
+    } else {
+      std::pair<double, int> p = sondik->value(belief);
       bestAction = p.second;
       if( bestAction == -1 ) {
-        result.push_back(state,-1,-1);
+        result.push_back(state, -1, -1);
         break;
       }
     }
 
     // sample state and observation
-    int nstate = model_->sampleNextState(state,bestAction);
-    while( nstate == absorbing ) { nstate = model_->sampleNextState(state,bestAction); }
-    int observation = model_->sampleNextObservation(nstate,bestAction);
-    double realCost = model_->cost(state,bestAction,nstate);
+    int nstate = model_->sampleNextState(state, bestAction);
+    while( nstate == absorbing ) {
+      nstate = model_->sampleNextState(state, bestAction);
+    }
+    int observation = model_->sampleNextObservation(nstate, bestAction);
+    double realCost = model_->cost(state, bestAction, nstate);
     result.accCost_ += realCost;
-    result.accDisCost_ += realCost * powf(model_->underlyingDiscount_,result.numSteps_);
-    result.push_back(state,bestAction,observation);
+    result.accDisCost_ += realCost * powf(model_->underlyingDiscount_, result.numSteps_);
+    result.push_back(state, bestAction, observation);
 
     // update belief (using cache)
     if( !sondik ) {
-      const Belief *belief_ao = static_cast<const StandardBelief*>(cache_entry->belief_ao(bestAction,observation,numActions_));
+      const Belief *belief_ao = static_cast<const StandardBelief*>(cache_entry->belief_ao(bestAction, observation, numActions_));
       if( belief_ao == 0 ) {
-        assert( *(cache_entry->belief_) == belief );
-        assert( cache_entry->table_ != 0 );
-        int index = (1+observation)*numActions_+bestAction;
-        assert( cache_entry->table_[index] != 0 );
-        assert( (((unsigned)cache_entry->table_[index])&0x1) == 0 );
+        assert(*cache_entry->belief_ == belief);
+        assert(cache_entry->table_ != 0);
+        int index = (1+observation) * numActions_ + bestAction;
+        assert(cache_entry->table_[index] != 0);
+        assert(valid_ptr(cache_entry->table_[index]));
       }
-      assert( belief_ao != 0 );
+      assert(belief_ao != 0);
       belief = *belief_ao;
-    }
-    else {
-      const Belief &belief_a = belief.update(model_,bestAction);
-      const Belief &belief_ao = belief_a.update(model_,bestAction,observation);
+    } else {
+      const Belief &belief_a = belief.update(model_, bestAction);
+      const Belief &belief_ao = belief_a.update(model_, bestAction, observation);
       belief = belief_ao;
     }
     state = nstate;
 
     cache_entry = cache_.lookup(belief);
-    if( !cache_entry ) cache_entry = cache_.insert(belief,numActions_,numObs_);
-    p = hash->lookup(belief,false,true);
+    if( !cache_entry ) cache_entry = cache_.insert(belief, numActions_, numObs_);
+    p = hash->lookup(belief, false, true);
     qbelief = *static_cast<const QBelief*>(p.first);
   }
 
@@ -265,14 +274,12 @@ StandardPOMDP::controlAlgorithm( Result& result, const Sondik *sondik ) const
   }
 
   // set initial belief data
-  p = beliefHash_->lookup(*model_->initialBelief_,false,true);
+  p = beliefHash_->lookup(*model_->initialBelief_, false, true);
   result.initialValue_ = p.second.value_;
   result.solved_ = p.second.solved_;
 }
 
-bool
-StandardPOMDP::checkSolved( BeliefHash::Entry current, std::list<BeliefHash::Entry> &closed )
-{
+bool StandardPOMDP::checkSolved(BeliefHash::Entry current, std::list<BeliefHash::Entry> &closed) {
   std::list<BeliefHash::Entry> open;
   std::set<BeliefHash::Entry> aux;
 
@@ -289,7 +296,7 @@ StandardPOMDP::checkSolved( BeliefHash::Entry current, std::list<BeliefHash::Ent
     closed.push_front(current);
 
     // check epsilon condition 
-    bestQValue(*current.first,*qresult_);
+    bestQValue(*current.first, *qresult_);
     if( qresult_->numTies_ == 0 ) { // dead-end state
       current.second->value_ = DBL_MAX;
       current.second->solved_ = true;
@@ -303,12 +310,12 @@ StandardPOMDP::checkSolved( BeliefHash::Entry current, std::list<BeliefHash::Ent
     int action = qresult_->ties_[0];
 
     // unfold control
-    const Belief &belief_a = current.first->update(model_,action);
-    belief_a.nextPossibleObservations(model_,action,nextobs_);
+    const Belief &belief_a = current.first->update(model_, action);
+    belief_a.nextPossibleObservations(model_, action, nextobs_);
     for( int obs = 0; obs < numObs_; ++obs ) {
       double prob = nextobs_[obs];
       if( prob > 0 ) { // compute and process belief_ao
-        const Belief &belief_ao = belief_a.update(model_,action,obs);
+        const Belief &belief_ao = belief_a.update(model_, action, obs);
         if( !isAbsorbing(belief_ao) ) {
           const QBelief *qbelief = &(*quantization_)(static_cast<const StandardBelief&>(belief_ao));
           BeliefHash::Entry entry = beliefHash_->fetch(*qbelief);
@@ -326,10 +333,11 @@ StandardPOMDP::checkSolved( BeliefHash::Entry current, std::list<BeliefHash::Ent
     while( !closed.empty() ) {
       current = closed.front();
       closed.pop_front();
-      bestQValue(*current.first,*qresult_);
-      if( qresult_->numTies_ > 0 ) current.second->value_ = qresult_->value_;
+      bestQValue(*current.first, *qresult_);
+      if( qresult_->numTies_ > 0 )
+        current.second->value_ = qresult_->value_;
     }
   }
-  return(rv);
+  return rv;
 }
 

@@ -1,6 +1,7 @@
 LDFLAGS =	#-rdynamic
 #CFLAGS	=	-Wall -O3 -ffloat-store -pipe -DREVISION=\"$(REVISION)\" $(INCDIR)
-ARCH	=	-m32 -march=pentium4 -msse -mfpmath=sse -msse2 -mmmx
+#ARCH	=	-m32 -march=pentium4 -msse -mfpmath=sse -msse2 -mmmx
+ARCH	=	-msse -mfpmath=sse -msse2 -mmmx
 CFLAGS	=	-Wall -O3 $(ARCH) -DREVISION=\"$(REVISION)\" $(INCDIR)
 CC	=	g++ $(CFLAGS)
 LD	=	g++ $(LDFLAGS)
