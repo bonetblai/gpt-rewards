@@ -8,7 +8,6 @@
 #include "SB.h"
 
 #include <stdio.h>
-#include <typeinfo>
 
 extern "C" {
 extern int gNumGoals;

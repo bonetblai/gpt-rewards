@@ -19,7 +19,6 @@
 #include <math.h>
 #include <map>
 #include <set>
-#include <typeinfo>
 
 #define HASH_ROT(x,k) (((x)<<(k))|((x)>>(32-(k))))
 #define HASH_MIX(a,b,c) \

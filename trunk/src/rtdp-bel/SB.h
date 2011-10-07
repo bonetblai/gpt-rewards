@@ -18,7 +18,6 @@
 #include <math.h>
 #include <algorithm>
 #include <vector>
-#include <typeinfo>
 
 #define HASH_ROT(x,k) (((x)<<(k))|((x)>>(32-(k))))
 #define HASH_MIX(a,b,c) \
