@@ -7,6 +7,8 @@
 #ifndef _Utils_INCLUDE_
 #define _Utils_INCLUDE_
 
+#include "Serialization.h"
+
 #include <iostream>
 #include <assert.h>
 #include <sys/time.h>
@@ -14,7 +16,6 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <Serialization.h>
 
 inline double getTime()
 {

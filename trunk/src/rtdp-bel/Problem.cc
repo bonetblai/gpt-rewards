@@ -4,6 +4,14 @@
 //  Blai Bonet, Hector Geffner
 //  Universidad Simon Bolivar (c) 1998-2008
 
+#include "LookAhead.h"
+#include "Problem.h"
+#include "QMDP.h"
+#include "Result.h"
+#include "StandardPOMDP.h"
+#include "Sondik.h"
+#include "Utils.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,14 +22,6 @@
 #include <errno.h>
 #include <iostream>
 #include <fstream>
-
-#include <LookAhead.h>
-#include <Problem.h>
-#include <QMDP.h>
-#include <Result.h>
-#include <StandardPOMDP.h>
-#include <Sondik.h>
-#include <Utils.h>
 
 long long glookups = 0, gfound = 0;
 
@@ -109,9 +109,9 @@ Problem::parseArguments( int argc, const char **argv, void (*helpFunction)() )
 
   // set random seed using time
   if( randomSeed_ == -1 ) {
-    double time = getTime();
-    unsigned *ptr = reinterpret_cast<unsigned*>(&time);
-    randomSeed_ = ptr[0];
+    float time = getTime();
+    int *ptr = reinterpret_cast<int*>(&time);
+    randomSeed_ = *ptr;
   }
 }
 

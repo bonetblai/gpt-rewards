@@ -7,14 +7,15 @@
 #ifndef _QMDP_INCLUDE_
 #define _QMDP_INCLUDE_
 
+#include "Heuristic.h"
+#include "Problem.h"
+#include "RtStandard.h"
+#include "SB.h"
+#include "QBelief.h"
+#include "Quantization.h"
+#include "Utils.h"
+
 #include <iostream>
-#include <Heuristic.h>
-#include <Problem.h>
-#include <RtStandard.h>
-#include <SB.h>
-#include <QBelief.h>
-#include <Quantization.h>
-#include <Utils.h>
 
 class Belief;
 class StandardModel;

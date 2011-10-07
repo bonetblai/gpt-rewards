@@ -7,10 +7,11 @@
 #ifndef _Result_INCLUDE_
 #define _Result_INCLUDE_
 
+#include "RtStandard.h"
+#include "Utils.h"
+
 #include <sys/time.h>
 #include <list>
-#include <RtStandard.h>
-#include <Utils.h>
 
 class Result {
 public:

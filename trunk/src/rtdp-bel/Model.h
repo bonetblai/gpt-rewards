@@ -7,11 +7,12 @@
 #ifndef _Model_INCLUDE_
 #define _Model_INCLUDE_
 
+#include "Serialization.h"
+#include "Belief.h"
+
 #include <iostream>
 #include <float.h>
 #include <list>
-#include <Serialization.h>
-#include <Belief.h>
 
 class Model : public Serializable {
 public:

@@ -7,18 +7,19 @@
 #ifndef _QBelief_INCLUDE_
 #define _QBelief_INCLUDE_
 
+#include "Belief.h"
+#include "SB.h"
+#include "Hash.h"
+#include "StandardModel.h"
+#include "Problem.h"
+#include "Utils.h"
+
 #include <iostream>
 #include <strings.h>
 #include <math.h>
 #include <map>
 #include <set>
 #include <typeinfo>
-#include <Belief.h>
-#include <SB.h>
-#include <Hash.h>
-#include <StandardModel.h>
-#include <Problem.h>
-#include <Utils.h>
 
 #define HASH_ROT(x,k) (((x)<<(k))|((x)>>(32-(k))))
 #define HASH_MIX(a,b,c) \

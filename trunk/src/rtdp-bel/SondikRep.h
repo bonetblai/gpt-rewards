@@ -7,13 +7,13 @@
 #ifndef _SondikRep_INCLUDE_
 #define _SondikRep_INCLUDE_
 
+#include "StandardModel.h"
+#include "StandardBelief.h"
+#include "QBelief.h"
+
 #include <iostream>
 #include <list>
 #include <math.h>
-
-#include <StandardModel.h>
-#include <StandardBelief.h>
-#include <QBelief.h>
 
 class SondikRep {
 protected:

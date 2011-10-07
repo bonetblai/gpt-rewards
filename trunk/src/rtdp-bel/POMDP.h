@@ -7,12 +7,13 @@
 #ifndef _POMDP_INCLUDE_
 #define _POMDP_INCLUDE_
 
+#include "Belief.h"
+#include "Model.h"
+#include "Serialization.h"
+#include "Utils.h"
+
 #include <iostream>
 #include <list>
-#include <Belief.h>
-#include <Model.h>
-#include <Serialization.h>
-#include <Utils.h>
 
 class Result;
 class Sondik;

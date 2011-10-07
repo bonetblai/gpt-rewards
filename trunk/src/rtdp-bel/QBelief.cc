@@ -4,8 +4,8 @@
 //  Blai Bonet, Hector Geffner
 //  Universidad Simon Bolivar (c) 1998-2008
 
-#include <QBelief.h>
-#include <Quantization.h>
+#include "QBelief.h"
+#include "Quantization.h"
 
 unsigned QBeliefHash::timestamp_ = 0;
 

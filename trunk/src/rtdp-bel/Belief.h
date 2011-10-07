@@ -7,12 +7,13 @@
 #ifndef _Belief_INCLUDE_
 #define _Belief_INCLUDE_
 
+#include "Heuristic.h"
+#include "Serialization.h"
+
 #include <iostream>
 #include <map>
 #include <set>
 #include <vector>
-#include <Heuristic.h>
-#include <Serialization.h>
 
 class Model;
 class Quantization;

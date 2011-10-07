@@ -7,21 +7,22 @@
 #ifndef _StandardPOMDP_INCLUDE_
 #define _StandardPOMDP_INCLUDE_
 
+#include "Exception.h"
+#include "POMDP.h"
+#include "Problem.h"
+#include "SB.h"
+//#include "StandardBelief.h"
+#include "QBelief.h"
+#include "BeliefCache.h"
+#include "Quantization.h"
+#include "StandardModel.h"
+#include "Serialization.h"
+#include "Utils.h"
+
 #include <iostream>
 #include <float.h>
 #include <map>
 #include <list>
-#include <Exception.h>
-#include <POMDP.h>
-#include <Problem.h>
-#include <SB.h>
-//#include <StandardBelief.h>
-#include <QBelief.h>
-#include <BeliefCache.h>
-#include <Quantization.h>
-#include <StandardModel.h>
-#include <Serialization.h>
-#include <Utils.h>
 
 class Sondik;
 

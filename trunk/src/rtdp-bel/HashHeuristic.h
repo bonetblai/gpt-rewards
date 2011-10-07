@@ -7,11 +7,12 @@
 #ifndef _HashHeuristic_INCLUDE_
 #define _HashHeuristic_INCLUDE_
 
+#include "Heuristic.h"
+#include "Hash.h"
+#include "Belief.h"
+#include "Utils.h"
+
 #include <iostream>
-#include <Heuristic.h>
-#include <Hash.h>
-#include <Belief.h>
-#include <Utils.h>
 
 class HashHeuristic : public Heuristic {
 protected:

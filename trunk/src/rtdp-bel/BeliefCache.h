@@ -8,8 +8,8 @@
 #define _BeliefCache_INCLUDE_
 
 #include <iostream>
-#include <Belief.h>
-#include <SB.h>
+#include "Belief.h"
+#include "SB.h"
 
 class Model;
 class Quantization;

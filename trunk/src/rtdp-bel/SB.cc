@@ -4,7 +4,7 @@
 //  Blai Bonet, Hector Geffner
 //  Universidad Simon Bolivar (c) 1998-2008
 
-#include <SB.h>
+#include "SB.h"
 
 StandardBelief StandardBelief::bel_a_;
 StandardBelief StandardBelief::bel_ao_;

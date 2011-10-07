@@ -4,11 +4,12 @@
 //  Blai Bonet, Hector Geffner
 //  Universidad Simon Bolivar (c) 1998-2008
 
+#include "QMDP.h"
+#include "StandardModel.h"
+
 #include <iostream>
 #include <math.h>
 #include <map>
-#include <QMDP.h>
-#include <StandardModel.h>
 
 void
 QMDPHeuristic::compute()

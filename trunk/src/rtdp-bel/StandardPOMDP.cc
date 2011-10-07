@@ -4,15 +4,16 @@
 //  Blai Bonet, Hector Geffner
 //  Universidad Simon Bolivar (c) 1998-2008
 
+#include "Problem.h"
+#include "Result.h"
+#include "StandardPOMDP.h"
+#include "HashHeuristic.h"
+#include "Sondik.h"
+
 #include <iostream>
 #include <list>
 #include <stack>
 #include <math.h>
-#include <Problem.h>
-#include <Result.h>
-#include <StandardPOMDP.h>
-#include <HashHeuristic.h>
-#include <Sondik.h>
 
 extern unsigned glookups, gfound;
 

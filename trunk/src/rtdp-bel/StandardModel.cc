@@ -4,10 +4,11 @@
 //  Blai Bonet, Hector Geffner
 //  Universidad Simon Bolivar (c) 1998-2008
 
+#include "StandardModel.h"
+#include "SB.h"
+
 #include <stdio.h>
 #include <typeinfo>
-#include <StandardModel.h>
-#include <SB.h>
 
 extern "C" {
 extern int gNumGoals;

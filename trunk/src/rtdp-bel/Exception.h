@@ -7,8 +7,9 @@
 #ifndef _Exceptions_INCLUDE_
 #define _Exceptions_INCLUDE_
 
+#include "RtStandard.h"
+
 #include <iostream>
-#include <RtStandard.h>
 
 class Exception {
 public:

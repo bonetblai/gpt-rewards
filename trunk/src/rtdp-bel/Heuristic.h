@@ -7,8 +7,9 @@
 #ifndef _Heuristic_INCLUDE_
 #define _Heuristic_INCLUDE_
 
+#include "Serialization.h"
+
 #include <iostream>
-#include <Serialization.h>
 
 class Belief;
 

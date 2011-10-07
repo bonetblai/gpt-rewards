@@ -7,12 +7,13 @@
 #ifndef _LookAhead_INCLUDE_
 #define _LookAhead_INCLUDE_
 
+#include "Belief.h"
+#include "Exception.h"
+#include "Heuristic.h"
+#include "POMDP.h"
+#include "Problem.h"
+
 #include <iostream>
-#include <Belief.h>
-#include <Exception.h>
-#include <Heuristic.h>
-#include <POMDP.h>
-#include <Problem.h>
 
 class LookAheadHeuristic : public Heuristic {
 protected:

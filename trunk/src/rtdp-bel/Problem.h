@@ -7,10 +7,11 @@
 #ifndef _Problem_INCLUDE_
 #define _Problem_INCLUDE_
 
+#include "Serialization.h"
+
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include <Serialization.h>
 
 class POMDP;
 class Model;

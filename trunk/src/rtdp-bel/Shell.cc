@@ -4,6 +4,13 @@
 //  Blai Bonet, Hector Geffner
 //  Universidad Simon Bolivar (c) 1998-2008
 
+#include "Exception.h"
+#include "LookAhead.h"
+#include "POMDP.h"
+#include "Problem.h"
+#include "StandardModel.h"
+#include "Utils.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,13 +29,6 @@
 #include <fstream>
 #include <deque>
 #include <map>
-
-#include <Exception.h>
-#include <LookAhead.h>
-#include <POMDP.h>
-#include <Problem.h>
-#include <StandardModel.h>
-#include <Utils.h>
 
 #define  PROMPT         "gpt> "
 #define  RLC_COMMANDS   0

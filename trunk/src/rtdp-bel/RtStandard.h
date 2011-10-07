@@ -7,6 +7,7 @@
 #ifndef _RtStandard_INCLUDE
 #define _RtStandard_INCLUDE
 
+#include <iostream>
 
 class stateClass;
 class stateListClass;

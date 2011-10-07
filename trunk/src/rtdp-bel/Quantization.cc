@@ -4,7 +4,7 @@
 //  Blai Bonet, Hector Geffner
 //  Universidad Simon Bolivar (c) 1998-2008
 
-#include <Quantization.h>
+#include "Quantization.h"
 
 double Quantization::levels_ = 0;
 double Quantization::base_ = 0;
@@ -22,7 +22,7 @@ paircmp( const void *p1, const void *p2 )
 inline float
 fastlog2( float val )
 {
-  int *const exp_ptr = reinterpret_cast<int*>(&val);
+  int *exp_ptr = reinterpret_cast<int*>(&val);
   int x = *exp_ptr;
   const int log2 = ((x>>23)&255)-128;
   x &= ~(255<<23);

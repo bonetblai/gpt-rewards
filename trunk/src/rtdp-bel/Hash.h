@@ -7,8 +7,9 @@
 #ifndef _Hash_INCLUDE_
 #define _Hash_INCLUDE_
 
+#include "Serialization.h"
+
 #include <iostream>
-#include <Serialization.h>
 
 template<typename Key,typename Data> class Hash : public Serializable {
 public:

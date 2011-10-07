@@ -12,9 +12,9 @@
 #include <map>
 #include <math.h>
 
-#include <StandardModel.h>
-#include <SB.h>
-#include <QBelief.h>
+#include "StandardModel.h"
+#include "SB.h"
+#include "QBelief.h"
 
 static int timestampCmp( const void *p1, const void *p2 );
 static int updateCmp( const void *p1, const void *p2 );

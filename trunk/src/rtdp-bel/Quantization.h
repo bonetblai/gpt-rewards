@@ -7,12 +7,12 @@
 #ifndef _Quantization_INCLUDE_
 #define _Quantization_INCLUDE_
 
+#include "QBelief.h"
+#include "SB.h"
+#include "Problem.h"
+
 #include <iostream>
 #include <math.h>
-
-#include <QBelief.h>
-#include <SB.h>
-#include <Problem.h>
 
 class Quantization {
 protected:

@@ -7,17 +7,18 @@
 #ifndef _SB_INCLUDE_
 #define _SB_INCLUDE_
 
+#include "Belief.h"
+#include "Hash.h"
+#include "StandardModel.h"
+#include "Problem.h"
+#include "Utils.h"
+
 #include <iostream>
 #include <strings.h>
 #include <math.h>
 #include <algorithm>
 #include <vector>
 #include <typeinfo>
-#include <Belief.h>
-#include <Hash.h>
-#include <StandardModel.h>
-#include <Problem.h>
-#include <Utils.h>
 
 #define HASH_ROT(x,k) (((x)<<(k))|((x)>>(32-(k))))
 #define HASH_MIX(a,b,c) \

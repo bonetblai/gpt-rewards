@@ -7,12 +7,13 @@
 #ifndef _StandardModel_INCLUDE_
 #define _StandardModel_INCLUDE_
 
+#include "Model.h"
+#include "Utils.h"
+
 #include <strings.h>
 #include <iostream>
 #include <map>
 #include <set>
-#include <Model.h>
-#include <Utils.h>
 
 //extern "C" {
 #include <mdp/mdp.h>
