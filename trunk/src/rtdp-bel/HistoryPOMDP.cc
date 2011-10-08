@@ -42,10 +42,6 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     int absorbing = static_cast<const StandardModel*>(model_)->absorbing_;
     int state = model_->initialBelief_->sampleState();
 
-    //belief = static_cast<const StandardBelief&>(*model_->initialBelief_);
-    //BeliefCache::Entry *cache_entry = cache_.lookup(belief);
-    //if( !cache_entry ) cache_entry = cache_.insert(belief, numActions_, numObs_);
-
     pair<const Belief*, BeliefHash::Data> p = beliefHash_->lookup(belief, false, true);
     BeliefHash::Data bel_data;
     result.initialValue_ = bel_data.value_;
@@ -151,7 +147,6 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
         h = new HashHeuristic(beliefHash_);
         hash = new QBeliefHash;
         hash->setHeuristic(h);
-        hash->setQuantization(quantization_);
     }
 
     // set initial belief and state

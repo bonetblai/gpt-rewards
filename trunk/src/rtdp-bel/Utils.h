@@ -55,9 +55,12 @@ inline T randomSampling(const std::pair<T, double> *vec, unsigned size) {
 template<typename T>
 inline T randomSampling(const std::multiset<T> &ms) {
     assert(!ms.empty());
-    //register double d = drand48() % ms.size();
-    assert(0);
-    return *ms.begin();
+    register int i = lrand48() % ms.size();
+    typename std::multiset<T>::const_iterator it = ms.begin();
+    for( ; it != ms.end(); ++it, --i ) {
+        if( i == 0 ) break;
+    }
+    return *it;
 }
 
 inline int randomSampling(double *vec, unsigned size) {

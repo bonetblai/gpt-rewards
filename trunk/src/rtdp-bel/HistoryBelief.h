@@ -9,10 +9,12 @@
 
 #include "Belief.h"
 #include "History.h"
+#include "StandardModel.h"
 #include "Utils.h"
 
 #include <cassert>
 #include <set>
+#include <vector>
 
 #if 0
 #include "Hash.h"
@@ -79,27 +81,11 @@ class HistoryBelief : public Belief {
         particles_.clear();
     }
 
-    void push_back(int state, double probability) {
-        //vec_[size_++] = std::make_pair(state, probability);
-    }
-
+    // TODO: improve check
     virtual bool check() const {
-        //for( int i = 0; i < (int)size_-1; ++i ) {
-        //    if( vec_[i].first >= vec_[i+1].first ) { return false; }
-        //}
         return true;
     }
     virtual bool check(int state) {
-        //unsigned i = 0;
-        //while( (i < size_) && (vec_[i].first < state) ) ++i;
-        //if( (i == size_) || (vec_[i].first > state) ) {
-        //    i = insert(state, PD.epsilon_, i);
-        //    assert(vec_[i].first == state);
-        //    assert(vec_[i].second == PD.epsilon_);
-        //    return false;
-        //} else {
-        //    return true;
-        //}
         return true;
     }
 
@@ -111,71 +97,50 @@ class HistoryBelief : public Belief {
     }
 
     virtual void nextPossibleObservations(const Model *model, int action, double *nextobs) const {
-        //const StandardModel *m = static_cast<const StandardModel*>(model);
-        //bzero(nextobs, m->numObs() * sizeof(double));
-        //for( const std::pair<int, double> *ptr = vec_, *pend = &vec_[size_]; ptr != pend; ++ptr ) {
-        //    assert(ptr->second > 0);
-        //    int nstate = ptr->first;
-        //    const double *dptr = m->observation_[nstate*m->numActions() + action];
-        //    for( unsigned obs = 0, sz = m->numObs(); obs < sz; ++obs ) {
-        //        double p = ptr->second * *(dptr+obs);
-        //        nextobs[obs] += p;
-        //    }
-        //}
+        const StandardModel *m = static_cast<const StandardModel*>(model);
+        bzero(nextobs, m->numObs() * sizeof(double));
+        for( const_particle_iterator it = particle_begin(); it != particle_end(); ++it ) {
+            int nstate = *it;
+	    const double *dptr = m->observation_[nstate*m->numActions() + action];
+            for( int obs = 0, sz = m->numObs(); obs < sz; ++obs ) {
+                double p = *(dptr+obs) / num_particles();
+                nextobs[obs] += p;
+            }
+        }
     }
     virtual const Belief& update(const Model *model, int action) const {
-        //const StandardModel *m = static_cast<const StandardModel*>(model);
-        //double sum = 0.0;
-        //bel_a_.clear();
-        //for(const std::pair<int,double> *ptr = vec_, *pend = &vec_[size_]; ptr != pend; ++ptr) {
-        //    assert(ptr->second > 0);
-        //    int state = ptr->first;
-        //    double prob = ptr->second;
-        //    const std::vector<std::pair<int, double> > *vec = m->transition_[state*m->numActions() + action];
-        //    assert(vec != 0);
-        //    for( const std::pair<int, double> *vptr = &(*vec)[0], *vend = &(*vec)[vec->size()]; vptr != vend; ++vptr ) {
-        //        assert(vptr->second > 0);
-        //        int nstate = vptr->first;
-        //        double p = prob * vptr->second;
-        //        if( p > 0 ) {
-        //            if( state_table_[nstate] == 0 ) {
-        //                state_heap_[state_heapsz_++] = nstate;
-        //                std::push_heap(state_heap_, &state_heap_[state_heapsz_]);
-        //            }
-        //            state_table_[nstate] += p;
-        //            sum += p;
-        //        }
-        //    }
-        //}
-        //while( state_heapsz_ ) { // populate bel_a
-        //    int nstate = *state_heap_;
-        //    std::pop_heap(state_heap_, &state_heap_[state_heapsz_]);
-        //    bel_a_.push_back(nstate, state_table_[nstate]/sum);
-        //    state_table_[nstate] = 0;
-        //    --state_heapsz_;
-        //}
-        //return bel_a_;
-        return *this;
+        const StandardModel *m = static_cast<const StandardModel*>(model);
+        bel_a_.clear();
+
+        // update history
+        *bel_a_.history_ = *history_;
+        bel_a_.history_->push_act(action);
+
+        // update particles 
+        for( const_particle_iterator it = particle_begin(); it != particle_end(); ++it ) {
+            int state = *it;
+            const std::vector<std::pair<int, double> > *transition = m->transition_[state*m->numActions() + action];
+            int nstate = randomSampling(*transition);
+            bel_a_.particles_.insert(nstate);
+        }
+        return bel_a_;
     }
     virtual const Belief& update(const Model *model, int action, int obs) const {
-        //const StandardModel *m = static_cast<const StandardModel*>(model);
-        //double sum = 0.0;
-        //bel_ao_.clear();
-        //for( const std::pair<int,double> *ptr = vec_, *pend = &vec_[size_]; ptr != pend; ++ptr ) {
-        //    assert(ptr->second > 0);
-        //    int nstate = ptr->first;
-        //    double p = ptr->second * m->observation_[nstate*m->numActions()+action][obs];
-        //    if( p > 0 ) {
-        //        bel_ao_.push_back(nstate, p);
-        //        sum += p;
-        //    }
-        //}
-        //assert(sum > 0);
-        //for( std::pair<int, double> *ptr = bel_ao_.vec_, *pend = &bel_ao_.vec_[bel_ao_.size_]; ptr != pend; ++ptr ) {
-        //    ptr->second /= sum;
-        //}
-        //return bel_ao_;
-        return *this;
+        const StandardModel *m = static_cast<const StandardModel*>(model);
+        bel_ao_.clear();
+
+        // update history
+        *bel_ao_.history_ = *history_;
+        bel_ao_.history_->push_obs(obs);
+
+        // update particles 
+        for( const_particle_iterator it = particle_begin(); it != particle_end(); ++it ) {
+            int nstate = *it;
+            double p = m->observation_[nstate*m->numActions() + action][obs];
+            if( p > 0 ) bel_ao_.particles_.insert(nstate);
+        }
+        assert(!bel_ao_.particles_.empty());
+        return bel_ao_;
     }
 
     virtual Belief* clone() const {

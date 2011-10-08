@@ -30,7 +30,6 @@
 
 class HistoryPOMDP : public POMDP {
   protected:
-    Quantization *quantization_;
     QBeliefHash *beliefHash_;
     mutable QResult *qresult_;
     mutable double *nextobs_;
@@ -40,7 +39,7 @@ class HistoryPOMDP : public POMDP {
       : POMDP(model),
         qresult_(new QResult(numActions_)),
         nextobs_(new double[numObs_]) {
-        beliefHash_ = new QBeliefHash;
+        beliefHash_ = new QBeliefHash; // TODO: fix this
     }
     virtual ~HistoryPOMDP() {
         delete beliefHash_;
@@ -52,7 +51,6 @@ class HistoryPOMDP : public POMDP {
         double qvalue = DBL_MAX;
         if( applicable(belief, action) ) {
             qvalue = 0;
-            const double *nextobs = 0;
             const Belief &belief_a = belief.update(model_, action);
             bzero(nextobs_, numObs_ * sizeof(double));
             belief_a.nextPossibleObservations(model_, action, nextobs_);
@@ -60,7 +58,7 @@ class HistoryPOMDP : public POMDP {
                 double prob = nextobs_[obs];
                 if( prob > 0 ) {
                     const Belief &belief_ao = belief_a.update(model_, action, obs);
-                    BeliefHash::Data data = ((BeliefHash*)hash)->lookup(belief_ao, false, PD.hashAll_).second;
+                    BeliefHash::Data data = const_cast<BeliefHash*>(hash)->lookup(belief_ao, false, PD.hashAll_).second;
                     qvalue += prob * data.value_;
                 }
             }
