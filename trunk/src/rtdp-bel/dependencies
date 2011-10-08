@@ -1,8 +1,13 @@
+HistoryBelief.o: HistoryBelief.cc HistoryBelief.h Belief.h Heuristic.h \
+ Serialization.h History.h
+HistoryPOMDP.o: HistoryPOMDP.cc HistoryPOMDP.h POMDP.h Belief.h \
+ Heuristic.h Serialization.h Model.h Utils.h HistoryBelief.h History.h
 Problem.o: Problem.cc LookAhead.h Belief.h Heuristic.h Serialization.h \
  Exception.h RtStandard.h POMDP.h Model.h Utils.h Problem.h QMDP.h SB.h \
  Hash.h StandardModel.h ../include/mdp/mdp.h \
  ../include/mdp/sparse-matrix.h QBelief.h Quantization.h Result.h \
- StandardPOMDP.h BeliefCache.h Sondik.h
+ StandardPOMDP.h BeliefCache.h Sondik.h HistoryPOMDP.h HistoryBelief.h \
+ History.h
 QBelief.o: QBelief.cc QBelief.h Belief.h Heuristic.h Serialization.h SB.h \
  Hash.h StandardModel.h Model.h Utils.h ../include/mdp/mdp.h \
  ../include/mdp/sparse-matrix.h Problem.h Quantization.h
@@ -19,7 +24,7 @@ SB.o: SB.cc SB.h Belief.h Heuristic.h Serialization.h Hash.h \
 Shell.o: Shell.cc Exception.h RtStandard.h LookAhead.h Belief.h \
  Heuristic.h Serialization.h POMDP.h Model.h Utils.h Problem.h \
  StandardModel.h ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h \
- HelpMsg.dat
+ History.h HelpMsg.dat
 StandardModel.o: StandardModel.cc StandardModel.h Model.h Serialization.h \
  Belief.h Heuristic.h Utils.h ../include/mdp/mdp.h \
  ../include/mdp/sparse-matrix.h SB.h Hash.h Problem.h

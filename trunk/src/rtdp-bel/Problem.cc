@@ -12,6 +12,8 @@
 #include "Sondik.h"
 #include "Utils.h"
 
+#include "HistoryPOMDP.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
