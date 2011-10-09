@@ -31,7 +31,7 @@ inline float fastlog2(float val) {
 } 
 
 inline float fastlog(float val) {
-  return fastlog2(val) * 0.69314718f;
+    return fastlog2(val) * 0.69314718f;
 }
 
 const QBelief& Quantization::operator()(const StandardBelief &belief) const {
@@ -90,7 +90,7 @@ const QBelief& Quantization::operator()(const StandardBelief &belief) const {
         }
         if( lambda_[0] >= maxlambda ) maxi = 0;
 
-#if 0
+#ifdef BARYCENTRIC_COORDINATES
         // compute simplex corners: Theta(n^2)
         for( int j = 0; j <= dim_; ++j ) {
             bcopy(basevec_, bary_[j], dim_ * sizeof(double));

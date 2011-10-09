@@ -6,6 +6,8 @@
 
 #include "HistoryBelief.h"
 
+using namespace std;
+
 HistoryBelief HistoryBelief::bel_a_;
 HistoryBelief HistoryBelief::bel_ao_;
 

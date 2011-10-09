@@ -117,7 +117,7 @@ class QBelief : public Belief {
     }
 
     virtual Belief* clone() const { return new QBelief(*this); }
-    virtual unsigned hashFunction() const {
+    virtual size_t hash() const {
         register unsigned a, b, c, length = size_;
         a = b = c = 0xdeadbeef + (length<<2) + 0;
         if( length == 0 ) return c;

@@ -14,7 +14,7 @@ using namespace std;
 extern "C" {
     extern int gNumGoals;
     extern int gGoalList[];
-	}
+}
 
 StandardModel::StandardModel(const char *cassandraFilename)
   : Model(), goal_(0), goalSize_(0), numGoals_(0), application_(0),

@@ -246,7 +246,9 @@ class History {
     }
 
     // TODO: fix hash function
-    size_t hash() const { return 0; }
+    size_t hash() const {
+        return 0;
+    }
 
     // serialization
     static History* constructor() { return new History; }
@@ -256,15 +258,6 @@ class History {
     static void read(std::istream& is, History &history) {
         // TODO: fix read
     }
-
-    // iterators TODO: fix iterators
-    typedef int iterator;
-    typedef int const_iterator;
-
-    iterator begin() { return 0; }
-    iterator end() { return 0; }
-    const_iterator begin() const { return 0; }
-    const_iterator end() const { return 0; }
 };
 
 #endif

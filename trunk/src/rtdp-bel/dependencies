@@ -1,7 +1,12 @@
+History.o: History.cc History.h
 HistoryBelief.o: HistoryBelief.cc HistoryBelief.h Belief.h Heuristic.h \
- Serialization.h History.h
+ Serialization.h History.h StandardModel.h Model.h Utils.h \
+ ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h
 HistoryPOMDP.o: HistoryPOMDP.cc HistoryPOMDP.h POMDP.h Belief.h \
- Heuristic.h Serialization.h Model.h Utils.h HistoryBelief.h History.h
+ Heuristic.h Serialization.h Model.h Utils.h HistoryBelief.h History.h \
+ StandardModel.h ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h \
+ QBelief.h SB.h Hash.h Problem.h RtStandard.h Result.h Exception.h \
+ HashHeuristic.h
 Problem.o: Problem.cc LookAhead.h Belief.h Heuristic.h Serialization.h \
  Exception.h RtStandard.h POMDP.h Model.h Utils.h Problem.h QMDP.h SB.h \
  Hash.h StandardModel.h ../include/mdp/mdp.h \

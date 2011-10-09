@@ -6,6 +6,8 @@
 
 #include "History.h"
 
+using namespace std;
+
 History* History::pool_ = 0;
 
 int History::num_bits_per_act_ = 0;

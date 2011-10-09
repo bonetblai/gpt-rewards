@@ -34,100 +34,102 @@ class ProblemHandle;
 #define ISPLANNING(id)    ((id)==ProblemHandle::PROBLEM_PLANNING)
 
 class Problem : public Serializable {
-public:
-  enum CleanType { OBJECT, CORE, HASH };
-public:
-  const char *softwareRevision_;
-  const char *programName_;
-  const char *problemFile_;
+  public:
+    enum CleanType { OBJECT, CORE, HASH };
 
-  const char *outputPrefix_;
-  const char *outputFilename_;
-  std::ostream *outputFile_;
-  const char *coreFilename_;
-  int outputLevel_;
+  public:
+    const char *softwareRevision_;
+    const char *programName_;
+    const char *problemFile_;
 
-  bool pddlProblem_;
-  const char *linkmap_;
-  int verboseLevel_;
-  int precision_;
-  int signal_;
+    const char *outputPrefix_;
+    const char *outputFilename_;
+    std::ostream *outputFile_;
+    const char *coreFilename_;
+    int outputLevel_;
 
-  bool useStopRule_;
-  double SREpsilon_;
-  double epsilon_;
-  double epsilonGreedy_;
-  std::vector<std::pair<int,std::pair<int,int> > > pims_;
-  bool maxUpdate_;
-  int cutoff_;
-  bool controlUpdates_;
-  bool sondik_;
-  int sondikMethod_;
-  int sondikMaxPlanes_;
-  int sondikIterations_;
-  int qmethod_;
-  double qlevels_;
-  double qbase_;
+    bool pddlProblem_;
+    const char *linkmap_;
+    int verboseLevel_;
+    int precision_;
+    int signal_;
 
-  bool zeroHeuristic_;
-  bool hashAll_;
-  int lookahead_;
-  double QMDPdiscount_;
-  bool randomTies_;
-  int randomSeed_;
+    bool useStopRule_;
+    double SREpsilon_;
+    double epsilon_;
+    double epsilonGreedy_;
+    std::vector<std::pair<int, std::pair<int, int> > > pims_;
+    bool maxUpdate_;
+    int cutoff_;
+    bool controlUpdates_;
+    bool sondik_;
+    int sondikMethod_;
+    int sondikMaxPlanes_;
+    int sondikIterations_;
+    int qmethod_;
+    double qlevels_;
+    double qbase_;
 
-  POMDP *pomdp_;
-  const Model *model_;
-  const Belief *belief_;
-  const LookAheadHeuristic *heuristic_;
-  const Heuristic *baseHeuristic_;
-  const ProblemHandle *handle_;
+    bool zeroHeuristic_;
+    bool hashAll_;
+    int lookahead_;
+    double QMDPdiscount_;
+    bool randomTies_;
+    int randomSeed_;
 
-public:
-  Problem();
-  virtual ~Problem();
+    POMDP *pomdp_;
+    const Model *model_;
+    const Belief *belief_;
+    const LookAheadHeuristic *heuristic_;
+    const Heuristic *baseHeuristic_;
+    const ProblemHandle *handle_;
 
-  void clean( CleanType type )
-  {
-    switch( type ) {
-    case OBJECT:
-      break;
-    case CORE:
-      break;
-    case HASH:
-      break;
+  public:
+    Problem();
+    virtual ~Problem();
+
+    void clean(CleanType type) {
+        switch( type ) {
+            case OBJECT:
+                break;
+            case CORE:
+                break;
+            case HASH:
+                break;
+        }
     }
-  }
 
-  static const char* readArgument( const char *str, const char *ctx );
-  void parseArguments( int argc, const char **argv, void (*helpFunction)() );
-  void print( std::ostream& os, const char *prefix ) const;
-  void setOutputFormat() const { if( outputFile_ ) outputFile_->setf(std::ios::fixed|std::ios::showpoint); outputFile_->precision(precision_); }
+    static const char* readArgument(const char *str, const char *ctx);
+    void parseArguments(int argc, const char **argv, void (*helpFunction)());
+    void print(std::ostream &os, const char *prefix) const;
+    void setOutputFormat() const {
+        if( outputFile_ )
+            outputFile_->setf(std::ios::fixed | std::ios::showpoint);
+        outputFile_->precision(precision_);
+    }
 
-  void bootstrapPDDL() { }
-  void bootstrapCASSANDRA();
-  void bootstrap( const char *workingDir, const char *entryPoint );
+    void bootstrapPDDL() { }
+    void bootstrapCASSANDRA();
+    void bootstrap(const char *workingDir, const char *entryPoint);
 
-  void solvePDDL() { }
-  void solveCASSANDRA();
-  void solveProblem()
-  {
-    if( pddlProblem_ )
-      solvePDDL();
-    else
-      solveCASSANDRA();
-  }
+    void solvePDDL() { }
+    void solveCASSANDRA();
+    void solveProblem() {
+        if( pddlProblem_ )
+            solvePDDL();
+        else
+            solveCASSANDRA();
+    }
 
-  void freeHandle() { if( handle_ ) { } }
-  void getHandle( const char *filename, const char *cwd, const char *entry ) { }
+    void freeHandle() {
+        if( handle_ ) {
+        }
+    }
+    void getHandle(const char *filename, const char *cwd, const char *entry) { }
 
-  // serialization
-  virtual void write( std::ostream& os ) const
-  {
-  }
-  static void read( std::istream& is, Problem &problem )
-  {
-  }
+    // serialization
+    virtual void write(std::ostream &os) const { }
+    static void read(std::istream &is, Problem &problem) { }
 };
 
 extern Problem PD;

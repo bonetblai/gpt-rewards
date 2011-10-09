@@ -29,27 +29,6 @@
 #include <vector>
 #endif
 
-#define HASH_ROT(x,k) (((x)<<(k))|((x)>>(32-(k))))
-#define HASH_MIX(a,b,c) \
-{ \
-  a -= c; a ^= HASH_ROT(c, 4); c += b; \
-  b -= a; b ^= HASH_ROT(a, 6); a += c; \
-  c -= b; c ^= HASH_ROT(b, 8); b += a; \
-  a -= c; a ^= HASH_ROT(c,16); c += b; \
-  b -= a; b ^= HASH_ROT(a,19); a += c; \
-  c -= b; c ^= HASH_ROT(b, 4); b += a; \
-}
-#define HASH_FINAL(a,b,c) \
-{ \
-  c ^= b; c -= HASH_ROT(b,14); \
-  a ^= c; a -= HASH_ROT(c,11); \
-  b ^= a; b -= HASH_ROT(a,25); \
-  c ^= b; c -= HASH_ROT(b,16); \
-  a ^= c; a -= HASH_ROT(c,4);  \
-  b ^= a; b -= HASH_ROT(a,14); \
-  c ^= b; c -= HASH_ROT(b,24); \
-}
-
 class HistoryBelief : public Belief {
   protected:
     History *history_;
@@ -147,58 +126,8 @@ class HistoryBelief : public Belief {
         return new HistoryBelief(*this);
     }
 
-    virtual unsigned hashFunction() const {
-#if 0
-        register unsigned i = 0;
-        register unsigned length = size_<<1;
-        register unsigned a, b, c;
-        a = b = c = 0xdeadbeef + (length<<2) + 0;
-        if( length == 0 ) return c;
-
-        unsigned *ptr;
-        while( length > 6 ) {
-            ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-            a += (unsigned)vec_[i].first;
-            b += ptr[0] + ptr[1];
-            ++i;
-            c += (unsigned)vec_[i].first;
-            HASH_MIX(a,b,c);
-            ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-            a += ptr[0] + ptr[1];
-            ++i;
-            ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-            b += (unsigned)vec_[i].first;
-            c += ptr[0] + ptr[1];
-            HASH_MIX(a, b, c);
-            ++i;
-            length -= 6;
-        }
-        assert((length==6) || (length==4) || (length==2));
-
-        ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-        a += (unsigned)vec_[i].first;
-        b += ptr[0] + ptr[1];
-        if( length == 2 ) {
-            HASH_FINAL(a, b, c);
-            return c;
-        }
-        ++i;
-        c += (unsigned)vec_[i].first;
-        HASH_MIX(a, b, c);
-        ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-        a += ptr[0] + ptr[1];
-        if( length == 4 ) {
-            HASH_FINAL(a, b, c);
-            return c;
-        }
-        ++i;
-        ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-        b += (unsigned)vec_[i].first;
-        c += ptr[0] + ptr[1];
-        HASH_FINAL(a, b, c);
-        return c; 
-#endif
-        return 0;
+    virtual size_t hash() const {
+        return history_->hash();
     }
 
     virtual void print(std::ostream& os) const {
@@ -235,18 +164,19 @@ class HistoryBelief : public Belief {
     }
 
     // iterators
-    typedef History::iterator iterator;
-    typedef History::const_iterator const_iterator;
+    //typedef History::iterator iterator;
+    //iterator begin() { return history_->begin(); }
+    //iterator end() { return history_->end(); }
+
+    //typedef History::const_iterator const_iterator;
+    //const_iterator begin() const { return history_->begin(); }
+    //const_iterator end() const { return history_->end(); }
+
     typedef std::multiset<int>::iterator particle_iterator;
-    typedef std::multiset<int>::const_iterator const_particle_iterator;
-
-    iterator begin() { return history_->begin(); }
-    iterator end() { return history_->end(); }
-    const_iterator begin() const { return history_->begin(); }
-    const_iterator end() const { return history_->end(); }
-
     particle_iterator particle_begin() { return particles_.begin(); }
     particle_iterator particle_end() { return particles_.end(); }
+
+    typedef std::multiset<int>::const_iterator const_particle_iterator;
     const_particle_iterator particle_begin() const { return particles_.begin(); }
     const_particle_iterator particle_end() const { return particles_.end(); }
 };
