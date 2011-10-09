@@ -66,8 +66,18 @@ class StandardBelief : public Belief {
     virtual ~StandardBelief() {
         if( vec_ ) delete[] vec_;
     }
-    static void initialize(int numStates);
-    static void finalize();
+
+    static void initialize(int num_states, int, int) {
+        state_heap_ = new int[num_states];
+        state_table_ = new double[num_states];
+        bzero(state_table_, num_states * sizeof(double));
+    }
+    static void finalize() {
+        delete[] state_table_;
+        delete[] state_heap_;
+        state_heap_ = 0;
+        state_table_ = 0;
+    }
 
     unsigned size() const { return size_; }
     unsigned capacity() const { return capacity_; }

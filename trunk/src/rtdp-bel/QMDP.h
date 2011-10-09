@@ -53,13 +53,13 @@ class QMDPHeuristic : public Heuristic {
         return table_[state];
     }
     virtual double value(const Belief &belief) const {
-        const StandardBelief *sbelief = dynamic_cast<const StandardBelief*>(&belief);
-        if( sbelief != 0 ) {
-            return value(*sbelief);
+        const StandardBelief *sbel = dynamic_cast<const StandardBelief*>(&belief);
+        if( sbel != 0 ) {
+            return value(*sbel);
         } else {
-            const QBelief *qbelief = dynamic_cast<const QBelief*>(&belief);
-            if( qbelief != 0 )
-                return value(*qbelief);
+            const QBelief *qbel = dynamic_cast<const QBelief*>(&belief);
+            if( qbel != 0 )
+                return value(*qbel);
             else
                 return 0;
         }

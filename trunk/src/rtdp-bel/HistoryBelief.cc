@@ -11,9 +11,3 @@ using namespace std;
 HistoryBelief HistoryBelief::bel_a_;
 HistoryBelief HistoryBelief::bel_ao_;
 
-void HistoryBelief::initialize(int numStates) {
-}
-
-void HistoryBelief::finalize() {
-}
-

@@ -29,14 +29,14 @@ using namespace std;
 
 long long glookups = 0, gfound = 0;
 
-static const double tValues[] = // 101 values for student-t distribution
-{ 12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.201, 2.179, 2.160, 2.145, 2.131,
-   2.120, 2.110, 2.101, 2.093, 2.086, 2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048, 2.045, 2.042,
-   2.040, 2.037, 2.035, 2.032, 2.030, 2.028, 2.026, 2.024, 2.023, 2.021, 2.020, 2.018, 2.017, 2.015, 2.014,
-   2.013, 2.012, 2.011, 2.010, 2.009, 2.008, 2.007, 2.006, 2.005, 2.004, 2.003, 2.002, 2.002, 2.001, 2.000,
-   2.000, 1.999, 1.998, 1.998, 1.997, 1.997, 1.996, 1.995, 1.995, 1.994, 1.994, 1.993, 1.993, 1.993, 1.992,
-   1.992, 1.991, 1.991, 1.990, 1.990, 1.990, 1.989, 1.989, 1.989, 1.988, 1.988, 1.988, 1.987, 1.987, 1.987,
-   1.986, 1.986, 1.986, 1.986, 1.985, 1.985, 1.985, 1.984, 1.984, 1.984, 1.965, 1.962, 1.960 };
+static const double tValues[] = { // 101 values for student-t distribution
+    12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.201, 2.179, 2.160, 2.145, 2.131,
+     2.120, 2.110, 2.101, 2.093, 2.086, 2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048, 2.045, 2.042,
+     2.040, 2.037, 2.035, 2.032, 2.030, 2.028, 2.026, 2.024, 2.023, 2.021, 2.020, 2.018, 2.017, 2.015, 2.014,
+     2.013, 2.012, 2.011, 2.010, 2.009, 2.008, 2.007, 2.006, 2.005, 2.004, 2.003, 2.002, 2.002, 2.001, 2.000,
+     2.000, 1.999, 1.998, 1.998, 1.997, 1.997, 1.996, 1.995, 1.995, 1.994, 1.994, 1.993, 1.993, 1.993, 1.992,
+     1.992, 1.991, 1.991, 1.990, 1.990, 1.990, 1.989, 1.989, 1.989, 1.988, 1.988, 1.988, 1.987, 1.987, 1.987,
+     1.986, 1.986, 1.986, 1.986, 1.985, 1.985, 1.985, 1.984, 1.984, 1.984, 1.965, 1.962, 1.960 };
                                                                  // df =   500   1000    inf
 
 Problem PD;
@@ -46,10 +46,12 @@ Problem::Problem()
     outputFilename_(0), outputFile_(&cout), coreFilename_(0), outputLevel_(0),
     pddlProblem_(false), linkmap_(0), verboseLevel_(0), precision_(6), signal_(-1),
     useStopRule_(false), SREpsilon_(0), epsilon_(.000001), epsilonGreedy_(0),
-    maxUpdate_(false), cutoff_(100), controlUpdates_(false), sondik_(false),
-    sondikMethod_(0), sondikMaxPlanes_(16), sondikIterations_(100), qmethod_(0),
-    qlevels_(20), qbase_(0.95), zeroHeuristic_(false), hashAll_(false), lookahead_(0),
-    QMDPdiscount_(1), randomTies_(true), randomSeed_(-1), pomdp_(0), model_(0),
+    maxUpdate_(false), cutoff_(100), controlUpdates_(false),
+    historyBased_(false), numParticles_(0),
+    sondik_(false), sondikMethod_(0), sondikMaxPlanes_(16), sondikIterations_(100),
+    qmethod_(0), qlevels_(20), qbase_(0.95),
+    zeroHeuristic_(false), hashAll_(false), lookahead_(0), QMDPdiscount_(1),
+    randomTies_(true), randomSeed_(-1), pomdp_(0), model_(0),
     belief_(0), heuristic_(0), baseHeuristic_(0), handle_(0) {
 }
 
@@ -126,9 +128,11 @@ void Problem::print(ostream &os, const char *prefix) const {
     }
     os << endl
        << prefix << "cutoff " << cutoff_ << endl
+       << prefix << "history-based " << (historyBased_ ? "on" : "off") << endl
+       << prefix << "num-particles " << numParticles_ << endl
        << prefix << "qmdp-discount " << QMDPdiscount_ << endl
        << prefix << "heuristic-lookahead " << lookahead_ << endl
-       << prefix << "zero-heuristic " << zeroHeuristic_ << endl
+       << prefix << "zero-heuristic " << (zeroHeuristic_ ? "on" : "off") << endl
        << prefix << "hash-all " << (hashAll_ ? "on" : "off") << endl
        << prefix << "random-ties " << (randomTies_ ? "on" : "off") << endl
        << prefix << "random-seed " << randomSeed_ << endl
@@ -551,14 +555,22 @@ bootstrapCONFORMANT( ProblemHandle *handle )
 void Problem::bootstrapCASSANDRA() {
     // model creation: use setup for cassandra's format
     double time1 = getTime();
-    model_ = new StandardModel(problemFile_);
+    const StandardModel *model = new StandardModel(problemFile_);
+    model_ = model;
     belief_ = new StandardBelief;
 
+    // initialization of beliefs and others
+    StandardBelief::initialize(model->numStates_, model->numActions_, model->numObs_);
+    HistoryBelief::initialize(model->numStates_, model->numActions_, model->numObs_);
+
     // POMDP creation & setup
-    pomdp_ = new StandardPOMDP(static_cast<const StandardModel*>(model_), qlevels_, qbase_);
+    if( historyBased_ ) {
+        pomdp_ = new HistoryPOMDP(model, PD.numParticles_);
+    } else {
+        pomdp_ = new StandardPOMDP(model, qlevels_, qbase_);
+    }
     pomdp_->setEpsilonGreedy(epsilonGreedy_);
     pomdp_->setCutoff(cutoff_);
-    StandardBelief::initialize(model_->numStates_);
 
     // timing
     double time2 = getTime();
@@ -567,7 +579,7 @@ void Problem::bootstrapCASSANDRA() {
 
     // heuristic setup
     if( !zeroHeuristic_ ) {
-        baseHeuristic_ = new QMDPHeuristic(static_cast<const StandardModel*>(model_), QMDPdiscount_);
+        baseHeuristic_ = new QMDPHeuristic(model, QMDPdiscount_);
         heuristic_ = new LookAheadHeuristic(pomdp_, baseHeuristic_, lookahead_);
         pomdp_->setHeuristic(heuristic_);
     }
@@ -655,7 +667,7 @@ void Problem::solveCASSANDRA() {
                 //   1. collect last used beliefs
                 //   2. transform collection of belief/values into Sondik's representation
                 //   3. perform point-based updates over them
-                sondik = new Sondik(static_cast<const StandardPOMDP&>(*pomdp_));
+                sondik = new Sondik(dynamic_cast<const StandardPOMDP&>(*pomdp_));
                 sondik->bootstrap(sondikMaxPlanes_, sondikMethod_);
                 for( int i = 0; i < sondikIterations_; ++i ) {
                     sondik->update(epsilon_);

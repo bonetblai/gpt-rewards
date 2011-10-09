@@ -62,6 +62,8 @@ class Problem : public Serializable {
     bool maxUpdate_;
     int cutoff_;
     bool controlUpdates_;
+    bool historyBased_;
+    int numParticles_;
     bool sondik_;
     int sondikMethod_;
     int sondikMaxPlanes_;

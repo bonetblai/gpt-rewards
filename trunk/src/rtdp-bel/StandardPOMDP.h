@@ -109,28 +109,28 @@ class StandardPOMDP : public POMDP {
     }
     virtual double cost(const Belief &belief, int action) const {
         double sum = 0;
-        const StandardBelief &sbel = static_cast<const StandardBelief&>(belief);
-        for( StandardBelief::const_iterator it = sbel.begin(); it != sbel.end(); ++it )
+        const StandardBelief &bel = static_cast<const StandardBelief&>(belief);
+        for( StandardBelief::const_iterator it = bel.begin(); it != bel.end(); ++it )
             sum += (*it).second * model_->cost((*it).first, action);
         return sum;
     }
     virtual bool isAbsorbing(const Belief &belief) const {
-        const StandardBelief &sbel = static_cast<const StandardBelief&>(belief);
-        for( StandardBelief::const_iterator it = sbel.begin(); it != sbel.end(); ++it ) {
+        const StandardBelief &bel = static_cast<const StandardBelief&>(belief);
+        for( StandardBelief::const_iterator it = bel.begin(); it != bel.end(); ++it ) {
             if( !model_->isAbsorbing((*it).first) ) return false;
         }
         return true;
     }
     virtual bool isGoal(const Belief &belief) const {
-        const StandardBelief &sbel = static_cast<const StandardBelief&>(belief);
-        for( StandardBelief::const_iterator it = sbel.begin(); it != sbel.end(); ++it ) {
+        const StandardBelief &bel = static_cast<const StandardBelief&>(belief);
+        for( StandardBelief::const_iterator it = bel.begin(); it != bel.end(); ++it ) {
             if( !model_->isGoal((*it).first) ) return false;
         }
         return true;
     }
     virtual bool applicable(const Belief &belief, int action) const {
-        const StandardBelief &sbelief = static_cast<const StandardBelief&>(belief);
-        for( StandardBelief::const_iterator it = sbelief.begin(); it != sbelief.end(); ++it ) {
+        const StandardBelief &bel = static_cast<const StandardBelief&>(belief);
+        for( StandardBelief::const_iterator it = bel.begin(); it != bel.end(); ++it ) {
             if( !model_->applicable((*it).first,action) ) return false;
         }
         return true;
@@ -140,6 +140,9 @@ class StandardPOMDP : public POMDP {
     virtual int getBestAction(const Belief &belief) const {
         bestQValue(belief, *qresult_);
         return qresult_->numTies_ > 0 ? qresult_->ties_[0] : -1;
+    }
+    virtual const Belief& getInitialBelief() const {
+        return *model_->initialBelief_;
     }
 
     // serialization

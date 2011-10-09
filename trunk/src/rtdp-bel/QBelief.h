@@ -238,11 +238,12 @@ class QBeliefHash : public BeliefHash, public Hash<const QBelief, BeliefHash::Da
   public:
     typedef Hash<const QBelief, BeliefHash::Data> HashType;
 
-    QBeliefHash(unsigned size = 0) : BeliefHash(), Hash<const QBelief, BeliefHash::Data>(size) { }
+    QBeliefHash(unsigned size = 0)
+      : BeliefHash(), Hash<const QBelief, BeliefHash::Data>(size) { }
     virtual ~QBeliefHash() { }
 
-    bool inHash(const QBelief &qbelief) const {
-        const HashType::Entry *entry = HashType::lookup(qbelief);
+    bool inHash(const QBelief &belief) const {
+        const HashType::Entry *entry = HashType::lookup(belief);
         return entry != 0;
     }
 
@@ -256,7 +257,8 @@ class QBeliefHash : public BeliefHash, public Hash<const QBelief, BeliefHash::Da
         return HashType::nfound();
     }
     virtual double heuristic(const Belief &belief) const {
-        return !heuristic_ ? 0 : heuristic_->value(static_cast<const StandardBelief&>(belief));
+        //std::cout << "CHECK3" << std::endl;
+        return !heuristic_ ? 0 : heuristic_->value(dynamic_cast<const StandardBelief&>(belief));
     }
     virtual BeliefHash::const_Entry fetch(const Belief &belief) const {
         const HashType::Entry *entry = HashType::lookup(static_cast<const QBelief&>(belief));
@@ -268,7 +270,7 @@ class QBeliefHash : public BeliefHash, public Hash<const QBelief, BeliefHash::Da
     virtual BeliefHash::Entry fetch(const Belief &belief) {
         HashType::Entry *entry = HashType::lookup(static_cast<const QBelief&>(belief));
         if( entry )
-            return BeliefHash::Entry(entry->key_,&entry->data_);
+            return BeliefHash::Entry(entry->key_, &entry->data_);
         else
             return BeliefHash::Entry(0, 0);
     }
@@ -277,8 +279,8 @@ class QBeliefHash : public BeliefHash, public Hash<const QBelief, BeliefHash::Da
         HashType::insert(static_cast<const QBelief&>(belief), BeliefHash::Data(value, solved, 0, timestamp_++));
     }
     virtual void update(const Belief &belief, double value, bool solved = false) {
-        const QBelief &qbelief = static_cast<const QBelief&>(belief);
-        HashType::Entry *entry = HashType::lookup(qbelief);
+        const QBelief &bel = static_cast<const QBelief&>(belief);
+        HashType::Entry *entry = HashType::lookup(bel);
         if( entry ) {
             entry->data_.solved_ = solved;
             if( !PD.maxUpdate_ || (value > entry->data_.value_) )
@@ -286,7 +288,7 @@ class QBeliefHash : public BeliefHash, public Hash<const QBelief, BeliefHash::Da
             ++entry->data_.updates_;
             entry->data_.timestamp_ = timestamp_++;
         } else {
-            HashType::insert(qbelief, BeliefHash::Data(value, solved, 0, timestamp_++));
+            HashType::insert(bel, BeliefHash::Data(value, solved, 0, timestamp_++));
         }
     }
  

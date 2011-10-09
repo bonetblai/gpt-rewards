@@ -9,7 +9,6 @@
 
 #include "POMDP.h"
 #include "HistoryBelief.h"
-#include "QBelief.h"
 
 #if 0
 #include "Exception.h"
@@ -30,16 +29,18 @@
 
 class HistoryPOMDP : public POMDP {
   protected:
-    QBeliefHash *beliefHash_;
+    int num_particles_;
+    HistoryBelief initialBelief_;
     mutable QResult *qresult_;
     mutable double *nextobs_;
 
   public:
-    HistoryPOMDP(const StandardModel *model = 0)
+    HistoryPOMDP(const StandardModel *model = 0, int num_particles = 0)
       : POMDP(model),
+        num_particles_(num_particles),
         qresult_(new QResult(numActions_)),
         nextobs_(new double[numObs_]) {
-        beliefHash_ = new QBeliefHash; // TODO: fix this
+        beliefHash_ = new HistoryBeliefHash; // TODO: fix this
     }
     virtual ~HistoryPOMDP() {
         delete beliefHash_;
@@ -48,22 +49,30 @@ class HistoryPOMDP : public POMDP {
     }
 
     double QValue(const Belief &belief, int action, const BeliefHash *hash) const {
+//std::cout << "entering qvalue" << std::endl;
         double qvalue = DBL_MAX;
         if( applicable(belief, action) ) {
+//std::cout << "  applicable action = " << action << std::endl;
             qvalue = 0;
             const Belief &belief_a = belief.update(model_, action);
+//std::cout << "  got bel_a = " << std::flush; belief_a.print(std::cout); std::cout << std::endl;
             bzero(nextobs_, numObs_ * sizeof(double));
             belief_a.nextPossibleObservations(model_, action, nextobs_);
             for( int obs = 0; obs < numObs_; ++obs ) {
                 double prob = nextobs_[obs];
+//std::cout << "  prob[obs=" << obs << "] = " << prob << std::endl;
                 if( prob > 0 ) {
                     const Belief &belief_ao = belief_a.update(model_, action, obs);
+//std::cout << "  got bel_ao = " << std::flush; belief_ao.print(std::cout); std::cout << std::endl;
                     BeliefHash::Data data = const_cast<BeliefHash*>(hash)->lookup(belief_ao, false, PD.hashAll_).second;
+//std::cout << "    value of " << belief_ao << " = " << data.value_ << std::endl;
                     qvalue += prob * data.value_;
                 }
             }
             qvalue += cost(belief, action);
         }
+//std::cout << "  qvalue = " << qvalue << std::endl;
+//std::cout << "exiting qvalue" << std::endl;
         return qvalue;
     }
     void bestQValue(const Belief &belief, QResult &qresult, const BeliefHash *hash) const {
@@ -88,30 +97,33 @@ class HistoryPOMDP : public POMDP {
     }
     virtual double cost(const Belief &belief, int action) const {
         double sum = 0;
-        const HistoryBelief &hbel = static_cast<const HistoryBelief&>(belief);
-        for( HistoryBelief::const_particle_iterator it = hbel.particle_begin(); it != hbel.particle_end(); ++it )
+        const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
+        for( HistoryBelief::const_particle_iterator it = bel.particle_begin(); it != bel.particle_end(); ++it )  {
             sum += model_->cost(*it, action);
-        return sum / hbel.num_particles();
+//std::cout << "    cost of (act=" << action << ",state=" << *it << ") = " << model_->cost(*it, action) << std::endl;
+        }
+//std::cout << "cost of (act=" << action << ") = " << sum/bel.num_particles() << std::endl;
+        return sum / bel.num_particles();
     }
     virtual bool isAbsorbing(const Belief &belief) const {
-        const HistoryBelief &hbel = static_cast<const HistoryBelief&>(belief);
-        for( HistoryBelief::const_particle_iterator it = hbel.particle_begin(); it != hbel.particle_end(); ++it ) {
+        const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
+        for( HistoryBelief::const_particle_iterator it = bel.particle_begin(); it != bel.particle_end(); ++it ) {
             if( !model_->isAbsorbing(*it) )
                 return false;
         }
         return true;
     }
     virtual bool isGoal(const Belief &belief) const {
-        const HistoryBelief &hbel = static_cast<const HistoryBelief&>(belief);
-        for( HistoryBelief::const_particle_iterator it = hbel.particle_begin(); it != hbel.particle_end(); ++it ) {
+        const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
+        for( HistoryBelief::const_particle_iterator it = bel.particle_begin(); it != bel.particle_end(); ++it ) {
             if( !model_->isGoal(*it) )
                 return false;
         }
         return true;
     }
     virtual bool applicable(const Belief &belief, int action) const {
-        const HistoryBelief &hbel = static_cast<const HistoryBelief&>(belief);
-        for( HistoryBelief::const_particle_iterator it = hbel.particle_begin(); it != hbel.particle_end(); ++it ) {
+        const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
+        for( HistoryBelief::const_particle_iterator it = bel.particle_begin(); it != bel.particle_end(); ++it ) {
             if( !model_->applicable(*it, action) )
                 return false;
         }
@@ -126,6 +138,9 @@ class HistoryPOMDP : public POMDP {
     virtual int getBestAction(const Belief &belief) const {
         bestQValue(belief, *qresult_);
         return qresult_->numTies_ > 0 ? qresult_->ties_[0] : -1;
+    }
+    virtual const Belief& getInitialBelief() const {
+        return initialBelief_;
     }
 
     // serialization

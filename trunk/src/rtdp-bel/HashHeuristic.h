@@ -7,9 +7,10 @@
 #ifndef _HashHeuristic_INCLUDE_
 #define _HashHeuristic_INCLUDE_
 
-#include "Heuristic.h"
-#include "Hash.h"
 #include "Belief.h"
+#include "Hash.h"
+#include "Heuristic.h"
+#include "SB.h"
 #include "Utils.h"
 
 #include <iostream>
@@ -31,8 +32,9 @@ class HashHeuristic : public Heuristic {
     }
     virtual double value(int state) const { return 0; }
     virtual double value(const Belief &belief) const {
-        const StandardBelief *sbelief = dynamic_cast<const StandardBelief*>(&belief);
-        return sbelief != 0 ? value(*sbelief) : 0;
+        std::cout << "CHECK1" << std::endl;
+        const StandardBelief *bel = dynamic_cast<const StandardBelief*>(&belief);
+        return bel != 0 ? value(*bel) : 0;
     }
 
     // serialization

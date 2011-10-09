@@ -11,8 +11,6 @@
 #include "StandardModel.h"
 #include "Utils.h"
 
-#include "History.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -289,7 +287,7 @@ int main(int argc, const char **argv) {
     delete[] PD.linkmap_;
     commandCleanup();
     //internalFinalization();
-    exit(0);
+    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -314,6 +312,8 @@ static void setAllDefaultValues() {
     defaultValues.insert(make_pair("max-update", "off"));
     defaultValues.insert(make_pair("cutoff", "250"));
     defaultValues.insert(make_pair("control-updates", "off"));
+    defaultValues.insert(make_pair("history-based", "off"));
+    defaultValues.insert(make_pair("num-particles", "0"));
     defaultValues.insert(make_pair("sondik", "off"));
     defaultValues.insert(make_pair("sondik-method", "timestamps"));
     defaultValues.insert(make_pair("sondik-max-planes", "16"));
@@ -900,7 +900,7 @@ static int solveFunction(int nargs, char** args) {
     return 1;
 }
 
-static const char* setPattern = "set( (defaults|problem|stoprule|epsilon|epsilon-greedy|max-update|cutoff|control-updates|sondik|sondik-method|sondik-max-planes|sondik-iterations|pims|qmdp-discount|heuristic-lookahead|qmethod|qlevels|qbase|zero-heuristic|hash-all|random-ties|random-seed|output-level|verbose-level|precision|action-cache|obs-cache|other-cache|cc|ccflags|ld|ldflags|include-dir|lib-dir|entry-point)( (.+)){0,1}){0,1}";
+static const char* setPattern = "set( (defaults|problem|stoprule|epsilon|epsilon-greedy|max-update|cutoff|control-updates|history-based|num-particles|sondik|sondik-method|sondik-max-planes|sondik-iterations|pims|qmdp-discount|heuristic-lookahead|qmethod|qlevels|qbase|zero-heuristic|hash-all|random-ties|random-seed|output-level|verbose-level|precision|action-cache|obs-cache|other-cache|cc|ccflags|ld|ldflags|include-dir|lib-dir|entry-point)( (.+)){0,1}){0,1}";
 static int setSubexprs = 4;
 static void setValue(const char* var, const char* value);
 static void invalidSetValue(const char* var, const char* value);
@@ -928,6 +928,8 @@ static int setFunction(int nargs, char** args) {
         }
         *terminal << endl;
         *terminal << "  cutoff                = " << PD.cutoff_ << endl
+                  << "  history-based         = " << (PD.historyBased_ ? "on" : "off") << endl
+                  << "  num-particles         = " << PD.numParticles_ << endl
                   << "  qmdp-discount         = " << PD.QMDPdiscount_ << endl
                   << "  heuristic-lookahead   = " << PD.lookahead_ << endl
                   << "  zero-heuristic        = " << (PD.zeroHeuristic_ ? "on" : "off") << endl
@@ -1030,6 +1032,19 @@ static void setValue(const char* var, const char* value) {
             PD.controlUpdates_ = false;
         else
             invalidSetValue(var, value);
+    } else if( !strcasecmp(var, "history-based") ) {
+        if( !strcasecmp(value, "on") || !strcasecmp(value, "1") )
+            PD.historyBased_ = true;
+        else if( !strcasecmp(value, "off") || !strcasecmp(value, "0") )
+            PD.historyBased_ = false;
+        else
+            invalidSetValue(var, value);
+    } else if( !strcasecmp(var, "num-particles") ) {
+        int arg = atoi(value);
+        if( arg < 0 )
+            invalidSetValue(var, value);
+        else
+            PD.numParticles_ = arg;
     } else if( !strcasecmp(var,"sondik") ) {
         if( !strcasecmp(value, "on") || !strcasecmp(value, "1") )
             PD.sondik_ = true;
@@ -1532,7 +1547,7 @@ static const char* generateList[] = { "core", "graph", "hash", "pomdp", "table",
 static const char* loadList[] = { "core", "problem", 0 };
 static const char* linkmapList[] = { "+", "-", 0 };
 static const char* setList[] = { "defaults", "problem", "stoprule", "epsilon", "epsilon-greedy",
-                                 "max-update", "cutoff", "control-updates", 
+                                 "max-update", "cutoff", "control-updates", "history-based", "num-particles",
                                  "sondik", "sondik-method", "sondik-max-planes", "sondik-iterations",
                                  "pims", "qmdp-discount",
 				 "heuristic-lookahead", "qmethod", "qlevels", "qbase", "zero-heuristic",
@@ -1601,6 +1616,8 @@ static completionInfo_t completionInfo[] = {
     { "set max-update", 0, emptyList },
     { "set cutoff", 0, emptyList },
     { "set control-updates", 0, emptyList },
+    { "set history-based", 0, emptyList },
+    { "set num-particles", 0, emptyList },
     { "set sondik", 0, sondikList },
     { "set sondik-method", 0, emptyList },
     { "set sondik-max-planes", 0, emptyList },
