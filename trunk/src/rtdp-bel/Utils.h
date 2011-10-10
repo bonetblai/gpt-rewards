@@ -53,6 +53,7 @@ inline T randomSampling(const std::vector<std::pair<T, double>, Alloc> &v) {
 template<typename T>
 inline T randomSampling(const std::pair<T, double> *vec, unsigned size) {
     register double d = realRandomSampling();
+    std::cout << "d=" << d << ", sz=" << size << std::endl;
     for( unsigned i = 0; i < size; ++i ) {
         if( d <= vec[i].second ) return vec[i].first;
         d -= vec[i].second;

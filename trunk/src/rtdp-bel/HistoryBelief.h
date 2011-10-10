@@ -34,8 +34,11 @@
 class HistoryBelief : public Belief {
   protected:
     History *history_;
-    std::multiset<int> particles_;
+    std::multiset<int> pfilter_;
 
+    static int num_particles_;
+    static int *particles_;
+    static double *weights_;
     static HistoryBelief bel_a_;
     static HistoryBelief bel_ao_;
 
@@ -51,37 +54,45 @@ class HistoryBelief : public Belief {
         History::deallocate(history_);
     }
 
-    static void initialize(int num_states, int num_actions, int num_observations) {
+    static void initialize(int num_states, int num_actions, int num_observations, int num_particles) {
         History::initialize(num_actions, num_observations);
+        num_particles_ = num_particles;
+        particles_ = new int[num_particles_];
+        weights_ = new double[num_particles_];
     }
     static void finalize() {
         History::finalize();
+        num_particles_ = 0;
+        delete[] particles_;
+        particles_ = 0;
+        delete[] weights_;
+        weights_ = 0;
     }
 
-    bool empty() const { return history_->empty() && particles_.empty(); }
-    int num_particles() const { return particles_.size(); }
+    bool empty() const { return history_->empty() && pfilter_.empty(); }
+    int num_particles() const { return num_particles_; }
     void insert_particle(int particle) {
-        particles_.insert(particle);
+        pfilter_.insert(particle);
     }
 
     void clear() {
         history_->clear();
-        particles_.clear();
+        pfilter_.clear();
     }
 
     // TODO: improve check
     virtual bool check() const {
-        return true;
+        return (int)pfilter_.size() == num_particles_;
     }
     virtual bool check(int state) {
-        return true;
+        return check();
     }
 
     virtual Belief::Constructor getConstructor() const {
         return (Belief::Constructor)&HistoryBelief::constructor;
     }
     virtual int sampleState() const {
-        return ::randomSampling(particles_);
+        return ::randomSampling(pfilter_);
     }
 
     virtual void nextPossibleObservations(const Model *model, int action, double *nextobs) const {
@@ -91,7 +102,7 @@ class HistoryBelief : public Belief {
             int nstate = *it;
 	    const double *dptr = m->observation_[nstate*m->numActions() + action];
             for( int obs = 0, sz = m->numObs(); obs < sz; ++obs ) {
-                double p = *(dptr+obs) / num_particles();
+                double p = *(dptr+obs) / num_particles_;
                 nextobs[obs] += p;
             }
         }
@@ -109,7 +120,7 @@ class HistoryBelief : public Belief {
             int state = *it;
             const std::vector<std::pair<int, double> > *transition = m->transition_[state*m->numActions() + action];
             int nstate = ::randomSampling(*transition);
-            bel_a_.particles_.insert(nstate);
+            bel_a_.insert_particle(nstate);
         }
         return bel_a_;
     }
@@ -121,24 +132,33 @@ class HistoryBelief : public Belief {
         *bel_ao_.history_ = *history_;
         bel_ao_.history_->push_obs(obs);
 
-        // update particles 
-//std::cout << "start update" << std::endl;
-loop:
-        for( const_particle_iterator it = particle_begin(); it != particle_end(); ++it ) {
+        // update particle filter:
+        //     (1) compute weights for each particle given evidence (observation)
+        //     (2) re-sample N=num_particles using weights
+
+//std::cout << "begin update bel_a=" << *this << " with action=" << action << " and obs=" << obs << std::endl;
+        // compute weights
+        int i = 0;
+        double mass = 0.0;
+        for( const_particle_iterator it = particle_begin(); it != particle_end(); ++it, ++i ) {
             int nstate = *it;
-            double p = m->observation_[nstate*m->numActions() + action][obs];
-//std::cout << "  p=" << p;
-            if( ::realRandomSampling() < p ) {
-            //if( p > 0 ) //::realRandomSampling() < p )
-//std::cout << " in" << std::endl;
-                bel_ao_.particles_.insert(nstate);
-            } else {
-//std::cout << " out" << std::endl;
-            }
+            particles_[i] = nstate;
+            weights_[i] = m->observation_[nstate*m->numActions() + action][obs];
+            mass += weights_[i];
         }
-//std::cout << "end update" << std::endl;
-        //if( bel_ao_.particles_.empty() ) { std::cout << "  loop" << std::endl; goto loop; }
-        //assert(!bel_ao_.particles_.empty());
+
+        for(int j = 0; j < num_particles_; ++j ) {
+            weights_[j] /= mass;
+            //std::cout << "  weight for state=" << particles_[j] << " is " << weights_[j] << std::endl;
+        }
+
+        // re-sample particles
+        for( int j = 0; j < num_particles_; ++j ) {
+            int i = ::randomSampling(weights_, num_particles_);
+            //std::cout << "  sample " << particles_[i] << std::endl;
+            bel_ao_.insert_particle(particles_[i]);
+        }
+
         return bel_ao_;
     }
 
@@ -157,12 +177,12 @@ loop:
         os << ",{";
         for( const_particle_iterator it = particle_begin(); it != particle_end(); ++it )
             os << *it << ",";
-        os << "},sz=" << particles_.size() << ")";
+        os << "},num=" << num_particles_ << ")";
     }
 
     const HistoryBelief& operator=(const HistoryBelief& belief) {
         *history_ = *belief.history_;
-        particles_ = belief.particles_; // TODO: check if necessary or correct
+        pfilter_ = belief.pfilter_;
         return *this;
     }
     virtual const Belief& operator=(const Belief &belief) {
@@ -190,12 +210,12 @@ loop:
 
     // iterators
     typedef std::multiset<int>::iterator particle_iterator;
-    particle_iterator particle_begin() { return particles_.begin(); }
-    particle_iterator particle_end() { return particles_.end(); }
+    particle_iterator particle_begin() { return pfilter_.begin(); }
+    particle_iterator particle_end() { return pfilter_.end(); }
 
     typedef std::multiset<int>::const_iterator const_particle_iterator;
-    const_particle_iterator particle_begin() const { return particles_.begin(); }
-    const_particle_iterator particle_end() const { return particles_.end(); }
+    const_particle_iterator particle_begin() const { return pfilter_.begin(); }
+    const_particle_iterator particle_end() const { return pfilter_.end(); }
 };
 
 class HistoryBeliefHash : public BeliefHash, public Hash<const HistoryBelief, BeliefHash::Data> {

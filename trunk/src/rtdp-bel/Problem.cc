@@ -561,7 +561,7 @@ void Problem::bootstrapCASSANDRA() {
 
     // initialization of beliefs and others
     StandardBelief::initialize(model->numStates_, model->numActions_, model->numObs_);
-    HistoryBelief::initialize(model->numStates_, model->numActions_, model->numObs_);
+    HistoryBelief::initialize(model->numStates_, model->numActions_, model->numObs_, PD.numParticles_);
 
     // POMDP creation & setup
     if( historyBased_ ) {

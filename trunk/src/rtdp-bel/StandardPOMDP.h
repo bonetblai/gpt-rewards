@@ -78,11 +78,13 @@ class StandardPOMDP : public POMDP {
                         const Belief &belief_ao = belief_a.update(model_, action, obs);
                         cache_entry->insertBelief(action, obs, belief_ao, numActions_, numObs_);
                         BeliefHash::Data data = const_cast<BeliefHash*>(hash)->lookup(belief_ao, false, PD.hashAll_).second;
+std::cout << "lookup " << action << "/" << obs << " " << belief_ao << " = " << data.value_ << std::endl;
                         qvalue += prob * data.value_;
                     }
                 }
             }
-            qvalue += cost(belief, action);
+std::cout << "cost = " << cost(belief, action) << std::endl;
+            qvalue = cost(belief, action) + qvalue;
         }
         return qvalue;
     }
@@ -110,8 +112,10 @@ class StandardPOMDP : public POMDP {
     virtual double cost(const Belief &belief, int action) const {
         double sum = 0;
         const StandardBelief &bel = static_cast<const StandardBelief&>(belief);
-        for( StandardBelief::const_iterator it = bel.begin(); it != bel.end(); ++it )
+        for( StandardBelief::const_iterator it = bel.begin(); it != bel.end(); ++it ) {
             sum += (*it).second * model_->cost((*it).first, action);
+std::cout << "cost " << action << " on " << (*it).first << " = " << model_->cost((*it).first, action) << std::endl;
+        }
         return sum;
     }
     virtual bool isAbsorbing(const Belief &belief) const {

@@ -137,6 +137,7 @@ class StandardBelief : public Belief {
         return (Belief::Constructor)&StandardBelief::constructor;
     }
     virtual int sampleState() const {
+std::cout << "HOLA: " << *this << std::endl;
         return ::randomSampling(vec_, size_);
     }
 

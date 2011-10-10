@@ -38,7 +38,7 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     result.startTimer();
 
     // set initial states
-    int state = model_->initialBelief_->sampleState();
+    //int state = model_->initialBelief_->sampleState();
 
     // set initial belief and insert particles
     HistoryBelief belief;
@@ -54,26 +54,30 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     beliefHash_->resetStats();
 
     // go for it!!!
+cout << "ibel=" << belief << endl;
     while( (PD.signal_ < 0) && (result.numSteps_ < cutoff_) ) {
-//cout << "Z0: bel=" << belief << ", state=" << state << endl;
+//cout << "Z1: bel=" << belief << ", state=" << state << endl;
 
         // verbosity output
         if( PD.verboseLevel_ >= 30 ) {
             *PD.outputFile_ << endl
-	                    << "state=" << state << endl
+	                    //<< "state=" << state << endl
 	                    << "belief=" << belief << endl
 		            << "data=" << bel_data << endl;
         }
 
+#if 0
         // check for trial termination
         if( model_->isGoal(state) || model_->isAbsorbing(state) ) {
             result.goalReached_ = true;
             break;
         }
+#endif
    
         // compute the best QValues and update value
 //cout << "before bqv" << endl;
         bestQValue(belief, *qresult_, beliefHash_);
+cout << "bqv = " << qresult_->value_ << endl;
         beliefHash_->update(belief, qresult_->value_);
 //cout << "after bqv" << endl;
 
@@ -84,7 +88,7 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
             bestAction = qresult_->ties_[index];
         } else { // we have a dead-end
             beliefHash_->update(belief, DBL_MAX, true);
-            result.push_back(state, -1, -1);
+            //result.push_back(state, -1, -1);
             break;
         }
         if( (epsilonGreedy() > 0) && (::realRandomSampling() < epsilonGreedy()) )
@@ -96,11 +100,19 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
 //cout << "Z4: bel_a=" << belief_a << endl;
 
         // sample state and observation
-        //int nstate = belief_a.sampleState();
-        int nstate = model_->sampleNextState(state, bestAction);
+        int nstate = belief_a.sampleState();
+        //int nstate = model_->sampleNextState(state, bestAction);
         int observation = model_->sampleNextObservation(nstate, bestAction);
-        result.push_back(state, bestAction, observation);
+        //result.push_back(state, bestAction, observation);
+        result.push_back(-1, bestAction, observation);
 //cout << "Z?: nstate=" << nstate << ", obs=" << observation << endl;
+
+        // terminate trial
+        if( model_->isAbsorbing(nstate) ) {
+//cout << "Z?: termination" << belief_a << endl;
+            result.goalReached_ = true;
+            break;
+        }
 
         // compute belief_ao
         const HistoryBelief &belief_ao = static_cast<const HistoryBelief&>(belief_a.update(model_, bestAction, observation));
@@ -110,7 +122,7 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
         if( belief_ao.num_particles() == 0 ) break;
 
         // update state and beleif
-        state = nstate;
+        //state = nstate;
         belief = belief_ao;
         p = beliefHash_->lookup(belief, false, true);
         bel_data = p.second;
@@ -137,6 +149,7 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     // set initial belief data
     p = beliefHash_->lookup(initialBelief_, false, true);
     result.initialValue_ = p.second.value_;
+cout << "value for ibel = " << p.second.value_ << endl;
     result.solved_ = p.second.solved_;
 }
 
