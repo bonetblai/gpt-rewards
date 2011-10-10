@@ -116,7 +116,7 @@ class StandardModel : public Model {
         return state == absorbing_;
      }
     virtual bool isGoal(int state) const {
-        return state >= goalSize_ ? false : goal_[state>>3] & (1 << (state&0x7));
+        return state >= goalSize_ ? false : goal_[state >> 3] & (1 << (state & 0x7));
      }
     virtual int numGoals() const {
         return numGoals_;

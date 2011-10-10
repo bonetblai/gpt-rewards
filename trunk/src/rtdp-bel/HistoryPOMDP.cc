@@ -38,7 +38,6 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     result.startTimer();
 
     // set initial states
-    int absorbing = static_cast<const StandardModel*>(model_)->absorbing_;
     int state = model_->initialBelief_->sampleState();
 
     // set initial belief and insert particles
@@ -55,8 +54,10 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     beliefHash_->resetStats();
 
     // go for it!!!
-//cout << "Z0: bel = " << flush; belief.print(cout); cout << endl;
     while( (PD.signal_ < 0) && (result.numSteps_ < cutoff_) ) {
+//cout << "Z0: bel=" << belief << ", state=" << state << endl;
+
+        // verbosity output
         if( PD.verboseLevel_ >= 30 ) {
             *PD.outputFile_ << endl
 	                    << "state=" << state << endl
@@ -64,74 +65,67 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
 		            << "data=" << bel_data << endl;
         }
 
-#if 0
-        // check termination
-        if( isAbsorbing(belief) || qdata.solved_ ) {
-            if( !qdata.solved_ ) beliefHash_->update(qbelief, 0, true);
-            result.goalReached_ = true;
-            result.push_back(state, -1, -1);
-            break;
-        }
-#endif
-
-        //if( isGoal(belief) ) { result.goalReached_ = true; break; }
-        if( model_->isGoal(state) ) {
+        // check for trial termination
+        if( model_->isGoal(state) || model_->isAbsorbing(state) ) {
             result.goalReached_ = true;
             break;
         }
    
         // compute the best QValues and update value
+//cout << "before bqv" << endl;
         bestQValue(belief, *qresult_, beliefHash_);
-//cout << "Z1: bqv = " << qresult_->value_ << endl;
         beliefHash_->update(belief, qresult_->value_);
-//cout << "updated value of " << belief << " = " << qresult_->value_ << endl;
-//cout << "Z2" << endl;
+//cout << "after bqv" << endl;
 
         // greedy selection of best action
         int bestAction = -1;
         if( qresult_->numTies_ > 0 ) {
-            int index = !randomTies_? 0 : lrand48() % qresult_->numTies_;
+            int index = !randomTies_? 0 : ::unifRandomSampling(qresult_->numTies_);
             bestAction = qresult_->ties_[index];
         } else { // we have a dead-end
             beliefHash_->update(belief, DBL_MAX, true);
             result.push_back(state, -1, -1);
             break;
         }
-        if( (epsilonGreedy() > 0) && (drand48() < epsilonGreedy()) )
-            bestAction = lrand48() % model_->numActions();
+        if( (epsilonGreedy() > 0) && (::realRandomSampling() < epsilonGreedy()) )
+            bestAction = ::unifRandomSampling(model_->numActions());
+//cout << "Z3: a=" << bestAction << endl;
 
-        bestAction = lrand48() % model_->numActions();
+        // compute belief_a
+        const HistoryBelief &belief_a = static_cast<const HistoryBelief&>(belief.update(model_, bestAction));
+//cout << "Z4: bel_a=" << belief_a << endl;
 
         // sample state and observation
+        //int nstate = belief_a.sampleState();
         int nstate = model_->sampleNextState(state, bestAction);
-        while( nstate == absorbing ) {
-            nstate = model_->sampleNextState(state, bestAction);
-        }
         int observation = model_->sampleNextObservation(nstate, bestAction);
         result.push_back(state, bestAction, observation);
-//cout << "Z3: action = " << bestAction << ", nstate = " << nstate << ", obs = " << observation << endl;
+//cout << "Z?: nstate=" << nstate << ", obs=" << observation << endl;
 
-        // update belief
-        const Belief &belief_a = belief.update(model_, bestAction);
-//cout << "Z4: bel_a = " << flush; belief_a.print(cout); cout << endl;
-        const Belief &belief_ao = belief_a.update(model_, bestAction, observation);
-//cout << "Z5: bel_ao = " << flush; belief_ao.print(cout); cout << endl;
+        // compute belief_ao
+        const HistoryBelief &belief_ao = static_cast<const HistoryBelief&>(belief_a.update(model_, bestAction, observation));
+        //const Belief &belief_ao = belief_a.update(model_, bestAction, observation);
+//cout << "Z5: bel_ao=" << belief_ao << endl;
+
+        if( belief_ao.num_particles() == 0 ) break;
+
+        // update state and beleif
         state = nstate;
         belief = belief_ao;
         p = beliefHash_->lookup(belief, false, true);
         bel_data = p.second;
 
-        if( PD.verboseLevel_ >= 30 ) { // print info
+        // verbosity output
+        if( PD.verboseLevel_ >= 30 ) {
             *PD.outputFile_ << "action=" << bestAction << ", obs=" << observation << endl;
         }
     }
     glookups += beliefHash_->nlookups();
     gfound += beliefHash_->nfound();
-
-//cout << "Z6: got out!" << endl;
+//cout << "num-steps=" << result.numSteps_ << endl;
 
     // check for abortion
-    if( PD.signal_ >= 0 ) { // cleanup
+    if( PD.signal_ >= 0 ) {
         int signal = PD.signal_;
         PD.signal_ = -1;
         throw(SignalException(signal));
@@ -167,7 +161,6 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
     }
 
     // set initial states
-    int absorbing = static_cast<const StandardModel*>(model_)->absorbing_;
     int state = model_->initialBelief_->sampleState();
 
     // set initial belief and insert particles
@@ -185,7 +178,8 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
 
     // go for it!!!
     while( (PD.signal_ < 0) && (result.numSteps_ < cutoff_) ) {
-        if( model_->isGoal(state) ) {
+        // check for trial termination
+        if( model_->isGoal(state) || model_->isAbsorbing(state) ) {
             result.goalReached_ = true;
             break;
         }
@@ -197,7 +191,7 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
         // greedy selection of best action
         int bestAction = -1;
         if( qresult_->numTies_ > 0 ) {
-            int index = !randomTies_ ? 0 : lrand48() % qresult_->numTies_;
+            int index = !randomTies_ ? 0 : ::unifRandomSampling(qresult_->numTies_);
             bestAction = qresult_->ties_[index];
         } else { // we have a dead-end
             if( PD.controlUpdates_ ) hash->update(belief, DBL_MAX, true);
@@ -207,9 +201,9 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
 
         // sample state and observation
         int nstate = model_->sampleNextState(state, bestAction);
-        while( nstate == absorbing ) {
-            nstate = model_->sampleNextState(state, bestAction);
-        }
+        //while( model_->isAbsorbing(nstate) ) {
+        //    nstate = model_->sampleNextState(state, bestAction);
+        //}
         int observation = model_->sampleNextObservation(nstate, bestAction);
         result.push_back(state, bestAction, observation);
         double realCost = model_->cost(state, bestAction, nstate);
@@ -225,6 +219,7 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
     }
     glookups += hash->nlookups() + beliefHash_->nlookups();
     gfound += hash->nfound() + beliefHash_->nfound();
+cout << "num-steps=" << result.numSteps_ << endl;
 
     // check for abortion
     if( PD.signal_ >= 0 ) {

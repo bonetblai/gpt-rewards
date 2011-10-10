@@ -33,7 +33,6 @@ void StandardPOMDP::learnAlgorithm(Result& result) {
 
     // set initial belief
     StandardBelief belief(model_->numStates());
-    int absorbing = static_cast<const StandardModel*>(model_)->absorbing_;
     int state = model_->initialBelief_->sampleState();
 
     belief = static_cast<const StandardBelief&>(*model_->initialBelief_);
@@ -49,6 +48,8 @@ void StandardPOMDP::learnAlgorithm(Result& result) {
 
     // go for it!!!
     while( (PD.signal_ < 0) && (result.numSteps_ < cutoff_) ) {
+
+        // verbosity output
         if( PD.verboseLevel_ >= 30 ) {
             *PD.outputFile_ << endl
 	                    << "state=" << state << endl
@@ -57,18 +58,8 @@ void StandardPOMDP::learnAlgorithm(Result& result) {
 		            << "data=" << qdata << endl;
         }
 
-#if 0
-        // check termination
-        if( isAbsorbing(belief) || qdata.solved_ ) {
-            if( !qdata.solved_ ) beliefHash_->update(qbelief, 0, true);
-            result.goalReached_ = true;
-            result.push_back(state, -1, -1);
-            break;
-        }
-#endif
-
-        //if( isGoal(belief) ) { result.goalReached_ = true; break; }
-        if( model_->isGoal(state) ) {
+        // check for trial termination
+        if( model_->isGoal(state) || model_->isAbsorbing(state) ) {
             result.goalReached_ = true;
             break;
         }
@@ -83,19 +74,19 @@ void StandardPOMDP::learnAlgorithm(Result& result) {
         // greedy selection of best action
         int bestAction = -1;
         if( qresult_->numTies_ > 0 ) {
-            int index = !randomTies_? 0 : lrand48() % qresult_->numTies_;
+            int index = !randomTies_? 0 : ::unifRandomSampling(qresult_->numTies_);
             bestAction = qresult_->ties_[index];
         } else { // we have a dead-end
             beliefHash_->update(qbelief, DBL_MAX, true);
             result.push_back(state, -1, -1);
             break;
         }
-        if( (epsilonGreedy() > 0) && (drand48() < epsilonGreedy()) )
-            bestAction = lrand48() % model_->numActions();
+        if( (epsilonGreedy() > 0) && (::realRandomSampling() < epsilonGreedy()) )
+            bestAction = ::unifRandomSampling(model_->numActions());
 
         // sample state and observation
         int nstate = model_->sampleNextState(state, bestAction);
-        while( nstate == absorbing ) {
+        while( model_->isAbsorbing(nstate) ) {
             nstate = model_->sampleNextState(state, bestAction);
         }
         int observation = model_->sampleNextObservation(nstate, bestAction);
@@ -113,7 +104,8 @@ void StandardPOMDP::learnAlgorithm(Result& result) {
         qbelief = *static_cast<const QBelief*>(p.first);
         qdata = p.second;
 
-        if( PD.verboseLevel_ >= 30 ) { // print info
+        // verbosity output
+        if( PD.verboseLevel_ >= 30 ) {
             *PD.outputFile_ << "action=" << bestAction << ", obs=" << observation << endl;
         }
     }
@@ -121,10 +113,10 @@ void StandardPOMDP::learnAlgorithm(Result& result) {
     gfound += beliefHash_->nfound();
 
     // check for abortion
-    if( PD.signal_ >= 0 ) { // cleanup
+    if( PD.signal_ >= 0 ) {
         int signal = PD.signal_;
         PD.signal_ = -1;
-        if( PD.useStopRule_ ) {
+        if( PD.useStopRule_ ) { // cleanup
             while( !stack.empty() ) stack.pop();
         }
         throw(SignalException(signal));
@@ -181,7 +173,6 @@ void StandardPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const
 
     // set initial belief and state
     StandardBelief belief(model_->numStates());
-    int absorbing = static_cast<const StandardModel*>(model_)->absorbing_;
     int state = model_->initialBelief_->sampleState();
 
     belief = static_cast<const StandardBelief&>(*model_->initialBelief_);
@@ -197,8 +188,8 @@ void StandardPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const
 
     // go for it!!!
     while( (PD.signal_ < 0) && (result.numSteps_ < cutoff_) ) {
-        //if( isGoal(belief) ) { result.goalReached_ = true; break; }
-        if( model_->isGoal(state) ) {
+        // check for trial termination
+        if( model_->isGoal(state) || model_->isAbsorbing(state) ) {
             result.goalReached_ = true;
             break;
         }
@@ -208,7 +199,7 @@ void StandardPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const
             bestQValue(belief, *qresult_, cache_entry,hash);
             if( PD.controlUpdates_ ) hash->update(qbelief, qresult_->value_);
             if( qresult_->numTies_ > 0 ) {
-                int index = !randomTies_ ? 0 : lrand48() % qresult_->numTies_;
+                int index = !randomTies_ ? 0 : ::unifRandomSampling(qresult_->numTies_);
                 bestAction = qresult_->ties_[index];
             } else { // we have a dead-end
                 if( PD.controlUpdates_ ) hash->update(qbelief, DBL_MAX, true);
@@ -226,7 +217,7 @@ void StandardPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const
 
         // sample state and observation
         int nstate = model_->sampleNextState(state, bestAction);
-        while( nstate == absorbing ) {
+        while( model_->isAbsorbing(nstate) ) {
             nstate = model_->sampleNextState(state, bestAction);
         }
         int observation = model_->sampleNextObservation(nstate, bestAction);

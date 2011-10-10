@@ -100,7 +100,7 @@ StandardModel::StandardModel(const char *cassandraFilename)
     // set model for absorbing state
     absorbing_ = numStates_;
     for( int action = 0; action < numActions_; ++action ) {
-        unsigned aindex = absorbing_*numActions_+action;
+        unsigned aindex = absorbing_*numActions_ + action;
         if( transition_[aindex] == 0 ) transition_[aindex] = new vector<pair<int, double> >;
         transition_[aindex]->push_back(make_pair(absorbing_, 1.0));
         for( int state = 0; state < numStates_; ++state ) {

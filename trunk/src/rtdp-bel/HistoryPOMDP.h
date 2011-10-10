@@ -55,7 +55,7 @@ class HistoryPOMDP : public POMDP {
 //std::cout << "  applicable action = " << action << std::endl;
             qvalue = 0;
             const Belief &belief_a = belief.update(model_, action);
-//std::cout << "  got bel_a = " << std::flush; belief_a.print(std::cout); std::cout << std::endl;
+//std::cout << "  got bel_a = " << belief_a << std::endl;
             bzero(nextobs_, numObs_ * sizeof(double));
             belief_a.nextPossibleObservations(model_, action, nextobs_);
             for( int obs = 0; obs < numObs_; ++obs ) {
@@ -63,7 +63,7 @@ class HistoryPOMDP : public POMDP {
 //std::cout << "  prob[obs=" << obs << "] = " << prob << std::endl;
                 if( prob > 0 ) {
                     const Belief &belief_ao = belief_a.update(model_, action, obs);
-//std::cout << "  got bel_ao = " << std::flush; belief_ao.print(std::cout); std::cout << std::endl;
+//std::cout << "  got bel_ao = " << belief_ao << std::endl;
                     BeliefHash::Data data = const_cast<BeliefHash*>(hash)->lookup(belief_ao, false, PD.hashAll_).second;
 //std::cout << "    value of " << belief_ao << " = " << data.value_ << std::endl;
                     qvalue += prob * data.value_;

@@ -99,22 +99,18 @@ class HistoryBelief : public Belief {
     virtual const Belief& update(const Model *model, int action) const {
         const StandardModel *m = static_cast<const StandardModel*>(model);
         bel_a_.clear();
-//std::cout << "A1 = " << std::flush; bel_a_.print(std::cout); std::cout << std::endl;
 
         // update history
         *bel_a_.history_ = *history_;
-//std::cout << "A2 = " << std::flush; bel_a_.print(std::cout); std::cout << std::endl;
         bel_a_.history_->push_act(action);
-//std::cout << "A3 = " << std::flush; bel_a_.print(std::cout); std::cout << std::endl;
 
         // update particles 
         for( const_particle_iterator it = particle_begin(); it != particle_end(); ++it ) {
             int state = *it;
             const std::vector<std::pair<int, double> > *transition = m->transition_[state*m->numActions() + action];
-            int nstate = randomSampling(*transition);
+            int nstate = ::randomSampling(*transition);
             bel_a_.particles_.insert(nstate);
         }
-//std::cout << "A4 = " << std::flush; bel_a_.print(std::cout); std::cout << std::endl;
         return bel_a_;
     }
     virtual const Belief& update(const Model *model, int action, int obs) const {
@@ -126,12 +122,23 @@ class HistoryBelief : public Belief {
         bel_ao_.history_->push_obs(obs);
 
         // update particles 
+//std::cout << "start update" << std::endl;
+loop:
         for( const_particle_iterator it = particle_begin(); it != particle_end(); ++it ) {
             int nstate = *it;
             double p = m->observation_[nstate*m->numActions() + action][obs];
-            if( p > 0 ) bel_ao_.particles_.insert(nstate);
+//std::cout << "  p=" << p;
+            if( ::realRandomSampling() < p ) {
+            //if( p > 0 ) //::realRandomSampling() < p )
+//std::cout << " in" << std::endl;
+                bel_ao_.particles_.insert(nstate);
+            } else {
+//std::cout << " out" << std::endl;
+            }
         }
-        assert(!bel_ao_.particles_.empty());
+//std::cout << "end update" << std::endl;
+        //if( bel_ao_.particles_.empty() ) { std::cout << "  loop" << std::endl; goto loop; }
+        //assert(!bel_ao_.particles_.empty());
         return bel_ao_;
     }
 
@@ -154,11 +161,8 @@ class HistoryBelief : public Belief {
     }
 
     const HistoryBelief& operator=(const HistoryBelief& belief) {
-        //std::cout << "start copying belief" << std::endl;
         *history_ = *belief.history_;
-        //std::cout << "middle copying belief" << std::endl;
         particles_ = belief.particles_; // TODO: check if necessary or correct
-        //std::cout << "end copying belief" << std::endl;
         return *this;
     }
     virtual const Belief& operator=(const Belief &belief) {
@@ -238,18 +242,14 @@ class HistoryBeliefHash : public BeliefHash, public Hash<const HistoryBelief, Be
     }
 
     virtual std::pair<const Belief*, BeliefHash::Data> lookup(const Belief &belief, bool quantizied, bool insert) {
-        //std::cout << "entering lookup" << std::endl;
         const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
         const HashType::Entry *entry = HashType::lookup(bel);
-        //std::cout << "  entry = " << entry << std::endl;
         if( entry ) {
             return std::make_pair(&bel, entry->data_);
         } else {
             BeliefHash::Data data(heuristic(bel), false);
             if( insert ) {
-                //std::cout << "before insert" << std::endl;
                 HashType::insert(bel, data);
-                //std::cout << "after insert" << std::endl;
             }
             return std::make_pair(&bel, data);
         }
