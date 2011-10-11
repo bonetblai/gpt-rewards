@@ -66,7 +66,7 @@ void StandardPOMDP::learnAlgorithm(Result& result) {
    
         // compute the best QValues and update value
         bestQValue(belief, *qresult_, cache_entry, beliefHash_);
-cout << "bqv = " << qresult_->value_ << endl;
+//cout << "bqv = " << qresult_->value_ << endl;
         beliefHash_->update(qbelief, qresult_->value_);
         if( PD.useStopRule_ ) {
             stack.push(beliefHash_->fetch(qbelief));
@@ -147,7 +147,7 @@ cout << "bqv = " << qresult_->value_ << endl;
 
     // set initial belief data
     p = beliefHash_->lookup(*model_->initialBelief_, false, true);
-cout << "value for ibel = " << p.second.value_ << endl;
+//cout << "value for ibel = " << p.second.value_ << endl;
     result.initialValue_ = p.second.value_;
     result.solved_ = p.second.solved_;
 }

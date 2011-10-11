@@ -104,6 +104,7 @@ class HistoryBelief : public Belief {
             for( int obs = 0, sz = m->numObs(); obs < sz; ++obs ) {
                 double p = *(dptr+obs) / num_particles_;
                 nextobs[obs] += p;
+                assert(nextobs[obs] <= 1);
             }
         }
     }
@@ -279,16 +280,16 @@ class HistoryBeliefHash : public BeliefHash, public Hash<const HistoryBelief, Be
         HashType::insert(static_cast<const HistoryBelief&>(belief), BeliefHash::Data(value, solved));
     }
 
-    virtual void update(const Belief &belief, double value, bool solved = false) {
+    virtual void update(const Belief &belief, double value, bool) {
         const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
         HashType::Entry *entry = HashType::lookup(bel);
         if( entry ) {
-            entry->data_.solved_ = solved;
-            if( !PD.maxUpdate_ || (value > entry->data_.value_) )
-                entry->data_.value_ = value;
+            entry->data_.value_ *= 1+entry->data_.updates_;
+            entry->data_.value_ += value;
             ++entry->data_.updates_;
+            entry->data_.value_ /= 1+entry->data_.updates_;
         } else {
-            HashType::insert(bel, BeliefHash::Data(value, solved));
+            HashType::insert(bel, BeliefHash::Data(value));
         }
     }
  

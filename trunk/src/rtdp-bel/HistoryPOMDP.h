@@ -65,11 +65,11 @@ class HistoryPOMDP : public POMDP {
                     const Belief &belief_ao = belief_a.update(model_, action, obs);
 //std::cout << "  got bel_ao = " << belief_ao << std::endl;
                     BeliefHash::Data data = const_cast<BeliefHash*>(hash)->lookup(belief_ao, false, PD.hashAll_).second;
-std::cout << "lookup " << action << "/" << obs << " " << belief_ao << " = " << data.value_ << std::endl;
+//std::cout << "lookup " << action << "/" << obs << " " << belief_ao << " = " << data.value_ << std::endl;
                     qvalue += prob * data.value_;
                 }
             }
-std::cout << "cost = " << cost(belief, action) << std::endl;
+//std::cout << "cost = " << cost(belief, action) << std::endl;
             qvalue = cost(belief, action) + 0.95 * qvalue;
         }
 //std::cout << "  qvalue = " << qvalue << std::endl;
@@ -101,7 +101,7 @@ std::cout << "cost = " << cost(belief, action) << std::endl;
         const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
         for( HistoryBelief::const_particle_iterator it = bel.particle_begin(); it != bel.particle_end(); ++it )  {
             sum += model_->cost(*it, action);
-std::cout << "cost " << action << " on " << *it << " = " << model_->cost(*it, action) << std::endl;
+//std::cout << "cost " << action << " on " << *it << " = " << model_->cost(*it, action) << std::endl;
         }
 //std::cout << "cost of (act=" << action << ") = " << sum/bel.num_particles() << std::endl;
         return sum / bel.num_particles();

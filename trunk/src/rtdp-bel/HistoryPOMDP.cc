@@ -48,13 +48,13 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     }
 
     pair<const Belief*, BeliefHash::Data> p = beliefHash_->lookup(belief, false, true);
-    BeliefHash::Data bel_data;
+    BeliefHash::Data bel_data = p.second;
     result.initialValue_ = bel_data.value_;
     result.solved_ = bel_data.solved_;
     beliefHash_->resetStats();
 
     // go for it!!!
-cout << "ibel=" << belief << endl;
+//cout << "ibel=" << belief << endl;
     while( (PD.signal_ < 0) && (result.numSteps_ < cutoff_) ) {
 //cout << "Z1: bel=" << belief << ", state=" << state << endl;
 
@@ -77,7 +77,7 @@ cout << "ibel=" << belief << endl;
         // compute the best QValues and update value
 //cout << "before bqv" << endl;
         bestQValue(belief, *qresult_, beliefHash_);
-cout << "bqv = " << qresult_->value_ << endl;
+//cout << "bqv = " << qresult_->value_ << endl;
         beliefHash_->update(belief, qresult_->value_);
 //cout << "after bqv" << endl;
 
@@ -116,10 +116,9 @@ cout << "bqv = " << qresult_->value_ << endl;
 
         // compute belief_ao
         const HistoryBelief &belief_ao = static_cast<const HistoryBelief&>(belief_a.update(model_, bestAction, observation));
+        assert(belief_ao.check());
         //const Belief &belief_ao = belief_a.update(model_, bestAction, observation);
 //cout << "Z5: bel_ao=" << belief_ao << endl;
-
-        if( belief_ao.num_particles() == 0 ) break;
 
         // update state and beleif
         //state = nstate;
@@ -134,7 +133,6 @@ cout << "bqv = " << qresult_->value_ << endl;
     }
     glookups += beliefHash_->nlookups();
     gfound += beliefHash_->nfound();
-//cout << "num-steps=" << result.numSteps_ << endl;
 
     // check for abortion
     if( PD.signal_ >= 0 ) {
@@ -149,7 +147,7 @@ cout << "bqv = " << qresult_->value_ << endl;
     // set initial belief data
     p = beliefHash_->lookup(initialBelief_, false, true);
     result.initialValue_ = p.second.value_;
-cout << "value for ibel = " << p.second.value_ << endl;
+//cout << "value for ibel = " << p.second.value_ << endl;
     result.solved_ = p.second.solved_;
 }
 
@@ -160,8 +158,8 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
     result.runType_ = 0;
     result.numSteps_ = 0;
     result.accCost_ = 0.0;
-    result.accDisCost_ = 0.0;
-    result.goalReached_ = false;
+	    result.accDisCost_ = 0.0;
+	    result.goalReached_ = false;
     result.startTimer();
 
     // setup hash for control
@@ -191,6 +189,7 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
 
     // go for it!!!
     while( (PD.signal_ < 0) && (result.numSteps_ < cutoff_) ) {
+
         // check for trial termination
         if( model_->isGoal(state) || model_->isAbsorbing(state) ) {
             result.goalReached_ = true;
@@ -212,27 +211,33 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
             break;
         }
 
+        // compute belief_a
+        const HistoryBelief &belief_a = static_cast<const HistoryBelief&>(belief.update(model_, bestAction));
+
         // sample state and observation
         int nstate = model_->sampleNextState(state, bestAction);
-        //while( model_->isAbsorbing(nstate) ) {
-        //    nstate = model_->sampleNextState(state, bestAction);
-        //}
         int observation = model_->sampleNextObservation(nstate, bestAction);
         result.push_back(state, bestAction, observation);
+
+        int nstate_bel = belief_a.sampleState();
+        int observation_bel = model_->sampleNextObservation(nstate_bel, bestAction);
+
+        // update real cost
         double realCost = model_->cost(state, bestAction, nstate);
         result.accCost_ += realCost;
         result.accDisCost_ += realCost * powf(model_->underlyingDiscount_, result.numSteps_);
 
-        // update belief
-        const Belief &belief_a = belief.update(model_, bestAction);
-        const Belief &belief_ao = belief_a.update(model_, bestAction, observation);
+        // compute belief_ao
+        const HistoryBelief &belief_ao = static_cast<const HistoryBelief&>(belief_a.update(model_, bestAction, observation_bel));
+        assert(belief_ao.check());
+
+        // update state and beleif
         state = nstate;
         belief = belief_ao;
         p = hash->lookup(belief, false, true);
     }
     glookups += hash->nlookups() + beliefHash_->nlookups();
     gfound += hash->nfound() + beliefHash_->nfound();
-cout << "num-steps=" << result.numSteps_ << endl;
 
     // check for abortion
     if( PD.signal_ >= 0 ) {
