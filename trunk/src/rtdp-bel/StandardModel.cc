@@ -19,10 +19,13 @@ extern "C" {
 StandardModel::StandardModel(const char *cassandraFilename)
   : Model(), goal_(0), goalSize_(0), numGoals_(0), application_(0),
     cost_(0), cassandra_(true), transition_(0), observation_(0) {
+
+    cout << "parsing file '" << cassandraFilename << "' ... " << flush;
     if( !readMDP((char*)cassandraFilename) ) { // parse file with Cassandra's MDP parser
         cerr << "Fatal Error: when reading file: " << cassandraFilename << endl;
         exit(-1);
     }
+    cout << "done" << endl;
 
     // fundamental vars
     numActions_ = gNumActions;
@@ -61,11 +64,12 @@ StandardModel::StandardModel(const char *cassandraFilename)
     //destroyMatrix(Q);
 
     // compute model
+    cout << "computing transition model ... " << flush;
     for( int state = 0; state < numStates_; ++state ) {
         for( int action = 0; action < numActions_; ++action ) {
+            unsigned index = state*numActions_ + action;
 
             // transition model: P( s' | s, a )
-            unsigned index = state*numActions_ + action;
             for( int nstate = 0; nstate < numStates_; ++nstate ) {
                 double p = getEntryMatrix(P[action], state, nstate);
                 if( p > 0.0 ) {
@@ -76,7 +80,7 @@ StandardModel::StandardModel(const char *cassandraFilename)
                 }
             }
 
-            // observation model: P( o | s, a )
+            // observation model: P( o | s', a ) (in this computation s stands for s')
             for( int obs = 0; obs < numObs_; ++obs ) {
                 double p = getEntryMatrix(R[action], state, obs);
                 if( p > 0.0 ) observation_[index][obs] = p;
@@ -87,6 +91,7 @@ StandardModel::StandardModel(const char *cassandraFilename)
             application_[j] = app | (1<<off);
         }
     }
+    cout << "done" << endl;
 
 #if 0
     for( int action = 0; action < numActions_; ++action ) {
