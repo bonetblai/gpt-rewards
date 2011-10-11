@@ -41,7 +41,6 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     beliefHash_->resetStats();
 
     // go for it!!!
-    //cout << "ibel=" << belief << endl;
     while( (PD.signal_ < 0) && (result.numSteps_ < cutoff_) ) {
 
         // verbosity output
@@ -86,7 +85,6 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
         // compute belief_ao
         const HistoryBelief &belief_ao = static_cast<const HistoryBelief&>(belief_a.update(model_, bestAction, observation));
         assert(belief_ao.check());
-        //cout << "bel_ao=" << belief_ao << endl;
 
         // update state and beleif
         belief = belief_ao;
