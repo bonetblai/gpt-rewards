@@ -66,7 +66,6 @@ void StandardPOMDP::learnAlgorithm(Result& result) {
    
         // compute the best QValues and update value
         bestQValue(belief, *qresult_, cache_entry, beliefHash_);
-//cout << "bqv = " << qresult_->value_ << endl;
         beliefHash_->update(qbelief, qresult_->value_);
         if( PD.useStopRule_ ) {
             stack.push(beliefHash_->fetch(qbelief));
@@ -75,15 +74,15 @@ void StandardPOMDP::learnAlgorithm(Result& result) {
         // greedy selection of best action
         int bestAction = -1;
         if( qresult_->numTies_ > 0 ) {
-            int index = !randomTies_? 0 : ::unifRandomSampling(qresult_->numTies_);
+            int index = !randomTies_? 0 : Random::uniform(qresult_->numTies_);
             bestAction = qresult_->ties_[index];
         } else { // we have a dead-end
             beliefHash_->update(qbelief, DBL_MAX, true);
             result.push_back(state, -1, -1);
             break;
         }
-        if( (epsilonGreedy() > 0) && (::realRandomSampling() < epsilonGreedy()) )
-            bestAction = ::unifRandomSampling(model_->numActions());
+        if( (epsilonGreedy() > 0) && (Random::unit_interval() < epsilonGreedy()) )
+            bestAction = Random::uniform(model_->numActions());
 
         // sample state and observation
         int nstate = model_->sampleNextState(state, bestAction);
@@ -147,7 +146,6 @@ void StandardPOMDP::learnAlgorithm(Result& result) {
 
     // set initial belief data
     p = beliefHash_->lookup(*model_->initialBelief_, false, true);
-//cout << "value for ibel = " << p.second.value_ << endl;
     result.initialValue_ = p.second.value_;
     result.solved_ = p.second.solved_;
 }
@@ -201,7 +199,7 @@ void StandardPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const
             bestQValue(belief, *qresult_, cache_entry,hash);
             if( PD.controlUpdates_ ) hash->update(qbelief, qresult_->value_);
             if( qresult_->numTies_ > 0 ) {
-                int index = !randomTies_ ? 0 : ::unifRandomSampling(qresult_->numTies_);
+                int index = !randomTies_ ? 0 : Random::uniform(qresult_->numTies_);
                 bestAction = qresult_->ties_[index];
             } else { // we have a dead-end
                 if( PD.controlUpdates_ ) hash->update(qbelief, DBL_MAX, true);

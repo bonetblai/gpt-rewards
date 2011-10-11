@@ -21,13 +21,13 @@ inline int num_bytes(int num_entries, int num_entries_per_word) {
     return num_words(num_entries, num_entries_per_word) * sizeof(unsigned);
 }
 
-inline int fetch(const unsigned *seq, int idx, int off, unsigned mask) {
+inline int fetch_field(const unsigned *seq, int idx, int off, unsigned mask) {
     unsigned word = seq[idx];
     word = word >> off;
     return word & mask;
 }
 
-inline void set(unsigned *seq, int entry, int idx, int off, unsigned mask) {
+inline void set_field(unsigned *seq, int entry, int idx, int off, unsigned mask) {
     unsigned word = seq[idx];
     unsigned clear_mask = ~(mask << off);
     word = word & clear_mask;
@@ -80,8 +80,6 @@ class History {
     static void initialize(int num_actions, int num_observations) {
         assert(num_actions > 0);
         assert(num_observations > 0);
-        std::cout << "num-actions      = " << num_actions << std::endl
-                  << "num-observations = " << num_observations << std::endl;
 
         // initialize pool of histories to the empty pool
         pool_ = 0;
@@ -94,14 +92,6 @@ class History {
             act_mask_ = act_mask_ << 1;
             ++act_mask_;
         }
-#if 0
-        while( num_actions > 1 ) {
-            ++num_bits_per_act_;
-            act_mask_ = act_mask_ << 1;
-            ++act_mask_;
-            num_actions = num_actions >> 1;
-        }
-#endif
         if( num_bits_per_act_ > 0 )
             num_act_per_wrd_ = (8 * sizeof(unsigned)) / num_bits_per_act_;
    
@@ -113,21 +103,8 @@ class History {
             obs_mask_ = obs_mask_ << 1;
             ++obs_mask_;
         }
-#if 0
-        while( num_observations > 1 ) {
-            ++num_bits_per_obs_;
-            obs_mask_ = obs_mask_ << 1;
-            ++obs_mask_;
-            num_observations = num_observations >> 1;
-        }
-#endif
         if( num_bits_per_act_ > 0 )
             num_obs_per_wrd_ = (8 * sizeof(unsigned)) / num_bits_per_obs_;
-
-        std::cout << "num-bits-per-act = " << num_bits_per_act_ << std::endl
-                  << "num-act-per-word = " << num_act_per_wrd_ << std::endl
-                  << "num-bits-per-obs = " << num_bits_per_obs_ << std::endl
-                  << "num-obs-per-word = " << num_obs_per_wrd_ << std::endl;
     }
     static void finalize() { }
 
@@ -162,7 +139,7 @@ class History {
         else {
             int idx = i / num_act_per_wrd_;
             int off = i % num_act_per_wrd_;
-            return fetch(act_seq_, idx, off * num_bits_per_act_, act_mask_);
+            return fetch_field(act_seq_, idx, off * num_bits_per_act_, act_mask_);
         }
     }
     int obs(int i) const {
@@ -171,7 +148,7 @@ class History {
         else {
             int idx = i / num_obs_per_wrd_;
             int off = i % num_obs_per_wrd_;
-            return fetch(obs_seq_, idx, off * num_bits_per_obs_, obs_mask_);
+            return fetch_field(obs_seq_, idx, off * num_bits_per_obs_, obs_mask_);
         }
     }
 
@@ -185,10 +162,7 @@ class History {
     }
 
     void reserve(int new_act_cap, int new_obs_cap) {
-        //std::cout << "reserve: new_act_cap=" << new_act_cap << ", new_obs_cap=" << new_obs_cap << std::endl
-        //          << "         old_act_cap=" << act_cap_ << ", old_obs_cap=" << obs_cap_ << std::endl;
         if( (act_cap_ < new_act_cap) && (num_bits_per_act_ > 0) ) {
-            //std::cout << "  inc. act_seq: new_cap = " << new_act_cap << std::endl;
             int nwords = num_words(act_cap_, num_act_per_wrd_);
             int new_nwords = num_words(new_act_cap, num_act_per_wrd_);
             unsigned *old_act_seq = act_seq_;
@@ -199,7 +173,6 @@ class History {
             act_cap_ = new_nwords * num_act_per_wrd_;
         }
         if( (obs_cap_ < new_obs_cap) && (num_bits_per_obs_ > 0) ) {
-            //std::cout << "  inc. obs_seq: new_cap = " << new_obs_cap << std::endl;
             int nwords = num_words(obs_cap_, num_obs_per_wrd_);
             int new_nwords = num_words(new_obs_cap, num_obs_per_wrd_);
             unsigned *old_obs_seq = obs_seq_;
@@ -212,19 +185,13 @@ class History {
     }
 
     void copy(const History &h) {
-//std::cout << "C1: num-act = " << h.num_act_ << ", num-obs = " << h.num_obs_ << std::endl;
         reserve(h.num_act_, h.num_obs_);
-//std::cout << "C2: cap-act = " << act_cap_ << ", cap-obs = " << obs_cap_ << std::endl;
-//std::cout << "    seq-act = " << act_seq_ << ", seq-obs = " << obs_seq_ << std::endl;
         num_act_ = h.num_act_;
         num_obs_ = h.num_obs_;
-//std::cout << "C3: " << num_bytes(h.num_act_, num_act_per_wrd_) << std::endl;
         if( num_bits_per_act_ > 0 )
             bcopy(h.act_seq_, act_seq_, num_bytes(h.num_act_, num_act_per_wrd_));
-//std::cout << "C4: " << num_bytes(h.num_obs_, num_obs_per_wrd_) << std::endl;
         if( num_bits_per_obs_ > 0 )
             bcopy(h.obs_seq_, obs_seq_, num_bytes(h.num_obs_, num_obs_per_wrd_));
-//std::cout << "C5" << std::endl;
     }
 
     void push(int act, int obs) {
@@ -234,21 +201,18 @@ class History {
     void push_act(int act) {
         if( num_bits_per_act_ > 0 ) {
             reserve(num_act_+1, num_obs_);
-            //std::cout << "X1 = " << std::flush; print(std::cout); std::cout << std::endl;
             int idx = num_act_ / num_act_per_wrd_;
             int off = num_act_ % num_act_per_wrd_;
-            set(act_seq_, act, idx, off * num_bits_per_act_, act_mask_);
-            //std::cout << "X2 = " << std::flush; print(std::cout); std::cout << std::endl;
+            set_field(act_seq_, act, idx, off * num_bits_per_act_, act_mask_);
         }
         ++num_act_;
-        //std::cout << "X3 = " << std::flush; print(std::cout); std::cout << std::endl;
     }
     void push_obs(int obs) {
         if( num_bits_per_obs_ > 0 ) {
             reserve(num_act_, num_obs_+1);
             int idx = num_obs_ / num_obs_per_wrd_;
             int off = num_obs_ % num_obs_per_wrd_;
-            set(obs_seq_, obs, idx, off * num_bits_per_obs_, obs_mask_);
+            set_field(obs_seq_, obs, idx, off * num_bits_per_obs_, obs_mask_);
         }
         ++num_obs_;
     }

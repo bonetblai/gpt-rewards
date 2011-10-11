@@ -92,7 +92,7 @@ class HistoryBelief : public Belief {
         return (Belief::Constructor)&HistoryBelief::constructor;
     }
     virtual int sampleState() const {
-        return ::randomSampling(pfilter_);
+        return Random::sample(pfilter_);
     }
 
     virtual void nextPossibleObservations(const Model *model, int action, double *nextobs) const {
@@ -120,7 +120,7 @@ class HistoryBelief : public Belief {
         for( const_particle_iterator it = particle_begin(); it != particle_end(); ++it ) {
             int state = *it;
             const std::vector<std::pair<int, double> > *transition = m->transition_[state*m->numActions() + action];
-            int nstate = ::randomSampling(*transition);
+            int nstate = Random::sample(*transition);
             bel_a_.insert_particle(nstate);
         }
         return bel_a_;
@@ -137,7 +137,6 @@ class HistoryBelief : public Belief {
         //     (1) compute weights for each particle given evidence (observation)
         //     (2) re-sample N=num_particles using weights
 
-//std::cout << "begin update bel_a=" << *this << " with action=" << action << " and obs=" << obs << std::endl;
         // compute weights
         int i = 0;
         double mass = 0.0;
@@ -148,15 +147,14 @@ class HistoryBelief : public Belief {
             mass += weights_[i];
         }
 
+        // normalize
         for(int j = 0; j < num_particles_; ++j ) {
             weights_[j] /= mass;
-            //std::cout << "  weight for state=" << particles_[j] << " is " << weights_[j] << std::endl;
         }
 
         // re-sample particles
         for( int j = 0; j < num_particles_; ++j ) {
-            int i = ::randomSampling(weights_, num_particles_);
-            //std::cout << "  sample " << particles_[i] << std::endl;
+            int i = Random::sample(weights_, num_particles_);
             bel_ao_.insert_particle(particles_[i]);
         }
 
@@ -243,7 +241,6 @@ class HistoryBeliefHash : public BeliefHash, public Hash<const HistoryBelief, Be
     }
     virtual double heuristic(const Belief &belief) const {
         //std::cout << "CHECK2" << std::endl;
-        //if( heuristic_ ) std::cout << "h = " << heuristic_->value(dynamic_cast<const HistoryBelief&>(belief)) << std::endl;
         return !heuristic_ ? 0 : heuristic_->value(dynamic_cast<const HistoryBelief&>(belief));
     }
 

@@ -54,9 +54,8 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     beliefHash_->resetStats();
 
     // go for it!!!
-//cout << "ibel=" << belief << endl;
+    //cout << "ibel=" << belief << endl;
     while( (PD.signal_ < 0) && (result.numSteps_ < cutoff_) ) {
-//cout << "Z1: bel=" << belief << ", state=" << state << endl;
 
         // verbosity output
         if( PD.verboseLevel_ >= 30 ) {
@@ -66,50 +65,33 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
 		            << "data=" << bel_data << endl;
         }
 
-#if 0
-        // check for trial termination
-        if( model_->isGoal(state) || model_->isAbsorbing(state) ) {
-            result.goalReached_ = true;
-            break;
-        }
-#endif
-   
         // compute the best QValues and update value
-//cout << "before bqv" << endl;
         bestQValue(belief, *qresult_, beliefHash_);
-//cout << "bqv = " << qresult_->value_ << endl;
         beliefHash_->update(belief, qresult_->value_);
-//cout << "after bqv" << endl;
 
         // greedy selection of best action
         int bestAction = -1;
         if( qresult_->numTies_ > 0 ) {
-            int index = !randomTies_? 0 : ::unifRandomSampling(qresult_->numTies_);
+            int index = !randomTies_? 0 : Random::uniform(qresult_->numTies_);
             bestAction = qresult_->ties_[index];
         } else { // we have a dead-end
             beliefHash_->update(belief, DBL_MAX, true);
-            //result.push_back(state, -1, -1);
+            result.push_back(-1, -1, -1);
             break;
         }
-        if( (epsilonGreedy() > 0) && (::realRandomSampling() < epsilonGreedy()) )
-            bestAction = ::unifRandomSampling(model_->numActions());
-//cout << "Z3: a=" << bestAction << endl;
+        if( (epsilonGreedy() > 0) && (Random::unit_interval() < epsilonGreedy()) )
+            bestAction = Random::uniform(model_->numActions());
 
         // compute belief_a
         const HistoryBelief &belief_a = static_cast<const HistoryBelief&>(belief.update(model_, bestAction));
-//cout << "Z4: bel_a=" << belief_a << endl;
 
         // sample state and observation
         int nstate = belief_a.sampleState();
-        //int nstate = model_->sampleNextState(state, bestAction);
         int observation = model_->sampleNextObservation(nstate, bestAction);
-        //result.push_back(state, bestAction, observation);
         result.push_back(-1, bestAction, observation);
-//cout << "Z?: nstate=" << nstate << ", obs=" << observation << endl;
 
         // terminate trial
         if( model_->isAbsorbing(nstate) ) {
-//cout << "Z?: termination" << belief_a << endl;
             result.goalReached_ = true;
             break;
         }
@@ -117,11 +99,9 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
         // compute belief_ao
         const HistoryBelief &belief_ao = static_cast<const HistoryBelief&>(belief_a.update(model_, bestAction, observation));
         assert(belief_ao.check());
-        //const Belief &belief_ao = belief_a.update(model_, bestAction, observation);
-//cout << "Z5: bel_ao=" << belief_ao << endl;
+        //cout << "bel_ao=" << belief_ao << endl;
 
         // update state and beleif
-        //state = nstate;
         belief = belief_ao;
         p = beliefHash_->lookup(belief, false, true);
         bel_data = p.second;
@@ -147,7 +127,6 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     // set initial belief data
     p = beliefHash_->lookup(initialBelief_, false, true);
     result.initialValue_ = p.second.value_;
-//cout << "value for ibel = " << p.second.value_ << endl;
     result.solved_ = p.second.solved_;
 }
 
@@ -203,7 +182,7 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
         // greedy selection of best action
         int bestAction = -1;
         if( qresult_->numTies_ > 0 ) {
-            int index = !randomTies_ ? 0 : ::unifRandomSampling(qresult_->numTies_);
+            int index = !randomTies_ ? 0 : Random::uniform(qresult_->numTies_);
             bestAction = qresult_->ties_[index];
         } else { // we have a dead-end
             if( PD.controlUpdates_ ) hash->update(belief, DBL_MAX, true);

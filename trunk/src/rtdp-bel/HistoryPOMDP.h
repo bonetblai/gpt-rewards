@@ -49,31 +49,22 @@ class HistoryPOMDP : public POMDP {
     }
 
     double QValue(const Belief &belief, int action, const BeliefHash *hash) const {
-//std::cout << "entering qvalue" << std::endl;
         double qvalue = DBL_MAX;
         if( applicable(belief, action) ) {
-//std::cout << "  applicable action = " << action << std::endl;
             qvalue = 0;
             const Belief &belief_a = belief.update(model_, action);
-//std::cout << "  got bel_a = " << belief_a << std::endl;
             bzero(nextobs_, numObs_ * sizeof(double));
             belief_a.nextPossibleObservations(model_, action, nextobs_);
             for( int obs = 0; obs < numObs_; ++obs ) {
                 double prob = nextobs_[obs];
-//std::cout << "  prob[obs=" << obs << "] = " << prob << std::endl;
                 if( prob > 0 ) {
                     const Belief &belief_ao = belief_a.update(model_, action, obs);
-//std::cout << "  got bel_ao = " << belief_ao << std::endl;
                     BeliefHash::Data data = const_cast<BeliefHash*>(hash)->lookup(belief_ao, false, PD.hashAll_).second;
-//std::cout << "lookup " << action << "/" << obs << " " << belief_ao << " = " << data.value_ << std::endl;
                     qvalue += prob * data.value_;
                 }
             }
-//std::cout << "cost = " << cost(belief, action) << std::endl;
-            qvalue = cost(belief, action) + 0.95 * qvalue;
+            qvalue = cost(belief, action) + qvalue;
         }
-//std::cout << "  qvalue = " << qvalue << std::endl;
-//std::cout << "exiting qvalue" << std::endl;
         return qvalue;
     }
     void bestQValue(const Belief &belief, QResult &qresult, const BeliefHash *hash) const {
@@ -101,9 +92,7 @@ class HistoryPOMDP : public POMDP {
         const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
         for( HistoryBelief::const_particle_iterator it = bel.particle_begin(); it != bel.particle_end(); ++it )  {
             sum += model_->cost(*it, action);
-//std::cout << "cost " << action << " on " << *it << " = " << model_->cost(*it, action) << std::endl;
         }
-//std::cout << "cost of (act=" << action << ") = " << sum/bel.num_particles() << std::endl;
         return sum / bel.num_particles();
     }
     virtual bool isAbsorbing(const Belief &belief) const {
