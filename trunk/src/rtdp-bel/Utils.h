@@ -1,8 +1,6 @@
-//  Theseus
-//  Utils.h -- Utilities Implementation
+//  Utils.h -- General utilities
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _Utils_INCLUDE_
 #define _Utils_INCLUDE_

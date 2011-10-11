@@ -1,8 +1,6 @@
-//  Theseus
-//  Problem.cc -- Problem Implementation
+//  Problem.cc -- General description and solution of POMDP problems
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #include "LookAhead.h"
 #include "Problem.h"

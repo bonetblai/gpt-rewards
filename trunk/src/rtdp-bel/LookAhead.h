@@ -1,8 +1,6 @@
-//  Theseus
-//  LookAhead.h -- Look Ahead Heuristic in Belief Space
+//  LookAhead.h -- Look-ahead heuristics
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _LookAhead_INCLUDE_
 #define _LookAhead_INCLUDE_

@@ -1,8 +1,7 @@
-//  Theseus
-//  HistoryBelief.cc -- History Belief Implementation
+//  HistoryBelief.cc -- Implementation of belief states based on histories
+//                      of actions and observations.
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #include "HistoryBelief.h"
 

@@ -1,8 +1,6 @@
-//  Theseus
-//  SB.h -- Standard Belief Implementation
+//  SB.h -- Standard beliefs
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _SB_INCLUDE_
 #define _SB_INCLUDE_

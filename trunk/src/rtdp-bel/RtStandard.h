@@ -1,8 +1,6 @@
-//  Theseus
-//  RtStandard.h -- RunTime Standard Support
+//  RtStandard.h -- RunTime support
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _RtStandard_INCLUDE
 #define _RtStandard_INCLUDE

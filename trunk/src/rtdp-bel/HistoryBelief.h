@@ -1,8 +1,7 @@
 //  Theseus
-//  HistoryBelief.h -- History Belief Implementation
+//  HistoryBelief.h -- History beliefs
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _HistoryBelief_INCLUDE_
 #define _HistoryBelief_INCLUDE_

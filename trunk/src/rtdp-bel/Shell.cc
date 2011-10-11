@@ -1,8 +1,6 @@
-//  Theseus
-//  Shell.cc -- GPT main shell module
+//  Shell.cc -- main GPT shell
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #include "Exception.h"
 #include "LookAhead.h"

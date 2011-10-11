@@ -1,8 +1,6 @@
-//  Theseus
-//  Problem.h -- Problem
+//  Problem.h -- Problem specification and solution methods.
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _Problem_INCLUDE_
 #define _Problem_INCLUDE_

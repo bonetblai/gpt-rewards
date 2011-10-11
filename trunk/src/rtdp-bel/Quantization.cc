@@ -1,8 +1,6 @@
-//  Theseus
-//  Quantization.h -- Belief Quantization Implementation
+//  Quantization.h -- Quantization of beliefs
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #include "Quantization.h"
 

@@ -1,8 +1,6 @@
-//  Theseus
-//  Sondik.h -- Sondik's Method
+//  Sondik.h -- Sondik's method
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _Sondik_INCLUDE_
 #define _Sondik_INCLUDE_

@@ -1,8 +1,6 @@
-//  Theseus
-//  Model.cc -- Abstract Model Implementation
+//  Model.cc -- Abstract POMDP models
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _Model_INCLUDE_
 #define _Model_INCLUDE_

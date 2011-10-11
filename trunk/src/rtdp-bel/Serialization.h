@@ -1,8 +1,6 @@
-//  Theseus
-//  Register.h -- Serialization Register Implementation
+//  Register.h -- Serialization
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _Serialization_INCLUDE_
 #define _Serialization_INCLUDE_

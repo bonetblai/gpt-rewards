@@ -1,8 +1,6 @@
-//  Theseus
-//  HistoryPOMDP.cc -- History POMDP Implementation
+//  HistoryPOMDP.cc -- POMDPs for history beliefs
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #include "HistoryPOMDP.h"
 #include "Problem.h"

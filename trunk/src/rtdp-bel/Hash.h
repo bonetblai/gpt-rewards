@@ -1,8 +1,6 @@
-//  Theseus
 //  Hash.h -- Hash Implementation
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _Hash_INCLUDE_
 #define _Hash_INCLUDE_

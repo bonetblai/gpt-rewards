@@ -1,8 +1,6 @@
-//  Theseus
-//  Heuristic.h -- Abstarct Belief Heuristic Class
+//  Heuristic.h -- Abstarct heuristics
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _Heuristic_INCLUDE_
 #define _Heuristic_INCLUDE_

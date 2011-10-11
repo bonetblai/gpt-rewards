@@ -1,8 +1,6 @@
-//  Theseus
-//  Belief.h -- Abstract Belief and BeliefHash classes
+//  Belief.h -- Abstract beliefs and belief hashes
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _Belief_INCLUDE_
 #define _Belief_INCLUDE_

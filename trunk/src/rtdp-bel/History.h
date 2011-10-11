@@ -1,8 +1,7 @@
 //  Theseus
-//  History.h -- Histories implementation.
+//  History.h -- Histories.
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner ((c)
 
 #ifndef _History_INCLUDE_
 #define _History_INCLUDE_
