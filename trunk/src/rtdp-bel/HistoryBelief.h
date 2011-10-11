@@ -90,7 +90,7 @@ class HistoryBelief : public Belief {
             for( int obs = 0, sz = m->numObs(); obs < sz; ++obs ) {
                 double p = *(dptr+obs) / num_particles_;
                 nextobs[obs] += p;
-                assert(nextobs[obs] <= 1);
+                //assert(nextobs[obs] <= 1);
             }
         }
     }

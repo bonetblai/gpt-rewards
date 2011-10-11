@@ -677,7 +677,7 @@ void Problem::solveCASSANDRA() {
             // control trials
             if( pims_[pim].second.second > 0 ) {
                 int ntrials = pims_[pim].second.second;
-                double ivalue = 0, ngoals = 0, totalSumDisCost = 0, totalSumDisCost2 = 0;
+                double ivalue = 0, ngoals = 0, totalSumDisReward = 0, totalSumDisReward2 = 0;
                 for( int trial = 0; trial < ntrials; ++trial ) {
                     try {
                         pomdp_->controlAlgorithm(*result, sondik);
@@ -690,14 +690,15 @@ void Problem::solveCASSANDRA() {
                     result->print(*outputFile_, outputLevel_, handle_);
                     ivalue = result->initialValue_;
                     ngoals += result->goalReached_ ? 1 : 0;
-                    totalSumDisCost += result->accDisCost_;
-                    totalSumDisCost2 += result->accDisCost_ * result->accDisCost_;
+                    totalSumDisReward += result->accDiscountedReward_;
+                    totalSumDisReward2 += result->accDiscountedReward_ * result->accDiscountedReward_;
                     result->clean();
                 }
                 ivalue = (1+model_->maxReward_) / (1-model_->underlyingDiscount()) - ivalue;
-                double avg = totalSumDisCost / (double)ntrials, dev = 0, conf = 0, tv = 0;
+                double avg = totalSumDisReward / (double)ntrials, dev = 0, conf = 0, tv = 0;
                 if( ntrials >= 2 ) {
-                    dev = sqrt((totalSumDisCost2 / (ntrials-1)) - (totalSumDisCost*totalSumDisCost / (ntrials*(ntrials-1))));
+                    dev = sqrt((totalSumDisReward2 / (ntrials-1)) -
+                               (totalSumDisReward*totalSumDisReward / (ntrials*(ntrials-1))));
                     if( ntrials <= 101 ) { // for degrees of freedom (df) <= 100 use exact t value
                         tv = tValues[ntrials-2];
                     } else if( (ntrials > 101) && (ntrials <= 501) ) { // for 100 < df <= 500, interpolate

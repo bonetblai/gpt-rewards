@@ -19,8 +19,8 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     // initialize result
     result.runType_ = 1;
     result.numSteps_ = 0;
-    result.accCost_ = 0.0;
-    result.accDisCost_ = 0.0;
+    result.accReward_ = 0.0;
+    result.accDiscountedReward_ = 0.0;
     result.goalReached_ = false;
     result.startTimer();
 
@@ -123,9 +123,9 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
     // initialize result
     result.runType_ = 0;
     result.numSteps_ = 0;
-    result.accCost_ = 0.0;
-	    result.accDisCost_ = 0.0;
-	    result.goalReached_ = false;
+    result.accReward_ = 0.0;
+    result.accDiscountedReward_ = 0.0;
+    result.goalReached_ = false;
     result.startTimer();
 
     // setup hash for control
@@ -188,10 +188,10 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
         int nstate_bel = belief_a.sampleState();
         int observation_bel = model_->sampleNextObservation(nstate_bel, bestAction);
 
-        // update real cost
-        double realCost = model_->cost(state, bestAction, nstate);
-        result.accCost_ += realCost;
-        result.accDisCost_ += realCost * powf(model_->underlyingDiscount_, result.numSteps_);
+        // get real reward
+        double reward = model_->reward(state, bestAction, nstate);
+        result.accReward_ += reward;
+        result.accDiscountedReward_ += reward * powf(model_->underlyingDiscount_, result.numSteps_);
 
         // compute belief_ao
         const HistoryBelief &belief_ao = static_cast<const HistoryBelief&>(belief_a.update(model_, bestAction, observation_bel));
