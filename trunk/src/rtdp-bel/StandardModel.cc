@@ -8,6 +8,7 @@
 #include "SB.h"
 
 #include <stdio.h>
+#include <mdp/sparse-matrix.h>
 
 using namespace std;
 
@@ -64,7 +65,45 @@ StandardModel::StandardModel(const char *cassandraFilename)
     //destroyMatrix(Q);
 
     // compute model
-    cout << "computing transition model ... " << flush;
+    cout << "computing model for action:" << flush;
+    for( int action = 0; action < numActions_; ++action ) {
+        cout << " " << action << flush; 
+
+        // transitions
+        assert(P[action]->num_rows == numStates_);
+        for( int state = 0; state < P[action]->num_rows; ++state ) {
+            unsigned index = state*numActions_ + action;
+            for( int j = P[action]->row_start[state], jsz = P[action]->row_start[state] + P[action]->row_length[state]; j < jsz; j++ ) {
+                int nstate = P[action]->col[j];
+                double p = P[action]->mat_val[j];
+                assert(p > 0.0);
+                p *= underlyingDiscount_;
+                if( transition_[index] == 0 ) transition_[index] = new vector<pair<int, double> >;
+                transition_[index]->push_back(make_pair(nstate, p));
+            }
+        }
+
+        // observations
+        assert(R[action]->num_rows == numStates_);
+        for( int nstate = 0; nstate < R[action]->num_rows; ++nstate ) {
+            unsigned index = nstate*numActions_ + action;
+            for( int j = R[action]->row_start[nstate], jsz = R[action]->row_start[nstate] + R[action]->row_length[nstate]; j < jsz; j++ ) {
+                int obs = R[action]->col[j];
+                double p = R[action]->mat_val[j];
+                observation_[index][obs] = p;
+            }
+        }
+
+        // application model
+        for( int state = 0; state < P[action]->num_rows; ++state) {
+            unsigned index = state*numActions_ + action;
+            unsigned j = index >> 5, off = index & 0x1F, app = application_[j];
+            application_[j] = app | (1<<off);
+        }
+    }
+    cout << " done" << endl;
+
+#if 0
     for( int state = 0; state < numStates_; ++state ) {
         for( int action = 0; action < numActions_; ++action ) {
             unsigned index = state*numActions_ + action;
@@ -91,7 +130,7 @@ StandardModel::StandardModel(const char *cassandraFilename)
             application_[j] = app | (1<<off);
         }
     }
-    cout << "done" << endl;
+#endif
 
 #if 0
     for( int action = 0; action < numActions_; ++action ) {
