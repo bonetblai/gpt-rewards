@@ -15,11 +15,8 @@
 #include <map>
 #include <set>
 
-//extern "C" {
 #include <mdp/mdp.h>
 void destroyImmRewards();
-//};
-
 
 class StandardModel : public Model {
   public:

@@ -18,19 +18,6 @@
 #include <set>
 #include <vector>
 
-#if 0
-#include "Hash.h"
-#include "StandardModel.h"
-#include "Problem.h"
-#include "Utils.h"
-
-#include <iostream>
-#include <strings.h>
-#include <math.h>
-#include <algorithm>
-#include <vector>
-#endif
-
 class HistoryBelief : public Belief {
   protected:
     History *history_;

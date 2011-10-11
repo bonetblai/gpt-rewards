@@ -11,17 +11,6 @@
 #include "Exception.h"
 #include "HashHeuristic.h"
 
-#if 0
-#include "Problem.h"
-#include "Result.h"
-#include "StandardPOMDP.h"
-#include "Sondik.h"
-
-#include <iostream>
-#include <list>
-#include <math.h>
-#endif
-
 using namespace std;
 
 extern unsigned glookups, gfound;

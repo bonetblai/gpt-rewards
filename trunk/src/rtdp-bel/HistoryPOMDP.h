@@ -10,23 +10,6 @@
 #include "POMDP.h"
 #include "HistoryBelief.h"
 
-#if 0
-#include "Exception.h"
-#include "Problem.h"
-#include "SB.h"
-//#include "StandardBelief.h"
-#include "QBelief.h"
-#include "BeliefCache.h"
-#include "Quantization.h"
-#include "Serialization.h"
-#include "Utils.h"
-
-#include <iostream>
-#include <float.h>
-#include <map>
-#include <list>
-#endif
-
 class HistoryPOMDP : public POMDP {
   protected:
     int num_particles_;
