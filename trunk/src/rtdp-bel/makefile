@@ -11,7 +11,7 @@ LD	=	g++ $(LDFLAGS)
 #
 
 REVISION=	2.00-cassandra
-OBJS	=	Shell.o Problem.o StandardModel.o SB.o StandardPOMDP.o QBelief.o Quantization.o QMDP.o HistoryBelief.o HistoryPOMDP.o History.o
+OBJS	=	Shell.o Problem.o StandardModel.o SB.o StandardPOMDP.o QBelief.o Quantization.o QMDP.o HistoryBelief.o RLPOMDP.o History.o
 LIB	=	-lmdp -ldl -lm -lreadline -lcurses
 LIBDIR	=	-L../lib #-L/usr/local/lib
 INCDIR	=	-I. -I../include #-I/usr/local/include -I/opt/sfw/include

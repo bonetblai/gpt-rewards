@@ -12,6 +12,7 @@
 #include "StandardModel.h"
 #include "Utils.h"
 
+#include <math.h>
 #include <cassert>
 #include <set>
 #include <vector>

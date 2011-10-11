@@ -7,10 +7,9 @@
 #include "QMDP.h"
 #include "Result.h"
 #include "StandardPOMDP.h"
+#include "RLPOMDP.h"
 #include "Sondik.h"
 #include "Utils.h"
-
-#include "HistoryPOMDP.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -563,7 +562,7 @@ void Problem::bootstrapCASSANDRA() {
 
     // POMDP creation & setup
     if( historyBased_ ) {
-        pomdp_ = new HistoryPOMDP(model, PD.numParticles_);
+        pomdp_ = new RLPOMDP(model, PD.numParticles_);
     } else {
         pomdp_ = new StandardPOMDP(model, qlevels_, qbase_);
     }

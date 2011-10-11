@@ -1,40 +1,35 @@
 History.o: History.cc History.h
 HistoryBelief.o: HistoryBelief.cc HistoryBelief.h Belief.h Heuristic.h \
  Serialization.h Hash.h History.h Problem.h StandardModel.h Model.h \
- Utils.h ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h
-HistoryPOMDP.o: HistoryPOMDP.cc HistoryPOMDP.h POMDP.h Belief.h \
- Heuristic.h Serialization.h Model.h Utils.h HistoryBelief.h Hash.h \
- History.h Problem.h StandardModel.h ../include/mdp/mdp.h \
- ../include/mdp/sparse-matrix.h RtStandard.h Result.h Exception.h \
- HashHeuristic.h SB.h
-Problem.o: Problem.cc LookAhead.h Belief.h Heuristic.h Serialization.h \
- Exception.h RtStandard.h POMDP.h Model.h Utils.h Problem.h QMDP.h SB.h \
- Hash.h StandardModel.h ../include/mdp/mdp.h \
- ../include/mdp/sparse-matrix.h QBelief.h Quantization.h Result.h \
- StandardPOMDP.h BeliefCache.h Sondik.h HistoryPOMDP.h HistoryBelief.h \
- History.h
+ Random.h ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h Utils.h
 QBelief.o: QBelief.cc QBelief.h Belief.h Heuristic.h Serialization.h SB.h \
- Hash.h StandardModel.h Model.h Utils.h ../include/mdp/mdp.h \
- ../include/mdp/sparse-matrix.h Problem.h Quantization.h
+ Hash.h StandardModel.h Model.h Random.h ../include/mdp/mdp.h \
+ ../include/mdp/sparse-matrix.h Problem.h Utils.h Quantization.h
 QMDP.o: QMDP.cc QMDP.h Heuristic.h Serialization.h Problem.h RtStandard.h \
- SB.h Belief.h Hash.h StandardModel.h Model.h Utils.h \
- ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h QBelief.h \
+ SB.h Belief.h Hash.h StandardModel.h Model.h Random.h \
+ ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h QBelief.h Utils.h \
  Quantization.h
 Quantization.o: Quantization.cc Quantization.h QBelief.h Belief.h \
- Heuristic.h Serialization.h SB.h Hash.h StandardModel.h Model.h Utils.h \
- ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h Problem.h
+ Heuristic.h Serialization.h SB.h Hash.h StandardModel.h Model.h Random.h \
+ ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h Problem.h Utils.h
+RLPOMDP.o: RLPOMDP.cc RLPOMDP.h POMDP.h Belief.h Heuristic.h \
+ Serialization.h Model.h Utils.h HistoryBelief.h Hash.h History.h \
+ Problem.h StandardModel.h Random.h ../include/mdp/mdp.h \
+ ../include/mdp/sparse-matrix.h RtStandard.h Result.h Exception.h \
+ HashHeuristic.h SB.h
 SB.o: SB.cc SB.h Belief.h Heuristic.h Serialization.h Hash.h \
- StandardModel.h Model.h Utils.h ../include/mdp/mdp.h \
+ StandardModel.h Model.h Random.h ../include/mdp/mdp.h \
  ../include/mdp/sparse-matrix.h Problem.h
 Shell.o: Shell.cc Exception.h RtStandard.h LookAhead.h Belief.h \
  Heuristic.h Serialization.h POMDP.h Model.h Utils.h Problem.h \
- StandardModel.h ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h \
- HelpMsg.dat
+ StandardModel.h Random.h ../include/mdp/mdp.h \
+ ../include/mdp/sparse-matrix.h HelpMsg.dat
 StandardModel.o: StandardModel.cc StandardModel.h Model.h Serialization.h \
- Belief.h Heuristic.h Utils.h ../include/mdp/mdp.h \
- ../include/mdp/sparse-matrix.h SB.h Hash.h Problem.h
+ Belief.h Heuristic.h Random.h ../include/mdp/mdp.h \
+ ../include/mdp/sparse-matrix.h SB.h Hash.h Problem.h \
+ ../include/mdp/sparse-matrix.h
 StandardPOMDP.o: StandardPOMDP.cc Problem.h Serialization.h Result.h \
  RtStandard.h Utils.h StandardPOMDP.h Exception.h POMDP.h Belief.h \
- Heuristic.h Model.h SB.h Hash.h StandardModel.h ../include/mdp/mdp.h \
- ../include/mdp/sparse-matrix.h QBelief.h BeliefCache.h Quantization.h \
- HashHeuristic.h Sondik.h
+ Heuristic.h Model.h SB.h Hash.h StandardModel.h Random.h \
+ ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h QBelief.h \
+ BeliefCache.h Quantization.h HashHeuristic.h Sondik.h
