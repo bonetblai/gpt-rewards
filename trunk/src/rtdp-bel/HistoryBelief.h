@@ -1,4 +1,3 @@
-//  Theseus
 //  HistoryBelief.h -- History beliefs
 //
 //  Blai Bonet, Hector Geffner (c)
@@ -267,10 +266,9 @@ class HistoryBeliefHash : public BeliefHash, public Hash<const HistoryBelief, Be
         const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
         HashType::Entry *entry = HashType::lookup(bel);
         if( entry ) {
-            entry->data_.value_ *= 1+entry->data_.updates_;
-            entry->data_.value_ += value;
+            double alpha = pow(0.95, entry->data_.updates_);
+            entry->data_.value_ = (1-alpha)*entry->data_.value_ + alpha*entry->data_.value_;
             ++entry->data_.updates_;
-            entry->data_.value_ /= 1+entry->data_.updates_;
         } else {
             HashType::insert(bel, BeliefHash::Data(value));
         }
