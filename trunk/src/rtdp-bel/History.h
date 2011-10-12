@@ -6,6 +6,7 @@
 #ifndef _History_INCLUDE_
 #define _History_INCLUDE_
 
+#include "HashFunction.h"
 #include <cassert>
 #include <iostream>
 #include <strings.h>
@@ -249,7 +250,7 @@ class History {
 
     // TODO: fix hash function
     size_t hash() const {
-        return 0;
+        return HashFunction::hash(act_seq_, num_words(num_act_, num_act_per_wrd_));
     }
 
     // serialization

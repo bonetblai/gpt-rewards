@@ -7,9 +7,12 @@
 
 using namespace std;
 
-int HistoryBelief::num_particles_ = 0;
-int* HistoryBelief::particles_ = 0;
-double* HistoryBelief::weights_ = 0;
 HistoryBelief HistoryBelief::bel_a_;
 HistoryBelief HistoryBelief::bel_ao_;
+
+int HistoryAndSampleBelief::num_particles_ = 0;
+vector<int> HistoryAndSampleBelief::particles_;
+vector<double> HistoryAndSampleBelief::weights_;
+HistoryAndSampleBelief HistoryAndSampleBelief::bel_a_;
+HistoryAndSampleBelief HistoryAndSampleBelief::bel_ao_;
 

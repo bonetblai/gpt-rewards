@@ -10,34 +10,12 @@
 #include "Hash.h"
 #include "StandardModel.h"
 #include "Problem.h"
-#include "Utils.h"
 
 #include <iostream>
 #include <strings.h>
 #include <math.h>
 #include <map>
 #include <set>
-
-#define HASH_ROT(x,k) (((x)<<(k))|((x)>>(32-(k))))
-#define HASH_MIX(a,b,c) \
-{ \
-  a -= c; a ^= HASH_ROT(c, 4); c += b; \
-  b -= a; b ^= HASH_ROT(a, 6); a += c; \
-  c -= b; c ^= HASH_ROT(b, 8); b += a; \
-  a -= c; a ^= HASH_ROT(c,16); c += b; \
-  b -= a; b ^= HASH_ROT(a,19); a += c; \
-  c -= b; c ^= HASH_ROT(b, 4); b += a; \
-}
-#define HASH_FINAL(a,b,c) \
-{ \
-  c ^= b; c -= HASH_ROT(b,14); \
-  a ^= c; a -= HASH_ROT(c,11); \
-  b ^= a; b -= HASH_ROT(a,25); \
-  c ^= b; c -= HASH_ROT(b,16); \
-  a ^= c; a -= HASH_ROT(c,4);  \
-  b ^= a; b -= HASH_ROT(a,14); \
-  c ^= b; c -= HASH_ROT(b,24); \
-}
 
 class QBelief : public Belief {
   protected:
@@ -116,27 +94,7 @@ class QBelief : public Belief {
 
     virtual Belief* clone() const { return new QBelief(*this); }
     virtual size_t hash() const {
-        register unsigned a, b, c, length = size_;
-        a = b = c = 0xdeadbeef + (length<<2) + 0;
-        if( length == 0 ) return c;
-
-        register unsigned *p = vec_;
-        while( length > 3 ) {
-            a += *p++;
-            b += *p++;
-            c += *p++;
-            HASH_MIX(a, b, c);
-            length -= 3;
-        }
-        assert((length==3) || (length==2) || (length==1));
-
-        switch( length ) {
-            case 3: c += p[2];
-            case 2: b += p[1];
-            case 1: a += p[0];
-                HASH_FINAL(a, b, c);
-        }
-        return c; 
+        return HashFunction::hash(vec_, size_);
     }
 
     virtual void print(std::ostream &os) const {

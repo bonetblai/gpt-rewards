@@ -8,6 +8,7 @@
 #include "Result.h"
 #include "StandardPOMDP.h"
 #include "RLPOMDP.h"
+#include "RolloutPOMDP.h"
 #include "Sondik.h"
 #include "Utils.h"
 
@@ -18,6 +19,7 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <math.h>
+#include <limits>
 #include <errno.h>
 #include <iostream>
 #include <fstream>
@@ -44,7 +46,8 @@ Problem::Problem()
     pddlProblem_(false), linkmap_(0), verboseLevel_(0), precision_(6), signal_(-1),
     useStopRule_(false), SREpsilon_(0), epsilon_(.000001), epsilonGreedy_(0),
     maxUpdate_(false), cutoff_(100), controlUpdates_(false),
-    historyBased_(false), numParticles_(0),
+    historyBased_(false),
+    width_(1), nesting_(1), numParticles_(1),
     sondik_(false), sondikMethod_(0), sondikMaxPlanes_(16), sondikIterations_(100),
     qmethod_(0), qlevels_(20), qbase_(0.95),
     zeroHeuristic_(false), hashAll_(false), lookahead_(0), QMDPdiscount_(1),
@@ -126,6 +129,8 @@ void Problem::print(ostream &os, const char *prefix) const {
     os << endl
        << prefix << "cutoff " << cutoff_ << endl
        << prefix << "history-based " << (historyBased_ ? "on" : "off") << endl
+       << prefix << "width " << width_ << endl
+       << prefix << "nesting " << nesting_ << endl
        << prefix << "num-particles " << numParticles_ << endl
        << prefix << "qmdp-discount " << QMDPdiscount_ << endl
        << prefix << "heuristic-lookahead " << lookahead_ << endl
@@ -558,11 +563,13 @@ void Problem::bootstrapCASSANDRA() {
 
     // initialization of beliefs and others
     StandardBelief::initialize(model->numStates_, model->numActions_, model->numObs_);
-    HistoryBelief::initialize(model->numStates_, model->numActions_, model->numObs_, PD.numParticles_);
+    HistoryBelief::initialize(model->numActions_, model->numObs_);
+    HistoryAndSampleBelief::initialize(model->numStates_, model->numActions_, model->numObs_, PD.numParticles_);
 
     // POMDP creation & setup
     if( historyBased_ ) {
-        pomdp_ = new RLPOMDP(model, PD.numParticles_);
+        //pomdp_ = new RLPOMDP(model);
+        pomdp_ = new RolloutPOMDP(model, PD.width_, PD.nesting_, PD.numParticles_);
     } else {
         pomdp_ = new StandardPOMDP(model, qlevels_, qbase_);
     }
@@ -707,8 +714,10 @@ void Problem::solveCASSANDRA() {
                     } else { // for df > 1000, use infinity value
                         tv = tValues[102];
                     }
+                    conf = tv * dev / sqrt(ntrials);
+                } else {
+                    conf = numeric_limits<double>::infinity();
                 }
-                conf = tv * dev / sqrt(ntrials);
                 cratio = 100 * (double)gfound / (double)glookups;
                 glookups = 0;
                 gfound = 0;

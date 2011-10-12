@@ -1,8 +1,8 @@
-//  HistoryPOMDP.cc -- POMDPs for history beliefs
+//  RLPOMDP.cc -- Reinforcement Learning for POMDPs
 //
 //  Blai Bonet, Hector Geffner (c)
 
-#include "HistoryPOMDP.h"
+#include "RLPOMDP.h"
 #include "Problem.h"
 #include "RtStandard.h"
 #include "Result.h"
@@ -13,8 +13,7 @@ using namespace std;
 
 extern unsigned glookups, gfound;
 
-void HistoryPOMDP::learnAlgorithm(Result& result) {
-    assert(!PD.pddlProblem_ || ISPOMDP(PD.handle_->problemType) || ISNDPOMDP(PD.handle_->problemType));
+void RLPOMDP::learnAlgorithm(Result& result) {
 
     // initialize result
     result.runType_ = 1;
@@ -25,35 +24,49 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     result.startTimer();
 
     // set initial states
-    //int state = model_->initialBelief_->sampleState();
+    int state = model_->initialBelief_->sampleState();
 
-    // set initial belief and insert particles
+    // set initial belief
     HistoryBelief belief;
+#if 0
     for( int i = 0; i < num_particles_; ++i ) {
         int particle = model_->initialBelief_->sampleState();
         belief.insert_particle(particle);
     }
-
-    pair<const Belief*, BeliefHash::Data> p = beliefHash_->lookup(belief, false, true);
-    BeliefHash::Data bel_data = p.second;
-    result.initialValue_ = bel_data.value_;
-    result.solved_ = bel_data.solved_;
+#endif
     beliefHash_->resetStats();
+
+#if 0
+    pair<const Belief*, BeliefHash::Data> p = beliefHash_->lookup(belief, false, false);
+    cout << "state=" << state
+         << ", ibel=" << belief
+         << ", stored value=" << p.second.value_
+         << endl;
+#endif
 
     // go for it!!!
     while( (PD.signal_ < 0) && (result.numSteps_ < cutoff_) ) {
 
         // verbosity output
         if( PD.verboseLevel_ >= 30 ) {
+            pair<const Belief*, BeliefHash::Data> p = beliefHash_->lookup(belief, false, false);
             *PD.outputFile_ << endl
-	                    //<< "state=" << state << endl
+	                    << "state=" << state << endl
 	                    << "belief=" << belief << endl
-		            << "data=" << bel_data << endl;
+		            << "data=" << p.second << endl;
         }
 
-        // compute the best QValues and update value
-        bestQValue(belief, *qresult_, beliefHash_);
+        // compute best QValue
+        bestQValue(belief, state, *qresult_, beliefHash_);
         beliefHash_->update(belief, qresult_->value_);
+
+#if 0
+        pair<const Belief*, BeliefHash::Data> p = beliefHash_->lookup(belief, false, false);
+std::cout << "update " << belief
+          << " w/ " << qresult_->value_
+          << ". New stored value = " << p.second.value_
+          << std::endl;
+#endif
 
         // greedy selection of best action
         int bestAction = -1;
@@ -68,13 +81,20 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
         if( (epsilonGreedy() > 0) && (Random::unit_interval() < epsilonGreedy()) )
             bestAction = Random::uniform(model_->numActions());
 
-        // compute belief_a
-        const HistoryBelief &belief_a = static_cast<const HistoryBelief&>(belief.update(model_, bestAction));
-
         // sample state and observation
-        int nstate = belief_a.sampleState();
+        int nstate = model_->sampleNextState(state, bestAction);
+        //while( model_->isAbsorbing(nstate) ) nstate = model_->sampleNextState(state, bestAction);
         int observation = model_->sampleNextObservation(nstate, bestAction);
-        result.push_back(-1, bestAction, observation);
+        result.push_back(state, bestAction, observation);
+
+#if 0
+        cout << "state=" << state
+             << ", act=" << bestAction
+             << ", nstate=" << nstate
+             << ", obs=" << observation
+             << ", cost=" << model_->cost(state, bestAction, nstate)
+             << endl;
+#endif
 
         // terminate trial
         if( model_->isAbsorbing(nstate) ) {
@@ -83,13 +103,12 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
         }
 
         // compute belief_ao
+        const HistoryBelief &belief_a = static_cast<const HistoryBelief&>(belief.update(model_, bestAction));
         const HistoryBelief &belief_ao = static_cast<const HistoryBelief&>(belief_a.update(model_, bestAction, observation));
-        assert(belief_ao.check());
 
-        // update state and beleif
+        // update state and belief
+        state = nstate;
         belief = belief_ao;
-        p = beliefHash_->lookup(belief, false, true);
-        bel_data = p.second;
 
         // verbosity output
         if( PD.verboseLevel_ >= 30 ) {
@@ -110,13 +129,12 @@ void HistoryPOMDP::learnAlgorithm(Result& result) {
     result.stopTimer();
 
     // set initial belief data
-    p = beliefHash_->lookup(initialBelief_, false, true);
-    result.initialValue_ = p.second.value_;
-    result.solved_ = p.second.solved_;
+    pair<const Belief*, BeliefHash::Data> q = beliefHash_->lookup(initialBelief_, false, false);
+    result.initialValue_ = q.second.value_;
+    result.solved_ = q.second.solved_;
 }
 
-void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const {
-    assert(!PD.pddlProblem_ || ISPOMDP(PD.handle_->problemType) || ISNDPOMDP(PD.handle_->problemType));
+void RLPOMDP::controlAlgorithm(Result& result, const Sondik *) const {
 
     // initialize result
     result.runType_ = 0;
@@ -138,16 +156,14 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
     // set initial states
     int state = model_->initialBelief_->sampleState();
 
-    // set initial belief and insert particles
+    // set initial belief
     HistoryBelief belief;
+#if 0
     for( int i = 0; i < num_particles_; ++i ) {
         int particle = model_->initialBelief_->sampleState();
         belief.insert_particle(particle);
     }
-
-    pair<const Belief*, BeliefHash::Data> p = hash->lookup(belief, false, true);
-    result.initialValue_ = p.second.value_;
-    result.solved_ = p.second.solved_;
+#endif
     beliefHash_->resetStats();
     hash->resetStats();
 
@@ -160,9 +176,8 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
             break;
         }
 
-        // compute the best QValues and update value
-        bestQValue(belief, *qresult_, hash);
-        if( PD.controlUpdates_ ) hash->update(belief, qresult_->value_);
+        // compute best action performing (only) action lookahead
+        bestQValue2(belief, state, *qresult_, hash);
 
         // greedy selection of best action
         int bestAction = -1;
@@ -170,35 +185,29 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
             int index = !randomTies_ ? 0 : Random::uniform(qresult_->numTies_);
             bestAction = qresult_->ties_[index];
         } else { // we have a dead-end
-            if( PD.controlUpdates_ ) hash->update(belief, DBL_MAX, true);
             result.push_back(state, -1, -1);
             break;
         }
 
-        // compute belief_a
-        const HistoryBelief &belief_a = static_cast<const HistoryBelief&>(belief.update(model_, bestAction));
-
         // sample state and observation
         int nstate = model_->sampleNextState(state, bestAction);
+        while( model_->isAbsorbing(nstate) )
+            nstate = model_->sampleNextState(state, bestAction);
         int observation = model_->sampleNextObservation(nstate, bestAction);
         result.push_back(state, bestAction, observation);
-
-        int nstate_bel = belief_a.sampleState();
-        int observation_bel = model_->sampleNextObservation(nstate_bel, bestAction);
 
         // get real reward
         double reward = model_->reward(state, bestAction, nstate);
         result.accReward_ += reward;
-        result.accDiscountedReward_ += reward * powf(model_->underlyingDiscount_, result.numSteps_);
+        result.accDiscountedReward_ += reward * pow(model_->underlyingDiscount_, result.numSteps_);
 
         // compute belief_ao
-        const HistoryBelief &belief_ao = static_cast<const HistoryBelief&>(belief_a.update(model_, bestAction, observation_bel));
-        assert(belief_ao.check());
+        const HistoryBelief &belief_a = static_cast<const HistoryBelief&>(belief.update(model_, bestAction));
+        const HistoryBelief &belief_ao = static_cast<const HistoryBelief&>(belief_a.update(model_, bestAction, observation));
 
-        // update state and beleif
+        // update state and belief
         state = nstate;
         belief = belief_ao;
-        p = hash->lookup(belief, false, true);
     }
     glookups += hash->nlookups() + beliefHash_->nlookups();
     gfound += hash->nfound() + beliefHash_->nfound();
@@ -219,7 +228,7 @@ void HistoryPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const 
     }
 
     // set initial belief data
-    p = beliefHash_->lookup(initialBelief_, false, true);
+    pair<const Belief*, BeliefHash::Data> p = beliefHash_->lookup(initialBelief_, false, false);
     result.initialValue_ = p.second.value_;
     result.solved_ = p.second.solved_;
 }

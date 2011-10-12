@@ -214,7 +214,7 @@ static int bootstrap() {
         free(cwd);
         return 0;
     }
-    loadedObject = true;
+    //loadedObject = true;
     loadedCore = false;
     free(cwd);
     return 1;
@@ -257,7 +257,7 @@ int main(int argc, const char **argv) {
     PD.parseArguments(argc, argv, &help);
     //internalInitialization();
     commandRegistration();
-    *terminal << "Welcome to GPT, Version " << PD.softwareRevision_ << "."
+    *terminal << "Welcome to GPT, Version " << PD.softwareRevision_ << " (cassandra)."
               << endl;
 
     // bootstrap problem
@@ -311,7 +311,9 @@ static void setAllDefaultValues() {
     defaultValues.insert(make_pair("cutoff", "250"));
     defaultValues.insert(make_pair("control-updates", "off"));
     defaultValues.insert(make_pair("history-based", "off"));
-    defaultValues.insert(make_pair("num-particles", "0"));
+    defaultValues.insert(make_pair("width", "1"));
+    defaultValues.insert(make_pair("nesting", "1"));
+    defaultValues.insert(make_pair("num-particles", "1"));
     defaultValues.insert(make_pair("sondik", "off"));
     defaultValues.insert(make_pair("sondik-method", "timestamps"));
     defaultValues.insert(make_pair("sondik-max-planes", "16"));
@@ -898,7 +900,7 @@ static int solveFunction(int nargs, char** args) {
     return 1;
 }
 
-static const char* setPattern = "set( (defaults|problem|stoprule|epsilon|epsilon-greedy|max-update|cutoff|control-updates|history-based|num-particles|sondik|sondik-method|sondik-max-planes|sondik-iterations|pims|qmdp-discount|heuristic-lookahead|qmethod|qlevels|qbase|zero-heuristic|hash-all|random-ties|random-seed|output-level|verbose-level|precision|action-cache|obs-cache|other-cache|cc|ccflags|ld|ldflags|include-dir|lib-dir|entry-point)( (.+)){0,1}){0,1}";
+static const char* setPattern = "set( (defaults|problem|stoprule|epsilon|epsilon-greedy|max-update|cutoff|control-updates|history-based|width|nesting|num-particles|sondik|sondik-method|sondik-max-planes|sondik-iterations|pims|qmdp-discount|heuristic-lookahead|qmethod|qlevels|qbase|zero-heuristic|hash-all|random-ties|random-seed|output-level|verbose-level|precision|action-cache|obs-cache|other-cache|cc|ccflags|ld|ldflags|include-dir|lib-dir|entry-point)( (.+)){0,1}){0,1}";
 static int setSubexprs = 4;
 static void setValue(const char* var, const char* value);
 static void invalidSetValue(const char* var, const char* value);
@@ -927,6 +929,8 @@ static int setFunction(int nargs, char** args) {
         *terminal << endl;
         *terminal << "  cutoff                = " << PD.cutoff_ << endl
                   << "  history-based         = " << (PD.historyBased_ ? "on" : "off") << endl
+                  << "  width                 = " << PD.width_ << endl
+                  << "  nesting               = " << PD.nesting_ << endl
                   << "  num-particles         = " << PD.numParticles_ << endl
                   << "  qmdp-discount         = " << PD.QMDPdiscount_ << endl
                   << "  heuristic-lookahead   = " << PD.lookahead_ << endl
@@ -1037,6 +1041,18 @@ static void setValue(const char* var, const char* value) {
             PD.historyBased_ = false;
         else
             invalidSetValue(var, value);
+    } else if( !strcasecmp(var, "width") ) {
+        int arg = atoi(value);
+        if( arg < 0 )
+            invalidSetValue(var, value);
+        else
+            PD.width_ = arg;
+    } else if( !strcasecmp(var, "nesting") ) {
+        int arg = atoi(value);
+        if( arg < 0 )
+            invalidSetValue(var, value);
+        else
+            PD.nesting_ = arg;
     } else if( !strcasecmp(var, "num-particles") ) {
         int arg = atoi(value);
         if( arg < 0 )
@@ -1545,7 +1561,8 @@ static const char* generateList[] = { "core", "graph", "hash", "pomdp", "table",
 static const char* loadList[] = { "core", "problem", 0 };
 static const char* linkmapList[] = { "+", "-", 0 };
 static const char* setList[] = { "defaults", "problem", "stoprule", "epsilon", "epsilon-greedy",
-                                 "max-update", "cutoff", "control-updates", "history-based", "num-particles",
+                                 "max-update", "cutoff", "control-updates", "history-based",
+                                 "width", "nesting", "num-particles",
                                  "sondik", "sondik-method", "sondik-max-planes", "sondik-iterations",
                                  "pims", "qmdp-discount",
 				 "heuristic-lookahead", "qmethod", "qlevels", "qbase", "zero-heuristic",
@@ -1615,6 +1632,8 @@ static completionInfo_t completionInfo[] = {
     { "set cutoff", 0, emptyList },
     { "set control-updates", 0, emptyList },
     { "set history-based", 0, emptyList },
+    { "set width", 0, emptyList },
+    { "set nesting", 0, emptyList },
     { "set num-particles", 0, emptyList },
     { "set sondik", 0, sondikList },
     { "set sondik-method", 0, emptyList },

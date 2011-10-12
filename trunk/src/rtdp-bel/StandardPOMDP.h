@@ -87,6 +87,7 @@ class StandardPOMDP : public POMDP {
     void bestQValue(const Belief &belief, QResult &qresult, BeliefCache::Entry *cache_entry, const BeliefHash *hash) const {
         ++expansions_;
         qresult.numTies_ = 0;
+        qresult.value_ = DBL_MAX;
         for( int action = 0; action < numActions_; ++action ) {
             double qvalue = QValue(belief, action, cache_entry, hash);
             if( (qresult.numTies_ == 0) || (qvalue <= qresult.value_) ) {
