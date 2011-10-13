@@ -13,6 +13,9 @@ using namespace std;
 
 void QMDPHeuristic::compute() {
     size_ = model_->numStates();
+    action_table_ = new int[size_];
+    memset(action_table_, 0, size_ * sizeof(int));
+
     double *oldtable = new double[size_];
     double *newtable = new double[size_];
     memset(oldtable, 0, size_ * sizeof(double));
@@ -40,6 +43,7 @@ void QMDPHeuristic::compute() {
                         if( noBest || (sum < newtable[state]) ) {
                             noBest = false;
                             newtable[state] = sum;
+                            action_table_[state] = action;
                         }
                     }
                 }

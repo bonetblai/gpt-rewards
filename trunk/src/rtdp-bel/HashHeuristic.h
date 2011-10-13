@@ -28,6 +28,8 @@ class HashHeuristic : public Heuristic {
             return p.second.value_;
         }
     }
+
+    virtual int action(int state) const { return 0; }
     virtual double value(int state) const { return 0; }
     virtual double value(const Belief &belief) const {
         std::cout << "CHECK1" << std::endl;

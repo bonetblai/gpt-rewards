@@ -1,4 +1,3 @@
-//  Theseus
 //  RLPOMDP.h -- Reinforcement Learning for POMDPs
 //
 //  Blai Bonet, Hector Geffner (c)

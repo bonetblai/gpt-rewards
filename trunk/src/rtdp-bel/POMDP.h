@@ -35,6 +35,7 @@ class POMDP : public Serializable {
     bool randomTies_;
     double epsilonGreedy_;
     mutable unsigned expansions_;
+    const Heuristic *heuristic_;
     BeliefHash* beliefHash_;
     const Model *model_;
     double learningTime_;
@@ -44,7 +45,8 @@ class POMDP : public Serializable {
     POMDP(const Model *model)
       : numActions_(model->numActions()), numObs_(model->numObs()),
         cutoff_(100), randomTies_(true), epsilonGreedy_(0), expansions_(0),
-        beliefHash_(0), model_(model), learningTime_(0), controlTime_(0) { }
+        heuristic_(0), beliefHash_(0),
+        model_(model), learningTime_(0), controlTime_(0) { }
     virtual ~POMDP() { }
 
     const BeliefHash* beliefHash() const {
@@ -71,8 +73,9 @@ class POMDP : public Serializable {
         return (beliefHash_ == 0) || (beliefHash_->numEntries() == 0);
     }
     void setHeuristic(const Heuristic *heuristic) {
+        heuristic_ = heuristic;
         if( beliefHash_ != 0 )
-            beliefHash_->setHeuristic(heuristic);
+            beliefHash_->setHeuristic(heuristic_);
     }
     void incLearningTime(double time) { learningTime_ += time; }
     void incControlTime(double time) { controlTime_ += time; }

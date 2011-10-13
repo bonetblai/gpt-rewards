@@ -23,6 +23,7 @@ class QMDPHeuristic : public Heuristic {
     const StandardModel *model_;
     double discount_;
     double *table_;
+    int *action_table_;
     int size_;
 
   public:
@@ -32,6 +33,7 @@ class QMDPHeuristic : public Heuristic {
     }
     virtual ~QMDPHeuristic() {
         delete[] table_;
+        delete[] action_table_;
     }
     void compute();
 
@@ -46,6 +48,10 @@ class QMDPHeuristic : public Heuristic {
     double value(const QBelief &belief) const {
         throw(0);
         return 0;
+    }
+
+    virtual int action(int state) const {
+        return action_table_[state];
     }
     virtual double value(int state) const {
         return table_[state];

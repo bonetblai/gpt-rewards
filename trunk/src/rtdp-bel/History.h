@@ -1,4 +1,3 @@
-//  Theseus
 //  History.h -- Histories.
 //
 //  Blai Bonet, Hector Geffner ((c)

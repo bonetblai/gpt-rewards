@@ -46,8 +46,7 @@ Problem::Problem()
     pddlProblem_(false), linkmap_(0), verboseLevel_(0), precision_(6), signal_(-1),
     useStopRule_(false), SREpsilon_(0), epsilon_(.000001), epsilonGreedy_(0),
     maxUpdate_(false), cutoff_(100), controlUpdates_(false),
-    historyBased_(false),
-    width_(1), nesting_(1), numParticles_(1),
+    rollout_(false), depth_(20), width_(1), nesting_(1), numParticles_(1),
     sondik_(false), sondikMethod_(0), sondikMaxPlanes_(16), sondikIterations_(100),
     qmethod_(0), qlevels_(20), qbase_(0.95),
     zeroHeuristic_(false), hashAll_(false), lookahead_(0), QMDPdiscount_(1),
@@ -128,7 +127,8 @@ void Problem::print(ostream &os, const char *prefix) const {
     }
     os << endl
        << prefix << "cutoff " << cutoff_ << endl
-       << prefix << "history-based " << (historyBased_ ? "on" : "off") << endl
+       << prefix << "rollout " << (rollout_ ? "on" : "off") << endl
+       << prefix << "depth " << depth_ << endl
        << prefix << "width " << width_ << endl
        << prefix << "nesting " << nesting_ << endl
        << prefix << "num-particles " << numParticles_ << endl
@@ -565,11 +565,11 @@ void Problem::bootstrapCASSANDRA() {
     StandardBelief::initialize(model->numStates_, model->numActions_, model->numObs_);
     HistoryBelief::initialize(model->numActions_, model->numObs_);
     HistoryAndSampleBelief::initialize(model->numStates_, model->numActions_, model->numObs_, PD.numParticles_);
+    SampleBelief::initialize(PD.numParticles_);
 
     // POMDP creation & setup
-    if( historyBased_ ) {
-        //pomdp_ = new RLPOMDP(model);
-        pomdp_ = new RolloutPOMDP(model, PD.width_, PD.nesting_, PD.numParticles_);
+    if( rollout_ ) {
+        pomdp_ = new RolloutPOMDP(model, PD.depth_, PD.width_, PD.nesting_, PD.numParticles_);
     } else {
         pomdp_ = new StandardPOMDP(model, qlevels_, qbase_);
     }

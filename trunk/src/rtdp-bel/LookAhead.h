@@ -23,7 +23,8 @@ class LookAheadHeuristic : public Heuristic {
   public:
     LookAheadHeuristic(const POMDP *pomdp = 0, const Heuristic *h = 0, int lookahead = 0)
       : pomdp_(pomdp), h_(h), lookahead_(lookahead),
-        nextobs_(new double[pomdp_->numObs()]) { }
+        nextobs_(new double[pomdp_->numObs()]) {
+    }
     virtual ~LookAheadHeuristic() {
         delete[] nextobs_;
     }
@@ -67,6 +68,9 @@ class LookAheadHeuristic : public Heuristic {
         }
     }
 
+    virtual int action(int state) const {
+        return h_->action(state);
+    }
     virtual double value(int state) const {
         return h_->value(state);
     }

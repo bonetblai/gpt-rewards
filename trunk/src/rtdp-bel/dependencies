@@ -8,7 +8,7 @@ Problem.o: Problem.cc LookAhead.h Belief.h Heuristic.h Serialization.h \
  Hash.h StandardModel.h Random.h ../include/mdp/mdp.h \
  ../include/mdp/sparse-matrix.h HashFunction.h QBelief.h Quantization.h \
  Result.h StandardPOMDP.h BeliefCache.h RLPOMDP.h HistoryBelief.h \
- History.h RolloutPOMDP.h Sondik.h
+ History.h RolloutPOMDP.h SampleBelief.h Sondik.h
 QBelief.o: QBelief.cc QBelief.h Belief.h Heuristic.h Serialization.h SB.h \
  Hash.h StandardModel.h Model.h Random.h ../include/mdp/mdp.h \
  ../include/mdp/sparse-matrix.h Problem.h HashFunction.h Quantization.h
@@ -26,13 +26,17 @@ RLPOMDP.o: RLPOMDP.cc RLPOMDP.h POMDP.h Belief.h Heuristic.h \
  ../include/mdp/sparse-matrix.h RtStandard.h Result.h Exception.h \
  HashHeuristic.h SB.h
 RolloutPOMDP.o: RolloutPOMDP.cc RolloutPOMDP.h POMDP.h Belief.h \
- Heuristic.h Serialization.h Model.h Utils.h HistoryBelief.h Hash.h \
+ Heuristic.h Serialization.h Model.h Utils.h SampleBelief.h Hash.h \
  History.h HashFunction.h Problem.h StandardModel.h Random.h \
  ../include/mdp/mdp.h ../include/mdp/sparse-matrix.h RtStandard.h \
  Result.h Exception.h HashHeuristic.h SB.h
 SB.o: SB.cc SB.h Belief.h Heuristic.h Serialization.h Hash.h \
  StandardModel.h Model.h Random.h ../include/mdp/mdp.h \
  ../include/mdp/sparse-matrix.h Problem.h HashFunction.h
+SampleBelief.o: SampleBelief.cc SampleBelief.h Belief.h Heuristic.h \
+ Serialization.h Hash.h History.h HashFunction.h Problem.h \
+ StandardModel.h Model.h Random.h ../include/mdp/mdp.h \
+ ../include/mdp/sparse-matrix.h Utils.h
 Shell.o: Shell.cc Exception.h RtStandard.h LookAhead.h Belief.h \
  Heuristic.h Serialization.h POMDP.h Model.h Utils.h Problem.h \
  StandardModel.h Random.h ../include/mdp/mdp.h \

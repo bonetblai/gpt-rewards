@@ -1,4 +1,3 @@
-//  Theseus
 //  RolloutPOMDP.h -- Reinforcement Learning for POMDPs
 //
 //  Blai Bonet, Hector Geffner (c)
@@ -7,29 +6,34 @@
 #define _RolloutPOMDP_INCLUDE_
 
 #include "POMDP.h"
-#include "HistoryBelief.h"
+#include "SampleBelief.h"
 #include <math.h>
+
+//#define DEBUG
+//#define REWARDS
 
 class RolloutPOMDP : public POMDP {
   protected:
-    HistoryAndSampleBelief initialBelief_;
+    SampleBelief initialBelief_;
+    int depth_;
     int width_;
     int nesting_;
     int num_particles_;
 
   public:
-    RolloutPOMDP(const StandardModel *model = 0, int width = 1, int nesting = 1, int num_particles = 1)
+    RolloutPOMDP(const StandardModel *model = 0, int depth = 20, int width = 1, int nesting = 1, int num_particles = 1)
       : POMDP(model),
+        depth_(depth),
         width_(width),
         nesting_(nesting),
         num_particles_(num_particles) {
     }
     virtual ~RolloutPOMDP() { }
 
-    double QValue(const HistoryAndSampleBelief &belief, int state, int action, BeliefHash *hash) const {
-        //const StandardModel *m = static_cast<const StandardModel*>(model_);
-        double qvalue = DBL_MAX;
+    double QValue(const SampleBelief &belief, int state, int action, BeliefHash *hash) const {
 #if 0
+        const StandardModel *m = static_cast<const StandardModel*>(model_);
+        double qvalue = DBL_MAX;
         state = Random::uniform(2);
         if( applicable(belief, action) ) {
             qvalue = 0;
@@ -57,9 +61,9 @@ class RolloutPOMDP : public POMDP {
 //std::cout << "update " << belief_a << " w/ " << qvalue << std::endl;
         }
 #endif
-        return qvalue;
+        return 0;
     }
-    void bestQValue(const HistoryAndSampleBelief &belief, int state, QResult &qresult, BeliefHash *hash) const {
+    void bestQValue(const SampleBelief &belief, int state, QResult &qresult, BeliefHash *hash) const {
 #if 0
         ++expansions_;
         qresult.numTies_ = 0;
@@ -75,12 +79,11 @@ class RolloutPOMDP : public POMDP {
 #endif
     }
 
-    double simulate(int state, int nesting, HistoryAndSampleBelief *bel) const {
+    double simulate(int state, int nesting, SampleBelief *bel) const {
         double cost = 0;
-        if( nesting == 1 ) {
-            int nsteps = 0;
-            for( int steps = 0; !model_->isAbsorbing(state) && (steps < PD.cutoff_); ++steps ) {
-                int action = 2-state;//Random::uniform(model_->numActions_);
+        for( int steps = 0; !model_->isAbsorbing(state) && (steps < depth_); ++steps ) {
+            if( nesting == 1 ) {
+                int action = heuristic_ == 0 ? Random::uniform(model_->numActions_) : heuristic_->action(state);
                 int nstate = model_->sampleNextState(state, action);
 #ifdef REWARDS
                 while( model_->isAbsorbing(nstate) ) nstate = model_->sampleNextState(state, action);
@@ -88,33 +91,31 @@ class RolloutPOMDP : public POMDP {
 #else
                 cost += model_->cost(state, action, nstate);
 #endif
-//std::cout << ", reward (act=" << action << ")=" << cost;
                 state = nstate;
-                ++nsteps;
-            }
-            if( nsteps == PD.cutoff_ ) std::cout << "#steps=" << nsteps << std::endl;
-        } else {
-            for( int steps = 0; !model_->isAbsorbing(state) && (steps < PD.cutoff_); ++steps ) {
-                //std::cout << "state=" << state << ", bel=" << *bel << std::endl;
+            } else {
                 assert(bel->contains(state));
                 int action = Rollout(nesting-1, *bel);
-                const HistoryAndSampleBelief &bel_a = static_cast<const HistoryAndSampleBelief&>(bel->update(model_, action));
+                const SampleBelief &bel_a = static_cast<const SampleBelief&>(bel->update(model_, action));
                 int nstate = bel_a.sampleState();
-                cost += model_->reward(state, action, nstate);
+                assert(!model_->isAbsorbing(nstate));
+#ifdef REWARDS
+                cost += model_->reward(state, action, nstate) * pow(model_->underlyingDiscount_, steps);
+#else
+                cost += model_->cost(state, action, nstate);
+#endif
 
                 // sample obs, update bel w/ act + obs, and iterate
                 int obs = model_->sampleNextObservation(nstate, action);
-                const HistoryAndSampleBelief &bel_ao = static_cast<const HistoryAndSampleBelief&>(bel_a.update(model_, action, obs));
+                const SampleBelief &bel_ao = static_cast<const SampleBelief&>(bel_a.update(model_, action, obs));
                 *bel = bel_ao;
+                if( !bel->contains(nstate) ) bel->insert_particle(nstate);
                 state = nstate;
-                if( !bel->contains(nstate) )
-                    bel->insert_particle(nstate);
             }
         }
         return cost;
     }
 
-    int Rollout(int nesting, const HistoryAndSampleBelief &bel) const {
+    int Rollout(int nesting, const SampleBelief &bel) const {
 #ifdef REWARDS
         double best_value = DBL_MIN;
 #else
@@ -122,41 +123,57 @@ class RolloutPOMDP : public POMDP {
 #endif
         int best_action = 0;
         for( int action = 0; action < numActions_; ++action ) {
+
+#ifdef DEBUG
+            std::cout << std::setw(2 * (1 + nesting_ - nesting)) << ""
+                      << "begin estimate for act=" << action << std::endl;
+#endif
+
             double estimate = 0;
-//std::cout << "begin estimate for act=" << action << std::endl;
             for( int w = 0; w < width_; ++w ) {
+
                 int state = bel.sampleState();
                 int nstate = model_->sampleNextState(state, action);
-#ifdef REWARDS
                 while( model_->isAbsorbing(nstate) ) nstate = model_->sampleNextState(state, action);
-                double est = model_->reward(state, action, nstate);
-#else
-                while( model_->isAbsorbing(nstate) ) nstate = model_->sampleNextState(state, action);
-                double est = model_->cost(state, action, nstate);
-#endif
-//std::cout << "  state=" << state << ", nstate=" << nstate << std::flush;
+
+                double simulation = 0;
                 if( nesting == 1 ) {
-#ifdef REWARDS
-                    est += model_->underlyingDiscount_ * simulate(nstate, 1, 0);
-#else
-                    est += simulate(nstate, 1, 0);
-#endif
+                    simulation = simulate(nstate, 1, 0);
                 } else {
-                    // get obs and update beliefs
-                    const HistoryAndSampleBelief &bel_a = static_cast<const HistoryAndSampleBelief&>(bel.update(model_, action));
+                    const SampleBelief &bel_a = static_cast<const SampleBelief&>(bel.update(model_, action));
+                    SampleBelief *nbel = new SampleBelief(bel_a);
+                    if( !nbel->contains(nstate) ) nbel->insert_particle(nstate);
                     int obs = model_->sampleNextObservation(nstate, action);
-                    const HistoryAndSampleBelief &bel_ao = static_cast<const HistoryAndSampleBelief&>(bel_a.update(model_, action, obs));
-                    HistoryAndSampleBelief *nbel = new HistoryAndSampleBelief(bel_ao);
-                    if( !nbel->contains(nstate) )
-                        nbel->insert_particle(nstate);
-                    estimate += simulate(nstate, nesting, nbel);
+                    const SampleBelief &bel_ao = static_cast<const SampleBelief&>(nbel->update(model_, action, obs));
+                    *nbel = bel_ao;
+                    if( !nbel->contains(nstate) ) nbel->insert_particle(nstate);
+                    simulation = simulate(nstate, nesting, nbel);
                     delete nbel;
                 }
-                //std::cout << ", est=" << est << std::endl;
-                estimate += est;
+
+#ifdef REWARDS
+                simulation *= model_->underlyingDiscount_;
+                simulation += model_->reward(state, action, nstate);
+#else
+                simulation += model_->cost(state, action, nstate);
+#endif
+
+                estimate += simulation;
+
+#ifdef DEBUG
+                std::cout << std::setw(2 * (2 + nesting_ - nesting)) << ""
+                          << "state=" << state
+                          << ", nstate=" << nstate 
+                          << ", simulation=" << simulation
+                          << std::endl;
+#endif
             }
             estimate /= width_;
-//std::cout << "estimate=" << estimate << std::endl;
+
+#ifdef DEBUG
+            std::cout << std::setw(2 * (1 + nesting_ - nesting)) << ""
+                      << "estimate=" << estimate << std::endl;
+#endif
 
             // set best action
 #ifdef REWARDS
@@ -171,88 +188,29 @@ class RolloutPOMDP : public POMDP {
             }
 #endif
         }
+
+#ifdef DEBUG
+        std::cout << std::setw(2 * (1 + nesting_ - nesting)) << ""
+                  << "best-action=" << best_action << std::endl;
+#endif
+
         return best_action;
     }
 
-#if 0
-    void bestQValue2(const Belief &belief, int state, QResult &qresult, BeliefHash *hash) const {
-        qresult.numTies_ = 0;
-        for( int action = 0; action < numActions_; ++action ) {
-            const Belief &belief_a = belief.update(model_, action);
-            double qvalue = hash->lookup(belief_a, false, false).second.value_;
-std::cout << "  value for " << belief_a << " = " << qvalue << std::endl;
-            if( (qresult.numTies_ == 0) || (qvalue <= qresult.value_) ) {
-                if( qvalue < qresult.value_ ) qresult.numTies_ = 0;
-                qresult.ties_[qresult.numTies_++] = action;
-                qresult.value_ = qvalue;
-            }
-        }
-    }
-#endif
-
-    virtual void learnAlgorithm(Result& result);
+    virtual void learnAlgorithm(Result& result) { }
     virtual void controlAlgorithm(Result& result, const Sondik *sondik) const;
 
     virtual void statistics(std::ostream &os) const {
         POMDP::statistics(os);
-        //cache_.statistics(os);
     }
-    virtual double cost(const Belief &belief, int action) const {
-#if 0
-        const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
-        double sum = 0;
-        for( HistoryBelief::const_particle_iterator it = bel.particle_begin(); it != bel.particle_end(); ++it )  {
-            sum += model_->cost(*it, action);
-        }
-        return sum / bel.num_particles();
-#endif
-        return -1;
-    }
-    virtual bool isAbsorbing(const Belief &belief) const {
-#if 0
-        const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
-        for( HistoryBelief::const_particle_iterator it = bel.particle_begin(); it != bel.particle_end(); ++it ) {
-            if( !model_->isAbsorbing(*it) )
-                return false;
-        }
-#endif
-        return true;
-    }
-    virtual bool isGoal(const Belief &belief) const {
-#if 0
-        const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
-        for( HistoryBelief::const_particle_iterator it = bel.particle_begin(); it != bel.particle_end(); ++it ) {
-            if( !model_->isGoal(*it) )
-                return false;
-        }
-#endif
-        return true;
-    }
-    virtual bool applicable(const Belief &belief, int action) const {
-#if 0
-        const HistoryBelief &bel = static_cast<const HistoryBelief&>(belief);
-        for( HistoryBelief::const_particle_iterator it = bel.particle_begin(); it != bel.particle_end(); ++it ) {
-            if( !model_->applicable(*it, action) )
-                return false;
-        }
-#endif
-        return true;
-    }
-    virtual double QValue(const Belief &belief, int action) const {
-        //return QValue(belief, action, 0);
-        return 0;
-    }
-    virtual void bestQValue(const Belief &belief, QResult &qresult) const {
-        //bestQValue(belief, qresult, 0);
-    }
-    virtual int getBestAction(const Belief &belief) const {
-        //bestQValue(belief, *qresult_);
-        //return qresult_->numTies_ > 0 ? qresult_->ties_[0] : -1;
-        return 0;
-    }
-    virtual const Belief& getInitialBelief() const {
-        return initialBelief_;
-    }
+    virtual double cost(const Belief &belief, int action) const { return 0; }
+    virtual bool isAbsorbing(const Belief &belief) const { return false; }
+    virtual bool isGoal(const Belief &belief) const { return false; }
+    virtual bool applicable(const Belief &belief, int action) const { return true; }
+    virtual double QValue(const Belief &belief, int action) const { return 0; }
+    virtual void bestQValue(const Belief &belief, QResult &qresult) const { }
+    virtual int getBestAction(const Belief &belief) const { return 0; }
+    virtual const Belief& getInitialBelief() const { return initialBelief_; }
 
     // serialization
     RolloutPOMDP* constructor() const {
@@ -265,6 +223,8 @@ std::cout << "  value for " << belief_a << " = " << qvalue << std::endl;
         POMDP::read(is, pomdp);
     }
 };
+
+#undef DEBUG
 
 #endif // _RolloutPOMDP_INCLUDE
 

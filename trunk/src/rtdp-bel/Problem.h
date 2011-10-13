@@ -60,7 +60,8 @@ class Problem : public Serializable {
     bool maxUpdate_;
     int cutoff_;
     bool controlUpdates_;
-    bool historyBased_;
+    bool rollout_;
+    int depth_;
     int width_;
     int nesting_;
     int numParticles_;
