@@ -111,9 +111,6 @@ class StandardBelief : public Belief {
         }
     }
 
-    virtual Belief::Constructor getConstructor() const {
-        return (Belief::Constructor)&StandardBelief::constructor;
-    }
     virtual int sampleState() const {
         return Random::sample(vec_, size_);
     }
@@ -225,32 +222,7 @@ class StandardBelief : public Belief {
         return operator==(static_cast<const StandardBelief&>(belief));
     }
 
-    // serialization
-    static StandardBelief* constructor() {
-        return new StandardBelief;
-    }
-    virtual void write(std::ostream &os) const {
-        Belief::write(os);
-        Serialize::safeWrite(&size_, sizeof(unsigned), 1, os);
-        for( unsigned i = 0; i < size_; ++i ) {
-            Serialize::safeWrite(&vec_[i].first, sizeof(int), 1, os);
-            Serialize::safeWrite(&vec_[i].second, sizeof(double), 1, os);
-        }
-    }
-    static void read(std::istream &is, StandardBelief &belief) {
-        Belief::read(is,belief);
-        belief.clear();
-        unsigned size = 0;
-        Serialize::safeRead(&size, sizeof(unsigned), 1, is);
-        for( unsigned i = 0; i < size; ++i ) {
-            int s = 0;
-            double p = 0;
-            Serialize::safeRead(&s, sizeof(int), 1, is);
-            Serialize::safeRead(&p, sizeof(double), 1, is);
-            belief.push_back(s, p);
-        }
-    }
-
+    // iterators
     struct iterator {
         std::pair<int, double> *p_;
         iterator(std::pair<int, double> *p) : p_(p) { }

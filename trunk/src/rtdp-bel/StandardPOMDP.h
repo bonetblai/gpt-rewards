@@ -144,15 +144,6 @@ class StandardPOMDP : public POMDP {
     virtual const Belief& getInitialBelief() const {
         return *model_->initialBelief_;
     }
-
-    // serialization
-    StandardPOMDP* constructor() const { return new StandardPOMDP; }
-    virtual void write(std::ostream& os) const {
-        POMDP::write(os);
-    }
-    static void read(std::istream& is, StandardPOMDP &pomdp) {
-        POMDP::read(is, pomdp);
-    }
 };
 
 #endif // _StandardPOMDP_INCLUDE

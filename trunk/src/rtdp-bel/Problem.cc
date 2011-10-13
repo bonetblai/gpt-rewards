@@ -162,8 +162,6 @@ void Problem::print(ostream &os, const char *prefix) const {
 static void
 classRegistration()
 {
-  // registration of all serializable classes
-
   // for POMDP
   StandardPOMDP::checkIn();
   StandardBeliefHash::checkIn();
@@ -194,7 +192,6 @@ classRegistration()
 static void
 classCleanup()
 {
-  // registration of all serializable classes
   POMDP::cleanup();
   Belief::cleanup();
   Model::cleanup();

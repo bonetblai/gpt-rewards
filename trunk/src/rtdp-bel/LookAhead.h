@@ -77,19 +77,6 @@ class LookAheadHeuristic : public Heuristic {
     virtual double value(const Belief &belief) const {
         return value(lookahead_, belief);
     }
-
-    // serialization
-    static LookAheadHeuristic* constructor() {
-        return new LookAheadHeuristic;
-    }
-    virtual void write(std::ostream &os) const {
-        Heuristic::write(os);
-        Serialize::safeWrite(&lookahead_, sizeof(int), 1, os);
-    }
-    static void read(std::istream &is, LookAheadHeuristic &lah) {
-        Heuristic::read(is, lah);
-        Serialize::safeRead(&lah.lookahead_, sizeof(int), 1, is);
-    }
 };
 
 #endif // _LookAhead_INCLUDE

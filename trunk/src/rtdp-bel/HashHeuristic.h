@@ -36,11 +36,6 @@ class HashHeuristic : public Heuristic {
         const StandardBelief *bel = dynamic_cast<const StandardBelief*>(&belief);
         return bel != 0 ? value(*bel) : 0;
     }
-
-    // serialization
-    static HashHeuristic* constructor() { return new HashHeuristic; }
-    virtual void write(std::ostream &os) const { Heuristic::write(os); }
-    static void read(std::istream &is, HashHeuristic &h) { Heuristic::read(is, h); }
 };
 
 #endif // _HashHeuristic_INCLUDE

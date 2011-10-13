@@ -68,24 +68,6 @@ class QMDPHeuristic : public Heuristic {
                 return 0;
         }
     }
-
-    // serialization
-    static QMDPHeuristic* constructor() {
-        return new QMDPHeuristic;
-    }
-    virtual void write(std::ostream &os) const {
-        Heuristic::write(os);
-        Serialize::safeWrite(&discount_, sizeof(double), 1, os);
-        Serialize::safeWrite(&size_, sizeof(int), 1, os);
-        Serialize::safeWrite(&table_, sizeof(double), size_, os);
-    }
-    static void read(std::istream &is, QMDPHeuristic &qmdp) {
-        Heuristic::read(is, qmdp);
-        Serialize::safeRead(&qmdp.discount_, sizeof(double), 1, is);
-        Serialize::safeRead(&qmdp.size_, sizeof(int), 1, is);
-        qmdp.table_ = new double[qmdp.size_];
-        Serialize::safeRead(qmdp.table_, sizeof(double), qmdp.size_, is);
-    }
 };
 
 #endif // _QMDP_INCLUDE

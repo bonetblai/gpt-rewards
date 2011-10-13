@@ -6,7 +6,6 @@
 #define _Belief_INCLUDE_
 
 #include "Heuristic.h"
-#include "Serialization.h"
 
 #include <iostream>
 #include <map>
@@ -16,14 +15,11 @@
 class Model;
 class Quantization;
 
-class Belief : public Serializable {
+class Belief {
   public:
-    typedef Belief* (*Constructor)();
-
     Belief() { }
     virtual ~Belief() { }
 
-    virtual Constructor getConstructor() const = 0;
     virtual bool check() const = 0;
     virtual bool check(int state) = 0;
     virtual int sampleState() const = 0;
@@ -35,10 +31,6 @@ class Belief : public Serializable {
     virtual void print(std::ostream &os) const = 0;
     virtual const Belief& operator=(const Belief &belief) = 0;
     virtual bool operator==(const Belief &belief) const = 0;
-
-    // serialization
-    virtual void write(std::ostream &os) const { }
-    static void read(std::istream &is, Belief &belief) { }
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Belief& belief) {
@@ -46,7 +38,7 @@ inline std::ostream& operator<<(std::ostream& os, const Belief& belief) {
     return(os);
 }
 
-class BeliefHash: public Serializable {
+class BeliefHash {
   protected:
     const Heuristic *heuristic_;
     const Quantization *quantization_;
@@ -82,10 +74,6 @@ class BeliefHash: public Serializable {
     virtual void statistics(std::ostream &os) const = 0;
     virtual void clean() = 0;
     virtual unsigned numEntries() const = 0;
-
-    // serialization
-    virtual void write(std::ostream &os) const { }
-    static void read(std::istream &is, BeliefHash &beliefHash) { }
 };
 
 inline std::ostream& operator<<(std::ostream &os, const BeliefHash::Data &data) {

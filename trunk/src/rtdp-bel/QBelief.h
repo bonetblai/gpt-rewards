@@ -72,9 +72,6 @@ class QBelief : public Belief {
         throw(0);
         return 0;
     }
-    virtual Belief::Constructor getConstructor() const {
-        return (Belief::Constructor)&QBelief::constructor;
-    }
     virtual int sampleState() const {
         throw(0);
         return 0;
@@ -127,26 +124,7 @@ class QBelief : public Belief {
         return operator==(static_cast<const QBelief&>(belief));
     }
 
-    // serialization
-    static QBelief* constructor() { return new QBelief; }
-    virtual void write(std::ostream &os) const {
-        Belief::write(os);
-        Serialize::safeWrite(&size_, sizeof(unsigned), 1, os);
-        for( unsigned i = 0; i < size_; ++i )
-            Serialize::safeWrite(&vec_[i], sizeof(unsigned), 1, os);
-    }
-    static void read(std::istream &is, QBelief &belief) {
-        Belief::read(is, belief);
-        belief.clear();
-        unsigned size = 0;
-        Serialize::safeRead(&size, sizeof(unsigned), 1, is);
-        for( unsigned i = 0; i < size; ++i ) {
-            unsigned entry = 0;
-            Serialize::safeRead(&entry, sizeof(unsigned), 1, is);
-            belief.push_back(entry);
-        }
-    }
-
+    // iterators
     struct iterator {
         unsigned *p_;
         iterator(unsigned *p) : p_(p) { }
@@ -252,11 +230,6 @@ class QBeliefHash : public BeliefHash, public Hash<const QBelief, BeliefHash::Da
     virtual void statistics(std::ostream &os) const { HashType::statistics(os); }
     virtual void clean() { HashType::clean(); }
     virtual unsigned numEntries() const { return HashType::nentries(); }
-
-    // seriailzation
-    static QBeliefHash* constructor() { return new QBeliefHash; }
-    virtual void write(std::ostream &os) const { }
-    static void read(std::istream &is, QBeliefHash &hash) { }
 };
 
 #endif // _QBelief_INCLUDE_

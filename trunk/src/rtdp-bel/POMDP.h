@@ -7,7 +7,6 @@
 
 #include "Belief.h"
 #include "Model.h"
-#include "Serialization.h"
 #include "Utils.h"
 
 #include <iostream>
@@ -27,7 +26,7 @@ struct QResult {
     }
 };
 
-class POMDP : public Serializable {
+class POMDP {
   protected:
     int numActions_;
     int numObs_;
@@ -106,22 +105,6 @@ class POMDP : public Serializable {
     virtual void bestQValue(const Belief &belief, QResult &qresult) const = 0;
     virtual int getBestAction(const Belief &belief) const = 0;
     virtual const Belief& getInitialBelief() const = 0;
-
-    // serialization
-    virtual void write(std::ostream &os) const {
-        Serialize::safeWrite(&numActions_, sizeof(int), 1, os);
-        Serialize::safeWrite(&cutoff_, sizeof(int), 1, os);
-        Serialize::safeWrite(&randomTies_, sizeof(bool), 1, os);
-        Serialize::safeWrite(&expansions_, sizeof(unsigned), 1, os);
-        //Serialize::write(beliefHash_, os);
-    }
-    static void read(std::istream &is, POMDP &pomdp) {
-        Serialize::safeRead(&pomdp.numActions_, sizeof(int), 1, is);
-        Serialize::safeRead(&pomdp.cutoff_, sizeof(int), 1, is);
-        Serialize::safeRead(&pomdp.randomTies_, sizeof(bool), 1, is);
-        Serialize::safeRead(&pomdp.expansions_, sizeof(unsigned), 1, is);
-        //pomdp.beliefHash_ = static_cast<BeliefHash*>(Serialize::read(is));
-    }
 };
 
 #endif // _POMDP_INCLUDE

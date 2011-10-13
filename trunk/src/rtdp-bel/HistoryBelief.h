@@ -57,9 +57,6 @@ class HistoryBelief : public Belief {
         return true;
     }
 
-    virtual Belief::Constructor getConstructor() const {
-        return (Belief::Constructor)&HistoryBelief::constructor;
-    }
     virtual int sampleState() const {
         return -1;
     }
@@ -161,17 +158,6 @@ class HistoryBelief : public Belief {
     virtual bool operator==(const Belief &belief) const {
         return operator==(static_cast<const HistoryBelief&>(belief));
     }
-
-    // serialization
-    static HistoryBelief* constructor() { return new HistoryBelief; }
-    virtual void write(std::ostream& os) const {
-        Belief::write(os);
-        history_->write(os);
-    }
-    static void read(std::istream& is, HistoryBelief &belief) {
-        Belief::read(is, belief);
-        History::read(is, *belief.history_);
-    }
 };
 
 class HistoryBeliefHash : public BeliefHash, public Hash<const HistoryBelief, BeliefHash::Data> {
@@ -260,11 +246,6 @@ class HistoryBeliefHash : public BeliefHash, public Hash<const HistoryBelief, Be
     virtual void statistics(std::ostream &os) const { HashType::statistics(os); }
     virtual void clean() { HashType::clean(); }
     virtual unsigned numEntries() const { return HashType::nentries(); }
-
-    // seriailzation
-    static HistoryBeliefHash* constructor() { return new HistoryBeliefHash; }
-    virtual void write(std::ostream &os) const { }
-    static void read(std::istream &is, HistoryBeliefHash &hash) { }
 };
 
 #endif // _HistoryBelief_INCLUDE

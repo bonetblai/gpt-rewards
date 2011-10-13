@@ -147,17 +147,6 @@ std::cout << "  value for " << belief_a << " = " << qvalue << std::endl;
     virtual const Belief& getInitialBelief() const {
         return initialBelief_;
     }
-
-    // serialization
-    RLPOMDP* constructor() const {
-        return new RLPOMDP;
-    }
-    virtual void write(std::ostream& os) const {
-        POMDP::write(os);
-    }
-    static void read(std::istream& is, RLPOMDP &pomdp) {
-        POMDP::read(is, pomdp);
-    }
 };
 
 #endif // _RLPOMDP_INCLUDE

@@ -5,8 +5,6 @@
 #ifndef _Problem_INCLUDE_
 #define _Problem_INCLUDE_
 
-#include "Serialization.h"
-
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -31,7 +29,7 @@ class ProblemHandle;
 #define ISNDMDP(id)       ((id)==ProblemHandle::PROBLEM_ND_MDP)
 #define ISPLANNING(id)    ((id)==ProblemHandle::PROBLEM_PLANNING)
 
-class Problem : public Serializable {
+class Problem {
   public:
     enum CleanType { OBJECT, CORE, HASH };
 
@@ -129,10 +127,6 @@ class Problem : public Serializable {
         }
     }
     void getHandle(const char *filename, const char *cwd, const char *entry) { }
-
-    // serialization
-    virtual void write(std::ostream &os) const { }
-    static void read(std::istream &is, Problem &problem) { }
 };
 
 extern Problem PD;

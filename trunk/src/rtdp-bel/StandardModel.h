@@ -148,17 +148,6 @@ class StandardModel : public Model {
         }
     }
     void outputCASSANDRA(std::ostream &os) const;
-
-    // serialization
-    static StandardModel* constructor() {
-        return new StandardModel;
-    }
-    virtual void write(std::ostream &os) const {
-        Model::write(os);
-    }
-    static void read(std::istream &is, StandardModel &model) {
-        Model::read(is, model);
-    }
 };
 
 #endif // _StandardModel_INCLUDE

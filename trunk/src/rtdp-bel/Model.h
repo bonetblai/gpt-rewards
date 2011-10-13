@@ -5,14 +5,13 @@
 #ifndef _Model_INCLUDE_
 #define _Model_INCLUDE_
 
-#include "Serialization.h"
 #include "Belief.h"
 
 #include <iostream>
 #include <float.h>
 #include <list>
 
-class Model : public Serializable {
+class Model {
   public:
     int numActions_;
     int numStates_;
@@ -50,22 +49,6 @@ class Model : public Serializable {
     virtual int sampleNextObservation(int nstate, int action) const = 0;
     virtual int newState() = 0;
     virtual void newTransition(int state, int action, int statePrime, double probability) = 0;
-
-    // serialization
-    virtual void write(std::ostream &os  ) const {
-        Serialize::safeWrite(&numActions_, sizeof(int), 1, os);
-        Serialize::safeWrite(&numStates_, sizeof(int), 1, os);
-        Serialize::safeWrite(&numObs_, sizeof(int), 1, os);
-        Serialize::safeWrite(&underlyingDiscount_, sizeof(double), 1, os);
-        Serialize::write(initialBelief_, os);
-    }
-    static void read(std::istream &is, Model &model) {
-        Serialize::safeRead(&model.numActions_, sizeof(int), 1, is);
-        Serialize::safeRead(&model.numStates_, sizeof(int), 1, is);
-        Serialize::safeRead(&model.numObs_, sizeof(int), 1, is);
-        Serialize::safeRead(&model.underlyingDiscount_, sizeof(double), 1, is); 
-        model.initialBelief_ = static_cast<Belief*>(Serialize::read(is));
-    }
 };
 
 #endif // _Model_INCLUDE

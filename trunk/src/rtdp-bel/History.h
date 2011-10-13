@@ -251,15 +251,6 @@ class History {
     size_t hash() const {
         return HashFunction::hash(act_seq_, num_words(num_act_, num_act_per_wrd_));
     }
-
-    // serialization
-    static History* constructor() { return new History; }
-    virtual void write(std::ostream& os) const {
-        // TODO: fix write
-    }
-    static void read(std::istream& is, History &history) {
-        // TODO: fix read
-    }
 };
 
 #endif

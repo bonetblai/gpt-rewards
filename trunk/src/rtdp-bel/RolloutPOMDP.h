@@ -211,17 +211,6 @@ class RolloutPOMDP : public POMDP {
     virtual void bestQValue(const Belief &belief, QResult &qresult) const { }
     virtual int getBestAction(const Belief &belief) const { return 0; }
     virtual const Belief& getInitialBelief() const { return initialBelief_; }
-
-    // serialization
-    RolloutPOMDP* constructor() const {
-        return new RolloutPOMDP;
-    }
-    virtual void write(std::ostream& os) const {
-        POMDP::write(os);
-    }
-    static void read(std::istream& is, RolloutPOMDP &pomdp) {
-        POMDP::read(is, pomdp);
-    }
 };
 
 #undef DEBUG

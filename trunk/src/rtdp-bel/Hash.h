@@ -5,11 +5,9 @@
 #ifndef _Hash_INCLUDE_
 #define _Hash_INCLUDE_
 
-#include "Serialization.h"
-
 #include <iostream>
 
-template<typename Key, typename Data> class Hash : public Serializable {
+template<typename Key, typename Data> class Hash {
   public:
     struct Entry {
         const Key *key_; 
@@ -144,10 +142,6 @@ template<typename Key, typename Data> class Hash : public Serializable {
             }
         }
     }
-
-    // serialization
-    virtual void write(std::ostream& os) const { }
-    static void read(std::istream& is, Hash<Key,Data> &beliefHash) { }
 
     // iterators
     struct iterator {
