@@ -14,7 +14,6 @@
 #include "BeliefCache.h"
 #include "Quantization.h"
 #include "StandardModel.h"
-#include "Serialization.h"
 #include "Utils.h"
 
 #include <iostream>
