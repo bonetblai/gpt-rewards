@@ -1083,7 +1083,7 @@ void enterMatrix( double value ) {
       break;
 
    case mc_obs_row:
-      if( gProblemType == POMDP_problem_type )
+      if( gProblemType == POMDP_problem_type ) {
 	/* We ignore this if it is an MDP */
 
 	if( curCol < gNumObservations ) {
@@ -1096,7 +1096,7 @@ void enterMatrix( double value ) {
 	}
 	else
 	  gTooManyEntries = 1;
-
+      }
       break;
 
    case mc_obs_all:
@@ -1105,7 +1105,7 @@ void enterMatrix( double value ) {
          curCol = 0;
       }
 
-      if( gProblemType == POMDP_problem_type )
+      if( gProblemType == POMDP_problem_type ) {
 	/* We ignore this if it is an MDP */
 
 	if( curRow < gNumStates ) {
@@ -1116,7 +1116,7 @@ void enterMatrix( double value ) {
 	}
 	else
 	  gTooManyEntries = 1;
-
+      }
       break;
 
 /* This is a special case for POMDPs, since we need a special 

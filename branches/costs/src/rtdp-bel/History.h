@@ -102,7 +102,7 @@ class History {
             obs_mask_ = obs_mask_ << 1;
             ++obs_mask_;
         }
-        if( num_bits_per_act_ > 0 )
+        if( num_bits_per_obs_ > 0 )
             num_obs_per_wrd_ = (8 * sizeof(unsigned)) / num_bits_per_obs_;
     }
     static void finalize() { }

@@ -14,7 +14,7 @@ class Model;
 class Belief;
 class LookAheadHeuristic;
 class Heuristic;
-class ProblemHandle;
+struct ProblemHandle;
 
 #define ISCONFORMANT1(id) ((id)==ProblemHandle::PROBLEM_CONFORMANT1)
 #define ISCONFORMANT2(id) ((id)==ProblemHandle::PROBLEM_CONFORMANT2)

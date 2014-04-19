@@ -13,8 +13,8 @@ LD	=	g++ $(LDFLAGS)
 REVISION=	2.00
 OBJS	=	Shell.o Problem.o StandardModel.o SB.o StandardPOMDP.o QBelief.o Quantization.o QMDP.o History.o HistoryBelief.o SampleBelief.o RLPOMDP.o RolloutPOMDP.o
 LIB	=	-lmdp -ldl -lm -lreadline -lcurses
-LIBDIR	=	-L../lib #-L/usr/local/lib
-INCDIR	=	-I. -I../include #-I/usr/local/include -I/opt/sfw/include
+LIBDIR	=	-L/usr/local/opt/readline/lib -L../lib #-L/usr/local/lib
+INCDIR	=	-I/usr/local/opt/readline/include -I. -I../include #-I/usr/local/include -I/opt/sfw/include
 
 .cc.o:
 		$(CC) -c $<

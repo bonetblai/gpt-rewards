@@ -7,9 +7,9 @@
 
 #include <iostream>
 
-class stateClass;
-class stateListClass;
-class observationListClass;
+struct stateClass;
+struct stateListClass;
+struct observationListClass;
 class Model;
 class Belief;
 class Heuristic;
