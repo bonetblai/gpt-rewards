@@ -1,20 +1,20 @@
 LDFLAGS =	#-rdynamic
-#CFLAGS	=	-Wall -O3 -ffloat-store -pipe -DREVISION=\"$(REVISION)\" $(INCDIR)
-#ARCH	=	-m32 -march=pentium4 -msse -mfpmath=sse -msse2 -mmmx
 ARCH	=	-msse -mfpmath=sse -msse2 -mmmx
 CFLAGS	=	-Wall -O3 $(ARCH) -DREVISION=\"$(REVISION)\" $(INCDIR)
 CC	=	g++ $(CFLAGS)
 LD	=	g++ $(LDFLAGS)
+RL_INC	=	-I/usr/local/opt/readline/include
+RL_LIB	=	-L/usr/local/opt/readline/lib
 
 #
 # don't touch beyond this point
 #
 
-REVISION=	2.00-cassandra
+REVISION=	2.00
 OBJS	=	Shell.o Problem.o StandardModel.o SB.o StandardPOMDP.o QBelief.o Quantization.o QMDP.o 
 LIB	=	-lmdp -ldl -lm -lreadline -lcurses
-LIBDIR	=	-L../lib #-L/usr/local/lib
-INCDIR	=	-I. -I../include #-I/usr/local/include -I/opt/sfw/include
+LIBDIR	=	-L../lib $(RL_LIB)
+INCDIR	=	-I. -I../include $(RL_INC)
 
 .cc.o:
 		$(CC) -c $<

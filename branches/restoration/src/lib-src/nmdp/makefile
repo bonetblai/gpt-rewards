@@ -50,7 +50,7 @@ SYS_FLAGS = -DSYSSOLARIS
 # Comment or uncomment these as you need
 #DEBUG_FLAGS = -g
 #PROFILE_FLAGS = -pg
-OPTIMIZE_FLAGS = -O3 -m32 -march=pentium4 -msse -mfpmath=sse -msse2 -mmmx -pipe
+OPTIMIZE_FLAGS = -O3 -msse -mfpmath=sse -msse2 -mmmx -pipe
 
 # Compile time flags
 CFLAGS = $(DEBUG_FLAGS) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) \
