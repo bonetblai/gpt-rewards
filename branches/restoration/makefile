@@ -1,7 +1,7 @@
 all:
 	@echo "*** Making all in `pwd`"
 	@(cd src; make all)
-	@(cd bin; ln -s ../src/rtdp-bel/gpt gpt)
+	@(cd bin; rm gpt; ln -s ../src/rtdp-bel/gpt gpt)
 
 clean:
 	@echo "*** Cleaning `pwd`"

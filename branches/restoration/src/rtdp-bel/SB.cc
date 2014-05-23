@@ -6,6 +6,8 @@
 
 #include "SB.h"
 
+using namespace std;
+
 StandardBelief StandardBelief::bel_a_;
 StandardBelief StandardBelief::bel_ao_;
 int* StandardBelief::state_heap_ = 0;

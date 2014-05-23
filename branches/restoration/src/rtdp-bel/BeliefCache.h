@@ -183,7 +183,7 @@ class BeliefCache {
 
     Entry* lookup(const Belief &belief) const {
         ++lookups_;
-        unsigned base = belief.hashFunction() & nmask_;
+        unsigned base = belief.hash() & nmask_;
         for( unsigned i = 0; i < m_; ++i ) {
             if( cache_[base+i].belief_ && (*cache_[base+i].belief_ == belief) ) {
                 ++hits_;
@@ -194,7 +194,7 @@ class BeliefCache {
         return 0;
     }
     Entry* insert(const Belief &belief, int nactions, int nobs) {
-        unsigned base = belief.hashFunction() & nmask_;
+        unsigned base = belief.hash() & nmask_;
         unsigned imin = 0, min = cache_[base+imin].refs_;
         for( unsigned i = 1; i < m_; ++i ) {
             if( cache_[base+i].refs_ < min ) {

@@ -33,7 +33,7 @@ class Belief : public Serializable {
     virtual const Belief& update(const Model *model, int action) const = 0;
     virtual const Belief& update(const Model *model, int action, int obs) const = 0;
     virtual Belief* clone() const = 0;
-    virtual unsigned hashFunction() const = 0;
+    virtual unsigned hash() const = 0;
     virtual void print(std::ostream &os) const = 0;
     virtual const Belief& operator=(const Belief &belief) = 0;
     virtual bool operator==(const Belief &belief) const = 0;
