@@ -1450,7 +1450,7 @@ static Command** registeredCommands = 0;
 
 static void commandRegister(Command* command) {
     if( registeredCommandsEntries == registeredCommandsSize ) {
-        registeredCommandsSize = !registeredCommandsSize ? 2 : 2 * registeredCommandsSize;
+        registeredCommandsSize = !registeredCommandsSize ? 2 : 2*registeredCommandsSize;
         registeredCommands = (Command**)realloc(registeredCommands, registeredCommandsSize * sizeof(Command*));
     }
     registeredCommands[registeredCommandsEntries++] = command;

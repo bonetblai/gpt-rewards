@@ -62,7 +62,7 @@ class StandardPOMDP : public POMDP {
                     if( prob > 0 ) {
                         const Belief *belief_ao = cache_entry->belief_ao(action, obs, numActions_);
                         assert(belief_ao != 0);
-                        BeliefHash::Data data = ((BeliefHash*)hash)->lookup(*belief_ao, false, PD.hashAll_).second;
+                        BeliefHash::Data data = const_cast<BeliefHash*>(hash)->lookup(*belief_ao, false, PD.hashAll_).second;
                         qvalue += prob * data.value_;
                     }
                 }
@@ -77,7 +77,7 @@ class StandardPOMDP : public POMDP {
                     if( prob > 0 ) {
                         const Belief &belief_ao = belief_a.update(model_, action, obs);
                         cache_entry->insertBelief(action, obs, belief_ao, numActions_, numObs_);
-                        BeliefHash::Data data = ((BeliefHash*)hash)->lookup(belief_ao, false, PD.hashAll_).second;
+                        BeliefHash::Data data = const_cast<BeliefHash*>(hash)->lookup(belief_ao, false, PD.hashAll_).second;
                         qvalue += prob * data.value_;
                     }
                 }

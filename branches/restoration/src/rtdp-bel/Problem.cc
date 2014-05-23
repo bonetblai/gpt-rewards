@@ -23,6 +23,8 @@
 #include <iostream>
 #include <fstream>
 
+using namespace std;
+
 long long glookups = 0, gfound = 0;
 
 static const double tValues[] = // 101 values for student-t distribution
@@ -39,120 +41,113 @@ Problem PD;
 
 Problem::Problem()
   : softwareRevision_(REVISION), programName_(0), problemFile_(0), outputPrefix_(0),
-    outputFilename_(0), outputFile_(&std::cout), coreFilename_(0), outputLevel_(0), pddlProblem_(false),
-    linkmap_(0), verboseLevel_(0), precision_(6), signal_(-1), useStopRule_(false),
-    SREpsilon_(0), epsilon_(.000001), epsilonGreedy_(0), maxUpdate_(false),
-    cutoff_(100), controlUpdates_(false), 
-    sondik_(false), sondikMethod_(0), sondikMaxPlanes_(16), sondikIterations_(100),
-    qmethod_(0), qlevels_(20), qbase_(0.95),
-    zeroHeuristic_(false), hashAll_(false), lookahead_(0), QMDPdiscount_(1), randomTies_(true),
-    randomSeed_(-1), pomdp_(0), model_(0), belief_(0), heuristic_(0), baseHeuristic_(0), handle_(0)
-{
+    outputFilename_(0), outputFile_(&cout), coreFilename_(0), outputLevel_(0),
+    pddlProblem_(false), linkmap_(0), verboseLevel_(0), precision_(6), signal_(-1),
+    useStopRule_(false), SREpsilon_(0), epsilon_(.000001), epsilonGreedy_(0),
+    maxUpdate_(false), cutoff_(100), controlUpdates_(false), sondik_(false),
+    sondikMethod_(0), sondikMaxPlanes_(16), sondikIterations_(100), qmethod_(0),
+    qlevels_(20), qbase_(0.95), zeroHeuristic_(false), hashAll_(false), lookahead_(0),
+    QMDPdiscount_(1), randomTies_(true), randomSeed_(-1), pomdp_(0), model_(0),
+    belief_(0), heuristic_(0), baseHeuristic_(0), handle_(0) {
 }
 
-Problem::~Problem()
-{
-  delete belief_;
-  delete pomdp_;
-  delete model_;
-  delete baseHeuristic_;
-  delete heuristic_;
-  StandardBelief::finalize();
+Problem::~Problem() {
+    delete belief_;
+    delete pomdp_;
+    delete model_;
+    delete baseHeuristic_;
+    delete heuristic_;
+    StandardBelief::finalize();
 }
 
-const char *
-Problem::readArgument( const char *str, const char *ctx )
-{
-  if( !str ) {
-    std::cerr << "Fatal Error: argument expected after \"" << ctx << "\"" << std::endl;
-    exit(-1);
-  }
-  else
-    return(str);
-}
-
-void
-Problem::parseArguments( int argc, const char **argv, void (*helpFunction)() )
-{
-  // parse arguments
-  ++argv;
-  programName_ = *argv;
-  while( (argc > 1) && (**argv == '-') ) {
-    const char *ctx = *argv;
-    if( !strcmp(ctx,"-random-seed") ) {
-      randomSeed_ = atoi(*++argv);
-      short unsigned seed[3];
-      seed[0] = (short unsigned)randomSeed_;
-      seed[1] = (short unsigned)randomSeed_;
-      seed[2] = (short unsigned)randomSeed_;
-      srand48((long)randomSeed_);
-      seed48(seed);
-      --argc;
+const char* Problem::readArgument(const char *str, const char *ctx) {
+    if( !str ) {
+        cerr << "Fatal Error: argument expected after \"" << ctx << "\"" << endl;
+        exit(-1);
+    } else {
+        return str;
     }
-    --argc;
-    ++argv;
-  }
-
-  // if more arguments, error
-  if( argc > 2 ) {
-    std::cerr << "usage: " << programName_ << " <options>* [<obj-file>]" << std::endl;
-    exit(-1);
-  }
-
-  // What remains in argv is the name of a problem file
-  if( *argv ) {
-    std::cout << argc << " " << *argv << std::endl;
-    char *pfile = new char[1+strlen(*argv)];
-    strcpy(pfile,*argv);
-    problemFile_ = pfile;
-  }
-
-  // set random seed using time
-  if( randomSeed_ == -1 ) {
-    float time = getTime();
-    int *ptr = reinterpret_cast<int*>(&time);
-    randomSeed_ = *ptr;
-  }
 }
 
-void
-Problem::print( std::ostream& os, const char *prefix ) const
-{
-  os << prefix << "problem \"" << problemFile_ << "\"" << std::endl
-     << prefix << "pddlProblem " << (pddlProblem_?"true":"false") << std::endl
+void Problem::parseArguments(int argc, const char **argv, void (*helpFunction)()) {
+    // parse arguments
+    ++argv;
+    programName_ = *argv;
+    while( (argc > 1) && (**argv == '-') ) {
+        const char *ctx = *argv;
+        if( !strcmp(ctx, "-random-seed") ) {
+            randomSeed_ = atoi(*++argv);
+            short unsigned seed[3];
+            seed[0] = (short unsigned)randomSeed_;
+            seed[1] = (short unsigned)randomSeed_;
+            seed[2] = (short unsigned)randomSeed_;
+            srand48((long)randomSeed_);
+            seed48(seed);
+            --argc;
+        }
+        --argc;
+        ++argv;
+    }
 
-     << prefix << "software-revision " << softwareRevision_ << std::endl
-     << prefix << "version original (fixed)" << std::endl
-     << prefix << "epsilon " << epsilon_ << std::endl
-     << prefix << "pims";
-  for( int pim = 0; pim < (int)pims_.size(); ++pim )
-    os << " [" << pims_[pim].first << "," << pims_[pim].second.first << "," << pims_[pim].second.second << "]";
-  os << std::endl
-     << prefix << "cutoff " << cutoff_ << std::endl
-     << prefix << "qmdp-discount " << QMDPdiscount_ << std::endl
-     << prefix << "heuristic-lookahead " << lookahead_ << std::endl
-     << prefix << "zero-heuristic " << zeroHeuristic_ << std::endl
-     << prefix << "hash-all " << (hashAll_?"on":"off") << std::endl
-     << prefix << "random-ties " << (randomTies_?"on":"off") << std::endl
-     << prefix << "random-seed " << randomSeed_ << std::endl
-     << prefix << "verbose-level " << verboseLevel_ << std::endl
-     << prefix << "precision " << precision_ << std::endl
-     << prefix << "output-level " << outputLevel_ << std::endl
-     << prefix << "max-update " << (maxUpdate_?"on":"off") << std::endl
-     << prefix << "stoprule ";
-  if( useStopRule_ )
-    os << SREpsilon_ << std::endl;
-  else
-    os << "off" << std::endl;
-  os << prefix << "epsilon-greedy " << epsilonGreedy_ << std::endl
-     << prefix << "control-updates " << (controlUpdates_?"on":"off") << std::endl
-     << prefix << "sondik " << (sondik_?"on":"off") << std::endl
-     << prefix << "sondik-method " << (sondikMethod_==0?"timestamps":"updates") << std::endl
-     << prefix << "sondik-max-planes " << sondikMaxPlanes_ << std::endl
-     << prefix << "sondik-iterations " << sondikIterations_ << std::endl
-     << prefix << "qmethod " << (qmethod_==0?"plain":(qmethod_==1?"log":"freudenthal")) << std::endl
-     << prefix << "qlevels " << qlevels_ << std::endl
-     << prefix << "qbase " << qbase_ << std::endl;
+    // if more arguments, error
+    if( argc > 2 ) {
+        cerr << "usage: " << programName_ << " <options>* [<obj-file>]" << endl;
+        exit(-1);
+    }
+
+    // What remains in argv is the name of a problem file
+    if( *argv ) {
+        cout << argc << " " << *argv << endl;
+        char *pfile = new char[1 + strlen(*argv)];
+        strcpy(pfile, *argv);
+        problemFile_ = pfile;
+    }
+
+    // set random seed using time
+    if( randomSeed_ == -1 ) {
+        float time = getTime();
+        int *ptr = reinterpret_cast<int*>(&time);
+        randomSeed_ = *ptr;
+    }
+}
+
+void Problem::print(ostream &os, const char *prefix) const {
+    os << prefix << "problem \"" << problemFile_ << "\"" << endl
+       << prefix << "pddlProblem " << (pddlProblem_ ? "true" : "false") << endl
+
+       << prefix << "software-revision " << softwareRevision_ << endl
+       << prefix << "version original (fixed)" << endl
+       << prefix << "epsilon " << epsilon_ << endl
+       << prefix << "pims";
+    for( int pim = 0; pim < (int)pims_.size(); ++pim ) {
+        os << " [" << pims_[pim].first << "," << pims_[pim].second.first << "," << pims_[pim].second.second << "]";
+    }
+    os << endl
+       << prefix << "cutoff " << cutoff_ << endl
+       << prefix << "qmdp-discount " << QMDPdiscount_ << endl
+       << prefix << "heuristic-lookahead " << lookahead_ << endl
+       << prefix << "zero-heuristic " << zeroHeuristic_ << endl
+       << prefix << "hash-all " << (hashAll_ ? "on" : "off") << endl
+       << prefix << "random-ties " << (randomTies_ ? "on" : "off") << endl
+       << prefix << "random-seed " << randomSeed_ << endl
+       << prefix << "verbose-level " << verboseLevel_ << endl
+       << prefix << "precision " << precision_ << endl
+       << prefix << "output-level " << outputLevel_ << endl
+       << prefix << "max-update " << (maxUpdate_ ? "on" : "off") << endl
+       << prefix << "stoprule ";
+    if( useStopRule_ )
+        os << SREpsilon_ << endl;
+    else
+        os << "off" << endl;
+    os << prefix << "epsilon-greedy " << epsilonGreedy_ << endl
+       << prefix << "control-updates " << (controlUpdates_ ? "on" : "off") << endl
+       << prefix << "sondik " << (sondik_?"on":"off") << endl
+       << prefix << "sondik-method " << (sondikMethod_ == 0 ? "timestamps" : "updates") << endl
+       << prefix << "sondik-max-planes " << sondikMaxPlanes_ << endl
+       << prefix << "sondik-iterations " << sondikIterations_ << endl
+       << prefix << "qmethod " << (qmethod_ == 0 ? "plain" : (qmethod_ == 1 ? "log" : "freudenthal")) << endl
+       << prefix << "qlevels " << qlevels_ << endl
+       << prefix << "qbase " << qbase_ << endl;
 }
 
 #if 0
@@ -224,7 +219,7 @@ bootstrapPLANNING( ProblemHandle *handle )
 
   gettimeofday(&t1,NULL);
   if( (handle->beliefHook != NULL) || (handle->modelHook != NULL) ) {
-    std::cerr << "Error: model/belief hook not yet supported" << std::endl;
+    cerr << "Error: model/belief hook not yet supported" << endl;
     return(-1);
   }
   else {
@@ -254,7 +249,7 @@ bootstrapPLANNING( ProblemHandle *handle )
   // timing
   gettimeofday(&t2,NULL);
   diffTime(secs,usecs,t1,t2);
-  *PD.outputFile << "%boot setupTime " << (float)secs + (float)usecs / 1000000.0 << std::endl;
+  *PD.outputFile << "%boot setupTime " << (float)secs + (float)usecs / 1000000.0 << endl;
   return(0);
 }
 
@@ -270,7 +265,7 @@ bootstrapMDP( ProblemHandle *handle )
 
   gettimeofday(&t1,NULL);
   if( (handle->beliefHook != NULL) || (handle->modelHook != NULL) ) {
-    std::cerr << "Error: model/belief hook not yet supported" << std::endl;
+    cerr << "Error: model/belief hook not yet supported" << endl;
     return(-1);
   }
   else {
@@ -317,7 +312,7 @@ bootstrapMDP( ProblemHandle *handle )
   // timing
   gettimeofday(&t2,NULL);
   diffTime(secs,usecs,t1,t2);
-  *PD.outputFile << "%boot setupTime " << (float)secs + (float)usecs / 1000000.0 << std::endl;
+  *PD.outputFile << "%boot setupTime " << (float)secs + (float)usecs / 1000000.0 << endl;
   return(0);
 }
 
@@ -337,7 +332,7 @@ bootstrapPOMDP( ProblemHandle *handle )
     //PD.pomdp->setHash(new HookedBeliefHash);
   }
   else if( handle->beliefHook != NULL ) {
-    std::cerr << "Error: belief hook not yet supported" << std::endl;
+    cerr << "Error: belief hook not yet supported" << endl;
     return(-1);
   }
   else {
@@ -380,7 +375,7 @@ bootstrapPOMDP( ProblemHandle *handle )
   // timing
   gettimeofday(&t2,NULL);
   diffTime(secs,usecs,t1,t2);
-  *PD.outputFile << "%boot setupTime " << (float)secs + (float)usecs / 1000000.0 << std::endl;
+  *PD.outputFile << "%boot setupTime " << (float)secs + (float)usecs / 1000000.0 << endl;
 
   // compute model
   if( !PD.incrementalMode ) {
@@ -395,7 +390,7 @@ bootstrapPOMDP( ProblemHandle *handle )
   // timing
   gettimeofday(&t1,NULL);
   diffTime(secs,usecs,t2,t1);
-  *PD.outputFile << "%boot computeModelTime " << (float)secs + (float)usecs / 1000000.0 << std::endl;
+  *PD.outputFile << "%boot computeModelTime " << (float)secs + (float)usecs / 1000000.0 << endl;
 
   // heuristic setup
   if( !PD.zeroHeuristic ) {
@@ -423,7 +418,7 @@ bootstrapPOMDP( ProblemHandle *handle )
   // timing
   gettimeofday(&t2,NULL);
   diffTime(secs,usecs,t1,t2);
-  *PD.outputFile << "%boot computeHeuristicTime " << (float)secs + (float)usecs / 1000000.0 << std::endl;
+  *PD.outputFile << "%boot computeHeuristicTime " << (float)secs + (float)usecs / 1000000.0 << endl;
 
   if( PD.heuristic ) PD.belief->setHeuristic(PD.heuristic);
 
@@ -449,7 +444,7 @@ bootstrapCONFORMANT( ProblemHandle *handle )
 {
   gettimeofday(&t1,NULL);
   if( (handle->beliefHook != NULL) || (handle->modelHook != NULL) ) {
-    std::cerr << "Error: model/belief hook not yet supported" << std::endl;
+    cerr << "Error: model/belief hook not yet supported" << endl;
     return( -1 );
   }
   else {
@@ -492,7 +487,7 @@ bootstrapCONFORMANT( ProblemHandle *handle )
   // timing
   gettimeofday(&t2,NULL);
   diffTime(secs,usecs,t1,t2);
-  *PD.outputFile << "%boot setupTime " << (float)secs + (float)usecs / 1000000.0 << std::endl;
+  *PD.outputFile << "%boot setupTime " << (float)secs + (float)usecs / 1000000.0 << endl;
 
   // compute model
   if( !PD.incrementalMode ) {
@@ -507,7 +502,7 @@ bootstrapCONFORMANT( ProblemHandle *handle )
   // timing
   gettimeofday(&t1,NULL);
   diffTime(secs,usecs,t2,t1);
-  *PD.outputFile << "%boot computeModelTime " << (float)secs + (float)usecs / 1000000.0 << std::endl;
+  *PD.outputFile << "%boot computeModelTime " << (float)secs + (float)usecs / 1000000.0 << endl;
 
   // heuristic setup
   if( !PD.zeroHeuristic ) {
@@ -536,7 +531,7 @@ bootstrapCONFORMANT( ProblemHandle *handle )
   // timing
   gettimeofday(&t2,NULL);
   diffTime(secs,usecs,t1,t2);
-  *PD.outputFile << "%boot computeHeuristicTime " << (float)secs + (float)usecs / 1000000.0 << std::endl;
+  *PD.outputFile << "%boot computeHeuristicTime " << (float)secs + (float)usecs / 1000000.0 << endl;
 
   if( !PD.zeroHeuristic && PD.heuristic ) PD.belief->setHeuristic( PD.heuristic );
 
@@ -551,198 +546,188 @@ bootstrapCONFORMANT( ProblemHandle *handle )
 }
 #endif
 
-void
-Problem::bootstrapCASSANDRA()
-{
-  // model creation: use setup for cassandra's format
-  double time1 = getTime();
-  model_ = new StandardModel(problemFile_);
-  belief_ = new StandardBelief;
+void Problem::bootstrapCASSANDRA() {
+    // model creation: use setup for cassandra's format
+    double time1 = getTime();
+    model_ = new StandardModel(problemFile_);
+    belief_ = new StandardBelief;
 
-  // POMDP creation & setup
-  pomdp_ = new StandardPOMDP(static_cast<const StandardModel*>(model_),qlevels_,qbase_);
-  pomdp_->setEpsilonGreedy(epsilonGreedy_);
-  pomdp_->setCutoff(cutoff_);
-  StandardBelief::initialize(model_->numStates_);
+    // POMDP creation & setup
+    pomdp_ = new StandardPOMDP(static_cast<const StandardModel*>(model_), qlevels_, qbase_);
+    pomdp_->setEpsilonGreedy(epsilonGreedy_);
+    pomdp_->setCutoff(cutoff_);
+    StandardBelief::initialize(model_->numStates_);
 
-  // timing
-  double time2 = getTime();
-  *outputFile_ << "%boot setupTime " << time2-time1 << std::endl;
-  time1 = time2;
+    // timing
+    double time2 = getTime();
+    *outputFile_ << "%boot setupTime " << time2 - time1 << endl;
+    time1 = time2;
 
-  // heuristic setup
-  if( !zeroHeuristic_ ) {
-    baseHeuristic_ = new QMDPHeuristic(static_cast<const StandardModel*>(model_),QMDPdiscount_);
-    heuristic_ = new LookAheadHeuristic(pomdp_,baseHeuristic_,lookahead_);
-    pomdp_->setHeuristic(heuristic_);
-  }
+    // heuristic setup
+    if( !zeroHeuristic_ ) {
+        baseHeuristic_ = new QMDPHeuristic(static_cast<const StandardModel*>(model_), QMDPdiscount_);
+        heuristic_ = new LookAheadHeuristic(pomdp_, baseHeuristic_, lookahead_);
+        pomdp_->setHeuristic(heuristic_);
+    }
 
-  // timing
-  time2 = getTime();
-  *outputFile_ << "%boot computeHeuristicTime " << time2-time1 << std::endl;
-  time1 = time2;
+    // timing
+    time2 = getTime();
+    *outputFile_ << "%boot computeHeuristicTime " << time2 - time1 << endl;
+    time1 = time2;
 }
 
-void
-Problem::bootstrap( const char *workingDir, const char *entryPoint )
-{
-  clean(OBJECT);
-  if( pddlProblem_ ) {
-    // get handle and initialize problem
-    //if( !(handle_ = getHandle(problemFile_,workingDir,entryPoint)) ) {
-    //  return;
-    // }
-    (*handle_->initializeFunction)();
+void Problem::bootstrap(const char *workingDir, const char *entryPoint) {
+    clean(OBJECT);
+    if( pddlProblem_ ) {
+        // get handle and initialize problem
+        //if( !(handle_ = getHandle(problemFile_, workingDir, entryPoint)) ) {
+        //    return;
+        //}
+        (*handle_->initializeFunction)();
 
-    switch( handle_->problemType ) {
-    case ProblemHandle::PROBLEM_PLANNING:
-      //PlanningBelief::initialize(handle_);
-      //bootstrapPLANNING(handle_);
-      break;
-    case ProblemHandle::PROBLEM_MDP:
-    case ProblemHandle::PROBLEM_ND_MDP:
-      //bootstrapMDP(handle_);
-      break;
-    case ProblemHandle::PROBLEM_POMDP1:
-    case ProblemHandle::PROBLEM_POMDP2:
-    case ProblemHandle::PROBLEM_ND_POMDP1:
-    case ProblemHandle::PROBLEM_ND_POMDP2:
-      //bootstrapPOMDP(handle_);
-      break;
-    case ProblemHandle::PROBLEM_CONFORMANT1:
-    case ProblemHandle::PROBLEM_CONFORMANT2:
-      //bootstrapCONFORMANT(handle_);
-      break;
-    default:
-      std::cerr << std::endl << "Error: undefined problem model" << std::endl;
+        switch( handle_->problemType ) {
+            case ProblemHandle::PROBLEM_PLANNING:
+                //PlanningBelief::initialize(handle_);
+                //bootstrapPLANNING(handle_);
+                break;
+            case ProblemHandle::PROBLEM_MDP:
+            case ProblemHandle::PROBLEM_ND_MDP:
+                //bootstrapMDP(handle_);
+                break;
+            case ProblemHandle::PROBLEM_POMDP1:
+            case ProblemHandle::PROBLEM_POMDP2:
+            case ProblemHandle::PROBLEM_ND_POMDP1:
+            case ProblemHandle::PROBLEM_ND_POMDP2:
+                //bootstrapPOMDP(handle_);
+                break;
+            case ProblemHandle::PROBLEM_CONFORMANT1:
+            case ProblemHandle::PROBLEM_CONFORMANT2:
+                //bootstrapCONFORMANT(handle_);
+                break;
+            default:
+                cerr << endl << "Error: undefined problem model" << endl;
+        }
+    } else {
+        bootstrapCASSANDRA();
     }
-  }
-  else {
-    bootstrapCASSANDRA();
-  }
 }
 
-void
-Problem::solveCASSANDRA()
-{
-  Result *result = new StandardResult;
-  for( int pim = 0; pim < (int)pims_.size(); ++pim ) { // perform pim step
-    for( int i = 0; i < pims_[pim].first; ++i  ) {
-      double lratio = -1, cratio = -1;
+void Problem::solveCASSANDRA() {
+    Result *result = new StandardResult;
+    for( int pim = 0; pim < (int)pims_.size(); ++pim ) { // perform pim step
+        for( int i = 0; i < pims_[pim].first; ++i  ) {
+            double lratio = -1, cratio = -1;
 
-      // learning trials
-      if( pims_[pim].second.first > 0 ) {
-        int ntrials = pims_[pim].second.first;
-        double ivalue = 0;
-        for( int trial = 0; (trial < ntrials) || useStopRule_; ++trial ) {
-          try {
-            pomdp_->learnAlgorithm(*result);
-          }
-          catch( Exception& ) {
-            result->clean();
-            delete result;
-            throw;
-          }
-          pomdp_->incLearningTime(result->elapsedTime());
-          result->print(*outputFile_,outputLevel_,handle_);
-          ivalue = result->initialValue_;
-          result->clean();
-        }
-        ivalue = (1+model_->maxReward_)/(1-model_->underlyingDiscount()) - ivalue;
-        lratio = 100*(double)gfound/(double)glookups;
-        glookups = 0;
-        gfound = 0;
-        *outputFile_ << "%learningStats learningTime " << pomdp_->learningTime()
-                     << " initialValue " << ivalue
-                     << " hashRatio " << lratio
-                     << std::endl;
-      }
+            // learning trials
+            if( pims_[pim].second.first > 0 ) {
+                int ntrials = pims_[pim].second.first;
+                double ivalue = 0;
+                for( int trial = 0; (trial < ntrials) || useStopRule_; ++trial ) {
+                    try {
+                        pomdp_->learnAlgorithm(*result);
+                    } catch( Exception& ) {
+                        result->clean();
+                        delete result;
+                        throw;
+                    }
+                    pomdp_->incLearningTime(result->elapsedTime());
+                    result->print(*outputFile_, outputLevel_, handle_);
+                    ivalue = result->initialValue_;
+                    result->clean();
+                }
+                ivalue = (1+model_->maxReward_) / (1-model_->underlyingDiscount()) - ivalue;
+                lratio = 100 * (double)gfound / (double)glookups;
+                glookups = 0;
+                gfound = 0;
+                *outputFile_ << "%learningStats learningTime " << pomdp_->learningTime()
+                             << " initialValue " << ivalue
+                             << " hashRatio " << lratio
+                             << endl;
+            }
 
-      Sondik *sondik = 0;
-      double sondik_time = 0;
-      if( sondik_ ) {
-        double start_time = getTime();
-        // For point-based operation need:
-        //   1. collect last used beliefs
-        //   2. transform collection of belief/values into Sondik's representation
-        //   3. perform point-based updates over them
-        sondik = new Sondik(static_cast<const StandardPOMDP&>(*pomdp_));
-        sondik->bootstrap(sondikMaxPlanes_,sondikMethod_);
-        for( int i = 0; i < sondikIterations_; ++i ) {
-          sondik->update(epsilon_);
-        }
-        sondik_time = getTime() - start_time;
-      }
-      pomdp_->incLearningTime(sondik_time);
+            Sondik *sondik = 0;
+            double sondik_time = 0;
+            if( sondik_ ) {
+                double start_time = getTime();
+                // For point-based operation need:
+                //   1. collect last used beliefs
+                //   2. transform collection of belief/values into Sondik's representation
+                //   3. perform point-based updates over them
+                sondik = new Sondik(static_cast<const StandardPOMDP&>(*pomdp_));
+                sondik->bootstrap(sondikMaxPlanes_, sondikMethod_);
+                for( int i = 0; i < sondikIterations_; ++i ) {
+                    sondik->update(epsilon_);
+                }
+                sondik_time = getTime() - start_time;
+            }
+            pomdp_->incLearningTime(sondik_time);
 
-      // control trials
-      if( pims_[pim].second.second > 0 ) {
-        int ntrials = pims_[pim].second.second;
-        double ivalue = 0, ngoals = 0, totalSumDisCost = 0, totalSumDisCost2 = 0;
-        for( int trial = 0; trial < ntrials; ++trial ) {
-          try {
-            pomdp_->controlAlgorithm(*result,sondik);
-          } 
-          catch( Exception& ) {
-            result->clean();
-            delete result;
-            throw;
-          }
-          pomdp_->incControlTime(result->elapsedTime());
-          result->print(*outputFile_,outputLevel_,handle_);
-          ivalue = result->initialValue_;
-          ngoals += (result->goalReached_?1:0);
-          totalSumDisCost += result->accDisCost_;
-          totalSumDisCost2 += result->accDisCost_*result->accDisCost_;
-          result->clean();
+            // control trials
+            if( pims_[pim].second.second > 0 ) {
+                int ntrials = pims_[pim].second.second;
+                double ivalue = 0, ngoals = 0, totalSumDisCost = 0, totalSumDisCost2 = 0;
+                for( int trial = 0; trial < ntrials; ++trial ) {
+                    try {
+                        pomdp_->controlAlgorithm(*result, sondik);
+                    } catch( Exception& ) {
+                        result->clean();
+                        delete result;
+                        throw;
+                    }
+                    pomdp_->incControlTime(result->elapsedTime());
+                    result->print(*outputFile_, outputLevel_, handle_);
+                    ivalue = result->initialValue_;
+                    ngoals += result->goalReached_ ? 1 : 0;
+                    totalSumDisCost += result->accDisCost_;
+                    totalSumDisCost2 += result->accDisCost_ * result->accDisCost_;
+                    result->clean();
+                }
+                ivalue = (1+model_->maxReward_) / (1-model_->underlyingDiscount()) - ivalue;
+                double avg = totalSumDisCost / (double)ntrials, dev = 0, conf = 0, tv = 0;
+                if( ntrials >= 2 ) {
+                    dev = sqrt((totalSumDisCost2 / (ntrials-1)) - (totalSumDisCost*totalSumDisCost / (ntrials*(ntrials-1))));
+                    if( ntrials <= 101 ) { // for degrees of freedom (df) <= 100 use exact t value
+                        tv = tValues[ntrials-2];
+                    } else if( (ntrials > 101) && (ntrials <= 501) ) { // for 100 < df <= 500, interpolate
+                        tv = tValues[99] - (ntrials-101) * (tValues[99]-tValues[100]) / (double)(500-100);
+                    } else if( (ntrials > 501) && (ntrials <= 1001) ) { // for 500 < df <= 1000, interpolate
+                        tv = tValues[100] - (ntrials-501) * (tValues[100]-tValues[101]) / (double)(1000-500);
+                    } else { // for df > 1000, use infinity value
+                        tv = tValues[102];
+                    }
+                }
+                conf = tv * dev / sqrt(ntrials);
+                cratio = 100 * (double)gfound / (double)glookups;
+                glookups = 0;
+                gfound = 0;
+                *outputFile_ << "%controlStats  learningTime " << pomdp_->learningTime()
+                             << " initialValue " << ivalue;
+                if( model_->numGoals() > 0 ) {
+                    *outputFile_ << " goalRatio " << ngoals / (double)ntrials;
+                }
+                *outputFile_ << " rewardAvg " << avg
+                             << " confInterval " << conf
+                             << " hashRatio " << cratio;
+                if( sondik_ ) {
+                    *outputFile_ << " numplanes " << sondik->numVectors();
+                }
+                *outputFile_ << endl;
+            }
+            pomdp_->incLearningTime(-sondik_time);
         }
-        ivalue = (1+model_->maxReward_)/(1-model_->underlyingDiscount()) - ivalue;
-        double avg = totalSumDisCost/(double)ntrials, dev = 0, conf = 0, tv = 0;
-        if( ntrials >= 2 ) {
-          dev = sqrt( (totalSumDisCost2/(ntrials-1)) - (totalSumDisCost*totalSumDisCost/(ntrials*(ntrials-1))) );
-          if( ntrials <= 101 ) { // for degrees of freedom (df) <= 100 use exact t value
-            tv = tValues[ntrials-2];
-          }
-          else if( (ntrials > 101) && (ntrials <= 501) ) { // for 100 < df <= 500, interpolate
-            tv = tValues[99]-(ntrials-101)*(tValues[99]-tValues[100])/(double)(500-100);
-          }
-          else if( (ntrials > 501) && (ntrials <= 1001) ) { // for 500 < df <= 1000, interpolate
-            tv = tValues[100]-(ntrials-501)*(tValues[100]-tValues[101])/(double)(1000-500);
-          }
-          else { // for df > 1000, use infinity value
-            tv = tValues[102];
-          }
-        }
-        conf = tv*dev/sqrt(ntrials);
-        cratio = 100*(double)gfound/(double)glookups;
-        glookups = 0;
-        gfound = 0;
-        *outputFile_ << "%controlStats  learningTime " << pomdp_->learningTime()
-                     << " initialValue " << ivalue;
-        if( model_->numGoals() > 0 ) *outputFile_ << " goalRatio " << ngoals/(double)ntrials;
-        *outputFile_ << " rewardAvg " << avg
-                     << " confInterval " << conf
-                     << " hashRatio " << cratio;
-        if( sondik_ ) {
-          *outputFile_ << " numplanes " << sondik->numVectors();
-        }
-        *outputFile_ << std::endl;
-      }
-      pomdp_->incLearningTime(-sondik_time);
     }
-  }
 
-  // check abortion
-  if( signal_ >= 0 ) {
-    int s = signal_;
-    signal_ = -1;
-    result->clean();
+    // check abortion
+    if( signal_ >= 0 ) {
+        int s = signal_;
+        signal_ = -1;
+        result->clean();
+        delete result;
+        throw(SignalException(s));
+    }
+
+    // statistics and clean
+    pomdp_->statistics(*outputFile_);
     delete result;
-    throw(SignalException(s));
-  }
-
-  // statistics and clean
-  pomdp_->statistics(*outputFile_);
-  delete result;
 }
 

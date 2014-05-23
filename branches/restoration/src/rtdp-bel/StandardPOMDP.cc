@@ -210,7 +210,7 @@ void StandardPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const
             if( qresult_->numTies_ > 0 ) {
                 int index = !randomTies_ ? 0 : lrand48() % qresult_->numTies_;
                 bestAction = qresult_->ties_[index];
-            } else {
+            } else { // we have a dead-end
                 if( PD.controlUpdates_ ) hash->update(qbelief, DBL_MAX, true);
                 result.push_back(state, -1, -1);
                 break;
