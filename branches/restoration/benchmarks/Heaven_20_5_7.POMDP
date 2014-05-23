@@ -1,0 +1,911 @@
+discount: 0.95
+values: reward
+states: 60
+actions: up down left right readmap
+observations: oleft oright
+start:
+0.5 0.5 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+T: up : 0 : 0 1.0
+T: down : 0 : 2 1.0
+T: left : 0 : 48 1.0
+T: right : 0 : 50 1.0
+T: readmap : 0 : 0 1.0
+T: up : 1 : 1 1.0
+T: down : 1 : 3 1.0
+T: left : 1 : 49 1.0
+T: right : 1 : 51 1.0
+T: readmap : 1 : 1 1.0
+T: up : 2 : 0 1.0
+T: down : 2 : 4 1.0
+T: left : 2 : 2 1.0
+T: right : 2 : 2 1.0
+T: readmap : 2 : 2 1.0
+T: up : 3 : 1 1.0
+T: down : 3 : 5 1.0
+T: left : 3 : 3 1.0
+T: right : 3 : 3 1.0
+T: readmap : 3 : 3 1.0
+T: up : 4 : 2 1.0
+T: down : 4 : 6 1.0
+T: left : 4 : 4 1.0
+T: right : 4 : 4 1.0
+T: readmap : 4 : 4 1.0
+T: up : 5 : 3 1.0
+T: down : 5 : 7 1.0
+T: left : 5 : 5 1.0
+T: right : 5 : 5 1.0
+T: readmap : 5 : 5 1.0
+T: up : 6 : 4 1.0
+T: down : 6 : 8 1.0
+T: left : 6 : 6 1.0
+T: right : 6 : 6 1.0
+T: readmap : 6 : 6 1.0
+T: up : 7 : 5 1.0
+T: down : 7 : 9 1.0
+T: left : 7 : 7 1.0
+T: right : 7 : 7 1.0
+T: readmap : 7 : 7 1.0
+T: up : 8 : 6 1.0
+T: down : 8 : 10 1.0
+T: left : 8 : 8 1.0
+T: right : 8 : 8 1.0
+T: readmap : 8 : 8 1.0
+T: up : 9 : 7 1.0
+T: down : 9 : 11 1.0
+T: left : 9 : 9 1.0
+T: right : 9 : 9 1.0
+T: readmap : 9 : 9 1.0
+T: up : 10 : 8 1.0
+T: down : 10 : 12 1.0
+T: left : 10 : 10 1.0
+T: right : 10 : 10 1.0
+T: readmap : 10 : 10 1.0
+T: up : 11 : 9 1.0
+T: down : 11 : 13 1.0
+T: left : 11 : 11 1.0
+T: right : 11 : 11 1.0
+T: readmap : 11 : 11 1.0
+T: up : 12 : 10 1.0
+T: down : 12 : 14 1.0
+T: left : 12 : 12 1.0
+T: right : 12 : 12 1.0
+T: readmap : 12 : 12 1.0
+T: up : 13 : 11 1.0
+T: down : 13 : 15 1.0
+T: left : 13 : 13 1.0
+T: right : 13 : 13 1.0
+T: readmap : 13 : 13 1.0
+T: up : 14 : 12 1.0
+T: down : 14 : 16 1.0
+T: left : 14 : 14 1.0
+T: right : 14 : 14 1.0
+T: readmap : 14 : 14 1.0
+T: up : 15 : 13 1.0
+T: down : 15 : 17 1.0
+T: left : 15 : 15 1.0
+T: right : 15 : 15 1.0
+T: readmap : 15 : 15 1.0
+T: up : 16 : 14 1.0
+T: down : 16 : 18 1.0
+T: left : 16 : 16 1.0
+T: right : 16 : 16 1.0
+T: readmap : 16 : 16 1.0
+T: up : 17 : 15 1.0
+T: down : 17 : 19 1.0
+T: left : 17 : 17 1.0
+T: right : 17 : 17 1.0
+T: readmap : 17 : 17 1.0
+T: up : 18 : 16 1.0
+T: down : 18 : 20 1.0
+T: left : 18 : 18 1.0
+T: right : 18 : 18 1.0
+T: readmap : 18 : 18 1.0
+T: up : 19 : 17 1.0
+T: down : 19 : 21 1.0
+T: left : 19 : 19 1.0
+T: right : 19 : 19 1.0
+T: readmap : 19 : 19 1.0
+T: up : 20 : 18 1.0
+T: down : 20 : 22 1.0
+T: left : 20 : 20 1.0
+T: right : 20 : 20 1.0
+T: readmap : 20 : 20 1.0
+T: up : 21 : 19 1.0
+T: down : 21 : 23 1.0
+T: left : 21 : 21 1.0
+T: right : 21 : 21 1.0
+T: readmap : 21 : 21 1.0
+T: up : 22 : 20 1.0
+T: down : 22 : 24 1.0
+T: left : 22 : 22 1.0
+T: right : 22 : 22 1.0
+T: readmap : 22 : 22 1.0
+T: up : 23 : 21 1.0
+T: down : 23 : 25 1.0
+T: left : 23 : 23 1.0
+T: right : 23 : 23 1.0
+T: readmap : 23 : 23 1.0
+T: up : 24 : 22 1.0
+T: down : 24 : 26 1.0
+T: left : 24 : 24 1.0
+T: right : 24 : 24 1.0
+T: readmap : 24 : 24 1.0
+T: up : 25 : 23 1.0
+T: down : 25 : 27 1.0
+T: left : 25 : 25 1.0
+T: right : 25 : 25 1.0
+T: readmap : 25 : 25 1.0
+T: up : 26 : 24 1.0
+T: down : 26 : 28 1.0
+T: left : 26 : 26 1.0
+T: right : 26 : 26 1.0
+T: readmap : 26 : 26 1.0
+T: up : 27 : 25 1.0
+T: down : 27 : 29 1.0
+T: left : 27 : 27 1.0
+T: right : 27 : 27 1.0
+T: readmap : 27 : 27 1.0
+T: up : 28 : 26 1.0
+T: down : 28 : 30 1.0
+T: left : 28 : 28 1.0
+T: right : 28 : 28 1.0
+T: readmap : 28 : 28 1.0
+T: up : 29 : 27 1.0
+T: down : 29 : 31 1.0
+T: left : 29 : 29 1.0
+T: right : 29 : 29 1.0
+T: readmap : 29 : 29 1.0
+T: up : 30 : 28 1.0
+T: down : 30 : 32 1.0
+T: left : 30 : 30 1.0
+T: right : 30 : 30 1.0
+T: readmap : 30 : 30 1.0
+T: up : 31 : 29 1.0
+T: down : 31 : 33 1.0
+T: left : 31 : 31 1.0
+T: right : 31 : 31 1.0
+T: readmap : 31 : 31 1.0
+T: up : 32 : 30 1.0
+T: down : 32 : 34 1.0
+T: left : 32 : 32 1.0
+T: right : 32 : 32 1.0
+T: readmap : 32 : 32 1.0
+T: up : 33 : 31 1.0
+T: down : 33 : 35 1.0
+T: left : 33 : 33 1.0
+T: right : 33 : 33 1.0
+T: readmap : 33 : 33 1.0
+T: up : 34 : 32 1.0
+T: down : 34 : 36 1.0
+T: left : 34 : 34 1.0
+T: right : 34 : 34 1.0
+T: readmap : 34 : 34 1.0
+T: up : 35 : 33 1.0
+T: down : 35 : 37 1.0
+T: left : 35 : 35 1.0
+T: right : 35 : 35 1.0
+T: readmap : 35 : 35 1.0
+T: up : 36 : 34 1.0
+T: down : 36 : 38 1.0
+T: left : 36 : 36 1.0
+T: right : 36 : 36 1.0
+T: readmap : 36 : 36 1.0
+T: up : 37 : 35 1.0
+T: down : 37 : 39 1.0
+T: left : 37 : 37 1.0
+T: right : 37 : 37 1.0
+T: readmap : 37 : 37 1.0
+T: up : 38 : 36 1.0
+T: down : 38 : 38 1.0
+T: left : 38 : 38 1.0
+T: right : 38 : 38 1.0
+T: readmap : 38 : 38 1.0
+T: up : 39 : 37 1.0
+T: down : 39 : 39 1.0
+T: left : 39 : 39 1.0
+T: right : 39 : 39 1.0
+T: readmap : 39 : 39 1.0
+T: up : 40 : 40 1.0
+T: down : 40 : 40 1.0
+T: left : 40 : 40 1.0
+T: right : 40 : 42 1.0
+T: readmap : 40 : 40 1.0
+T: up : 41 : 41 1.0
+T: down : 41 : 41 1.0
+T: left : 41 : 41 1.0
+T: right : 41 : 43 1.0
+T: readmap : 41 : 41 1.0
+T: up : 42 : 42 1.0
+T: down : 42 : 42 1.0
+T: left : 42 : 40 1.0
+T: right : 42 : 44 1.0
+T: readmap : 42 : 42 1.0
+T: up : 43 : 43 1.0
+T: down : 43 : 43 1.0
+T: left : 43 : 41 1.0
+T: right : 43 : 45 1.0
+T: readmap : 43 : 43 1.0
+T: up : 44 : 44 1.0
+T: down : 44 : 44 1.0
+T: left : 44 : 42 1.0
+T: right : 44 : 46 1.0
+T: readmap : 44 : 44 1.0
+T: up : 45 : 45 1.0
+T: down : 45 : 45 1.0
+T: left : 45 : 43 1.0
+T: right : 45 : 47 1.0
+T: readmap : 45 : 45 1.0
+T: up : 46 : 46 1.0
+T: down : 46 : 46 1.0
+T: left : 46 : 44 1.0
+T: right : 46 : 48 1.0
+T: readmap : 46 : 46 1.0
+T: up : 47 : 47 1.0
+T: down : 47 : 47 1.0
+T: left : 47 : 45 1.0
+T: right : 47 : 49 1.0
+T: readmap : 47 : 47 1.0
+T: up : 48 : 48 1.0
+T: down : 48 : 48 1.0
+T: left : 48 : 46 1.0
+T: right : 48 : 0 1.0
+T: readmap : 48 : 48 1.0
+T: up : 49 : 49 1.0
+T: down : 49 : 49 1.0
+T: left : 49 : 47 1.0
+T: right : 49 : 1 1.0
+T: readmap : 49 : 49 1.0
+T: up : 50 : 50 1.0
+T: down : 50 : 50 1.0
+T: left : 50 : 0 1.0
+T: right : 50 : 52 1.0
+T: readmap : 50 : 50 1.0
+T: up : 51 : 51 1.0
+T: down : 51 : 51 1.0
+T: left : 51 : 1 1.0
+T: right : 51 : 53 1.0
+T: readmap : 51 : 51 1.0
+T: up : 52 : 52 1.0
+T: down : 52 : 52 1.0
+T: left : 52 : 50 1.0
+T: right : 52 : 54 1.0
+T: readmap : 52 : 52 1.0
+T: up : 53 : 53 1.0
+T: down : 53 : 53 1.0
+T: left : 53 : 51 1.0
+T: right : 53 : 55 1.0
+T: readmap : 53 : 53 1.0
+T: up : 54 : 54 1.0
+T: down : 54 : 54 1.0
+T: left : 54 : 52 1.0
+T: right : 54 : 56 1.0
+T: readmap : 54 : 54 1.0
+T: up : 55 : 55 1.0
+T: down : 55 : 55 1.0
+T: left : 55 : 53 1.0
+T: right : 55 : 57 1.0
+T: readmap : 55 : 55 1.0
+T: up : 56 : 56 1.0
+T: down : 56 : 56 1.0
+T: left : 56 : 54 1.0
+T: right : 56 : 58 1.0
+T: readmap : 56 : 56 1.0
+T: up : 57 : 57 1.0
+T: down : 57 : 57 1.0
+T: left : 57 : 55 1.0
+T: right : 57 : 59 1.0
+T: readmap : 57 : 57 1.0
+T: up : 58 : 58 1.0
+T: down : 58 : 58 1.0
+T: left : 58 : 56 1.0
+T: right : 58 : 58 1.0
+T: readmap : 58 : 58 1.0
+T: up : 59 : 59 1.0
+T: down : 59 : 59 1.0
+T: left : 59 : 57 1.0
+T: right : 59 : 59 1.0
+T: readmap : 59 : 59 1.0
+O: up : 0
+0.5 0.5
+O: down : 0
+0.5 0.5
+O: left : 0
+0.5 0.5
+O: right : 0
+0.5 0.5
+O: readmap : 0
+0.5 0.5
+O: up : 1
+0.5 0.5
+O: down : 1
+0.5 0.5
+O: left : 1
+0.5 0.5
+O: right : 1
+0.5 0.5
+O: readmap : 1
+0.5 0.5
+O: up : 2
+0.5 0.5
+O: down : 2
+0.5 0.5
+O: left : 2
+0.5 0.5
+O: right : 2
+0.5 0.5
+O: readmap : 2
+0.5 0.5
+O: up : 3
+0.5 0.5
+O: down : 3
+0.5 0.5
+O: left : 3
+0.5 0.5
+O: right : 3
+0.5 0.5
+O: readmap : 3
+0.5 0.5
+O: up : 4
+0.5 0.5
+O: down : 4
+0.5 0.5
+O: left : 4
+0.5 0.5
+O: right : 4
+0.5 0.5
+O: readmap : 4
+0.5 0.5
+O: up : 5
+0.5 0.5
+O: down : 5
+0.5 0.5
+O: left : 5
+0.5 0.5
+O: right : 5
+0.5 0.5
+O: readmap : 5
+0.5 0.5
+O: up : 6
+0.5 0.5
+O: down : 6
+0.5 0.5
+O: left : 6
+0.5 0.5
+O: right : 6
+0.5 0.5
+O: readmap : 6
+0.5 0.5
+O: up : 7
+0.5 0.5
+O: down : 7
+0.5 0.5
+O: left : 7
+0.5 0.5
+O: right : 7
+0.5 0.5
+O: readmap : 7
+0.5 0.5
+O: up : 8
+0.5 0.5
+O: down : 8
+0.5 0.5
+O: left : 8
+0.5 0.5
+O: right : 8
+0.5 0.5
+O: readmap : 8
+0.5 0.5
+O: up : 9
+0.5 0.5
+O: down : 9
+0.5 0.5
+O: left : 9
+0.5 0.5
+O: right : 9
+0.5 0.5
+O: readmap : 9
+0.5 0.5
+O: up : 10
+0.5 0.5
+O: down : 10
+0.5 0.5
+O: left : 10
+0.5 0.5
+O: right : 10
+0.5 0.5
+O: readmap : 10
+0.5 0.5
+O: up : 11
+0.5 0.5
+O: down : 11
+0.5 0.5
+O: left : 11
+0.5 0.5
+O: right : 11
+0.5 0.5
+O: readmap : 11
+0.5 0.5
+O: up : 12
+0.5 0.5
+O: down : 12
+0.5 0.5
+O: left : 12
+0.5 0.5
+O: right : 12
+0.5 0.5
+O: readmap : 12
+0.5 0.5
+O: up : 13
+0.5 0.5
+O: down : 13
+0.5 0.5
+O: left : 13
+0.5 0.5
+O: right : 13
+0.5 0.5
+O: readmap : 13
+0.5 0.5
+O: up : 14
+0.5 0.5
+O: down : 14
+0.5 0.5
+O: left : 14
+0.5 0.5
+O: right : 14
+0.5 0.5
+O: readmap : 14
+0.5 0.5
+O: up : 15
+0.5 0.5
+O: down : 15
+0.5 0.5
+O: left : 15
+0.5 0.5
+O: right : 15
+0.5 0.5
+O: readmap : 15
+0.5 0.5
+O: up : 16
+0.5 0.5
+O: down : 16
+0.5 0.5
+O: left : 16
+0.5 0.5
+O: right : 16
+0.5 0.5
+O: readmap : 16
+0.5 0.5
+O: up : 17
+0.5 0.5
+O: down : 17
+0.5 0.5
+O: left : 17
+0.5 0.5
+O: right : 17
+0.5 0.5
+O: readmap : 17
+0.5 0.5
+O: up : 18
+0.5 0.5
+O: down : 18
+0.5 0.5
+O: left : 18
+0.5 0.5
+O: right : 18
+0.5 0.5
+O: readmap : 18
+0.5 0.5
+O: up : 19
+0.5 0.5
+O: down : 19
+0.5 0.5
+O: left : 19
+0.5 0.5
+O: right : 19
+0.5 0.5
+O: readmap : 19
+0.5 0.5
+O: up : 20
+0.5 0.5
+O: down : 20
+0.5 0.5
+O: left : 20
+0.5 0.5
+O: right : 20
+0.5 0.5
+O: readmap : 20
+0.5 0.5
+O: up : 21
+0.5 0.5
+O: down : 21
+0.5 0.5
+O: left : 21
+0.5 0.5
+O: right : 21
+0.5 0.5
+O: readmap : 21
+0.5 0.5
+O: up : 22
+0.5 0.5
+O: down : 22
+0.5 0.5
+O: left : 22
+0.5 0.5
+O: right : 22
+0.5 0.5
+O: readmap : 22
+0.5 0.5
+O: up : 23
+0.5 0.5
+O: down : 23
+0.5 0.5
+O: left : 23
+0.5 0.5
+O: right : 23
+0.5 0.5
+O: readmap : 23
+0.5 0.5
+O: up : 24
+0.5 0.5
+O: down : 24
+0.5 0.5
+O: left : 24
+0.5 0.5
+O: right : 24
+0.5 0.5
+O: readmap : 24
+0.5 0.5
+O: up : 25
+0.5 0.5
+O: down : 25
+0.5 0.5
+O: left : 25
+0.5 0.5
+O: right : 25
+0.5 0.5
+O: readmap : 25
+0.5 0.5
+O: up : 26
+0.5 0.5
+O: down : 26
+0.5 0.5
+O: left : 26
+0.5 0.5
+O: right : 26
+0.5 0.5
+O: readmap : 26
+0.5 0.5
+O: up : 27
+0.5 0.5
+O: down : 27
+0.5 0.5
+O: left : 27
+0.5 0.5
+O: right : 27
+0.5 0.5
+O: readmap : 27
+0.5 0.5
+O: up : 28
+0.5 0.5
+O: down : 28
+0.5 0.5
+O: left : 28
+0.5 0.5
+O: right : 28
+0.5 0.5
+O: readmap : 28
+0.5 0.5
+O: up : 29
+0.5 0.5
+O: down : 29
+0.5 0.5
+O: left : 29
+0.5 0.5
+O: right : 29
+0.5 0.5
+O: readmap : 29
+0.5 0.5
+O: up : 30
+0.5 0.5
+O: down : 30
+0.5 0.5
+O: left : 30
+0.5 0.5
+O: right : 30
+0.5 0.5
+O: readmap : 30
+0.5 0.5
+O: up : 31
+0.5 0.5
+O: down : 31
+0.5 0.5
+O: left : 31
+0.5 0.5
+O: right : 31
+0.5 0.5
+O: readmap : 31
+0.5 0.5
+O: up : 32
+0.5 0.5
+O: down : 32
+0.5 0.5
+O: left : 32
+0.5 0.5
+O: right : 32
+0.5 0.5
+O: readmap : 32
+0.5 0.5
+O: up : 33
+0.5 0.5
+O: down : 33
+0.5 0.5
+O: left : 33
+0.5 0.5
+O: right : 33
+0.5 0.5
+O: readmap : 33
+0.5 0.5
+O: up : 34
+0.5 0.5
+O: down : 34
+0.5 0.5
+O: left : 34
+0.5 0.5
+O: right : 34
+0.5 0.5
+O: readmap : 34
+0.5 0.5
+O: up : 35
+0.5 0.5
+O: down : 35
+0.5 0.5
+O: left : 35
+0.5 0.5
+O: right : 35
+0.5 0.5
+O: readmap : 35
+0.5 0.5
+O: up : 36
+0.5 0.5
+O: down : 36
+0.5 0.5
+O: left : 36
+0.5 0.5
+O: right : 36
+0.5 0.5
+O: readmap : 36
+0.5 0.5
+O: up : 37
+0.5 0.5
+O: down : 37
+0.5 0.5
+O: left : 37
+0.5 0.5
+O: right : 37
+0.5 0.5
+O: readmap : 37
+0.5 0.5
+O: up : 38
+0.5 0.5
+O: down : 38
+0.5 0.5
+O: left : 38
+0.5 0.5
+O: right : 38
+0.5 0.5
+O: readmap : 38
+0.7 0.3
+O: up : 39
+0.5 0.5
+O: down : 39
+0.5 0.5
+O: left : 39
+0.5 0.5
+O: right : 39
+0.5 0.5
+O: readmap : 39
+0.3 0.7
+O: up : 40
+0.5 0.5
+O: down : 40
+0.5 0.5
+O: left : 40
+0.5 0.5
+O: right : 40
+0.5 0.5
+O: readmap : 40
+0.5 0.5
+O: up : 41
+0.5 0.5
+O: down : 41
+0.5 0.5
+O: left : 41
+0.5 0.5
+O: right : 41
+0.5 0.5
+O: readmap : 41
+0.5 0.5
+O: up : 42
+0.5 0.5
+O: down : 42
+0.5 0.5
+O: left : 42
+0.5 0.5
+O: right : 42
+0.5 0.5
+O: readmap : 42
+0.5 0.5
+O: up : 43
+0.5 0.5
+O: down : 43
+0.5 0.5
+O: left : 43
+0.5 0.5
+O: right : 43
+0.5 0.5
+O: readmap : 43
+0.5 0.5
+O: up : 44
+0.5 0.5
+O: down : 44
+0.5 0.5
+O: left : 44
+0.5 0.5
+O: right : 44
+0.5 0.5
+O: readmap : 44
+0.5 0.5
+O: up : 45
+0.5 0.5
+O: down : 45
+0.5 0.5
+O: left : 45
+0.5 0.5
+O: right : 45
+0.5 0.5
+O: readmap : 45
+0.5 0.5
+O: up : 46
+0.5 0.5
+O: down : 46
+0.5 0.5
+O: left : 46
+0.5 0.5
+O: right : 46
+0.5 0.5
+O: readmap : 46
+0.5 0.5
+O: up : 47
+0.5 0.5
+O: down : 47
+0.5 0.5
+O: left : 47
+0.5 0.5
+O: right : 47
+0.5 0.5
+O: readmap : 47
+0.5 0.5
+O: up : 48
+0.5 0.5
+O: down : 48
+0.5 0.5
+O: left : 48
+0.5 0.5
+O: right : 48
+0.5 0.5
+O: readmap : 48
+0.5 0.5
+O: up : 49
+0.5 0.5
+O: down : 49
+0.5 0.5
+O: left : 49
+0.5 0.5
+O: right : 49
+0.5 0.5
+O: readmap : 49
+0.5 0.5
+O: up : 50
+0.5 0.5
+O: down : 50
+0.5 0.5
+O: left : 50
+0.5 0.5
+O: right : 50
+0.5 0.5
+O: readmap : 50
+0.5 0.5
+O: up : 51
+0.5 0.5
+O: down : 51
+0.5 0.5
+O: left : 51
+0.5 0.5
+O: right : 51
+0.5 0.5
+O: readmap : 51
+0.5 0.5
+O: up : 52
+0.5 0.5
+O: down : 52
+0.5 0.5
+O: left : 52
+0.5 0.5
+O: right : 52
+0.5 0.5
+O: readmap : 52
+0.5 0.5
+O: up : 53
+0.5 0.5
+O: down : 53
+0.5 0.5
+O: left : 53
+0.5 0.5
+O: right : 53
+0.5 0.5
+O: readmap : 53
+0.5 0.5
+O: up : 54
+0.5 0.5
+O: down : 54
+0.5 0.5
+O: left : 54
+0.5 0.5
+O: right : 54
+0.5 0.5
+O: readmap : 54
+0.5 0.5
+O: up : 55
+0.5 0.5
+O: down : 55
+0.5 0.5
+O: left : 55
+0.5 0.5
+O: right : 55
+0.5 0.5
+O: readmap : 55
+0.5 0.5
+O: up : 56
+0.5 0.5
+O: down : 56
+0.5 0.5
+O: left : 56
+0.5 0.5
+O: right : 56
+0.5 0.5
+O: readmap : 56
+0.5 0.5
+O: up : 57
+0.5 0.5
+O: down : 57
+0.5 0.5
+O: left : 57
+0.5 0.5
+O: right : 57
+0.5 0.5
+O: readmap : 57
+0.5 0.5
+O: up : 58
+0.5 0.5
+O: down : 58
+0.5 0.5
+O: left : 58
+0.5 0.5
+O: right : 58
+0.5 0.5
+O: readmap : 58
+0.5 0.5
+O: up : 59
+0.5 0.5
+O: down : 59
+0.5 0.5
+O: left : 59
+0.5 0.5
+O: right : 59
+0.5 0.5
+O: readmap : 59
+0.5 0.5
+R: * : * : 40 : * 30.0
+R: * : * : 41 : * -30.0
+R: * : * : 58 : * -30.0
+R: * : * : 59 : * 30.0
