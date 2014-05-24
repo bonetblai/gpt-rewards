@@ -14,6 +14,14 @@ provide an example session on its usage. For more information,
 contact Blai Bonet <bonet@ldc.usb.ve>.
 
 
+REQUIREMENTS
+------------
+
+You will need a proper GNU readline library. The ones that come
+with Mac OSX are not good. In my mac, I use "brew install readline"
+to obtain a good library.
+
+
 INSTALLATION
 ------------
 
