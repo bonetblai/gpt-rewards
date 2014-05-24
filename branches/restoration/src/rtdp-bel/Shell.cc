@@ -1528,7 +1528,7 @@ static const char* generateList[] = { "core", "graph", "hash", "pomdp", "table",
 static const char* loadList[] = { "core", "problem", 0 };
 static const char* linkmapList[] = { "+", "-", 0 };
 static const char* setList[] = { "defaults", "problem", "stoprule", "epsilon", "epsilon-greedy",
-                                 "max-update", "cutoff", "control-updates", 
+                                 "max-update", "cutoff", "control-updates",
                                  "sondik", "sondik-method", "sondik-max-planes", "sondik-iterations",
                                  "pims", "qmdp-discount",
 				 "heuristic-lookahead", "qmethod", "qlevels", "qbase", "zero-heuristic",

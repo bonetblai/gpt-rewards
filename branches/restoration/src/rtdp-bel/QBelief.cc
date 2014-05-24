@@ -11,8 +11,7 @@ using namespace std;
 
 unsigned QBeliefHash::timestamp_ = 0;
 
-pair<const Belief*, BeliefHash::Data>
-QBeliefHash::lookup(const Belief &belief, bool quantizied, bool insert) {
+pair<const Belief*, BeliefHash::Data> QBeliefHash::lookup(const Belief &belief, bool quantizied, bool insert) {
     if( quantizied ) {
         const QBelief &qbelief = static_cast<const QBelief&>(belief);
         const HashType::Entry *entry = HashType::lookup(qbelief);

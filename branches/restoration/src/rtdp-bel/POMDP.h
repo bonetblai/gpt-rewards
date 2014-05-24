@@ -60,7 +60,10 @@ class POMDP : public Serializable {
     double epsilonGreedy() const { return epsilonGreedy_; }
     void setEpsilonGreedy(double epsilonGreedy) { epsilonGreedy_ = epsilonGreedy; }
     bool emptyBeliefHash() const { return beliefHash_->numEntries() == 0; }
-    void setHeuristic(const Heuristic *heuristic) { beliefHash_->setHeuristic(heuristic); }
+    void setHeuristic(const Heuristic *heuristic) {
+        if( beliefHash_ != 0 )
+            beliefHash_->setHeuristic(heuristic);
+    }
     void incLearningTime(double time) { learningTime_ += time; }
     void incControlTime(double time) { controlTime_ += time; }
     double learningTime() const { return learningTime_; }
@@ -72,13 +75,14 @@ class POMDP : public Serializable {
 
     // virtual methods
     virtual void statistics(std::ostream &os) const {
-        BeliefHash::Data qdata = beliefHash_->lookup(*model_->initialBelief_, false, false).second;
-        os << "%pomdp initialBeliefValue " << qdata.value_ << std::endl
+        BeliefHash::Data data = beliefHash_->lookup(getInitialBelief(), false, false).second;
+        os << "%pomdp initialBeliefValue " << data.value_ << std::endl
            << "%pomdp expansions " << expansions_ << std::endl
            << "%pomdp learningTime " << learningTime_ << std::endl
            << "%pomdp controlTime " << controlTime_ << std::endl;
         beliefHash_->statistics(os);
     }
+
     virtual double cost(const Belief &belief, int action) const = 0;
     virtual bool isAbsorbing(const Belief &belief) const = 0;
     virtual bool isGoal(const Belief &belief) const = 0;
@@ -86,6 +90,7 @@ class POMDP : public Serializable {
     virtual double QValue(const Belief &belief, int action) const = 0;
     virtual void bestQValue(const Belief &belief, QResult &qresult) const = 0;
     virtual int getBestAction(const Belief &belief) const = 0;
+    virtual const Belief& getInitialBelief() const = 0;
 
     // serialization
     virtual void write(std::ostream &os) const {
