@@ -33,6 +33,12 @@ StandardModel::StandardModel(const char *cassandraFilename)
     numStates_ = gNumStates;
     numObs_ = gNumObservations;
     underlyingDiscount_ = gDiscount;
+    isRewardBased_ = gValueType == 0;
+    if( isRewardBased_ && (underlyingDiscount_ == 1) ) {
+        cerr << "Fatal Error: cannot handle a reward-based model with a discount factor equal to 1" << endl;
+        exit(-1);
+    }
+    cout << "problem is instance of a " << (isRewardBased_ ? "reward" : "cost") << "-based model" << endl;
 
     // allocating space for model
     application_ = new unsigned[(numActions_ * (1+numStates_) + 32) / 32];
@@ -53,15 +59,20 @@ StandardModel::StandardModel(const char *cassandraFilename)
     for( int state = 0; state < numStates_; ++state ) {
         for( int action = 0; action < numActions_; ++action ) {
             double r = getEntryMatrix(Q, action, state);
-            maxReward_ = maxReward_ > r ? maxReward_ : r;
+            if( isRewardBased_ )
+                maxReward_ = maxReward_ > r ? maxReward_ : r;
+            else
+                minCost_ = minCost_ > r ? r : minCost_;
             cost_[state*numActions_ + action] = r;
         }
     }
-    for( int state = 0; state < numStates_; ++state ) {
-        for( int action = 0; action < numActions_; ++action ) {
-            double c = 1.0 + maxReward_ - cost_[state*numActions_ + action];
-            cost_[state*numActions_ + action] = c;
-            minCost_ = minCost_ > c ? c : minCost_;
+    if( isRewardBased_ ) {
+        for( int state = 0; state < numStates_; ++state ) {
+            for( int action = 0; action < numActions_; ++action ) {
+                double c = 1.0 + maxReward_ - cost_[state*numActions_ + action];
+                cost_[state*numActions_ + action] = c;
+                minCost_ = minCost_ > c ? c : minCost_;
+            }
         }
     }
     cout << "done" << endl;
@@ -145,22 +156,25 @@ StandardModel::StandardModel(const char *cassandraFilename)
 #endif
 
     // set model for absorbing state
-    absorbing_ = numStates_;
-    for( int action = 0; action < numActions_; ++action ) {
-        unsigned aindex = absorbing_*numActions_ + action;
-        if( transition_[aindex] == 0 ) transition_[aindex] = new vector<pair<int, double> >;
-        transition_[aindex]->push_back(make_pair(absorbing_, 1.0));
-        for( int state = 0; state < numStates_; ++state ) {
-            unsigned index = state*numActions_ + action;
-            if( transition_[index] == 0 ) transition_[index] = new vector<pair<int, double> >;
-            transition_[index]->push_back(make_pair(absorbing_, 1 - underlyingDiscount_));
+    if( isRewardBased_ || (underlyingDiscount_ < 1) ) {
+        assert(underlyingDiscount_ < 1);
+        absorbing_ = numStates_;
+        for( int action = 0; action < numActions_; ++action ) {
+            unsigned aindex = absorbing_*numActions_ + action;
+            if( transition_[aindex] == 0 ) transition_[aindex] = new vector<pair<int, double> >;
+            transition_[aindex]->push_back(make_pair(absorbing_, 1.0));
+            for( int state = 0; state < numStates_; ++state ) {
+                unsigned index = state*numActions_ + action;
+                if( transition_[index] == 0 ) transition_[index] = new vector<pair<int, double> >;
+                transition_[index]->push_back(make_pair(absorbing_, 1 - underlyingDiscount_));
+            }
+            observation_[aindex][numObs_] = 1.0;
+            unsigned j = aindex >> 5, off = aindex & 0x1F, app = application_[j];
+            application_[j] = app | (1<<off);
         }
-        observation_[aindex][numObs_] = 1.0;
-        unsigned j = aindex >> 5, off = aindex & 0x1F, app = application_[j];
-        application_[j] = app | (1<<off);
+        ++numStates_;
+        ++numObs_;
     }
-    ++numStates_;
-    ++numObs_;
 
     // set the initial belief
     StandardBelief *belief = new StandardBelief;
@@ -182,6 +196,10 @@ StandardModel::StandardModel(const char *cassandraFilename)
 
 void StandardModel::outputCASSANDRA(ostream &os) const {
     if( cassandra_ ) {
+        if( !isRewardBased_ ) {
+            cerr << "Fatal Error: generation of Cassandra representation currently only supportted for reward-based models" << endl;
+            exit(-1);
+        }
         extern int writeTransPOMDP(ostream&, double);
         writeTransPOMDP(os, -1.0 - maxReward_);
         os << "# reward-shift = " << -1.0 - maxReward_ << endl;

@@ -19,18 +19,22 @@ class Model {
     double underlyingDiscount_;
     double maxReward_;
     double minCost_;
+    bool isRewardBased_;
     const Belief* initialBelief_;
 
     Model()
       : numActions_(0), numStates_(0), numObs_(0), underlyingDiscount_(1),
-        maxReward_(DBL_MIN), minCost_(DBL_MAX), initialBelief_(0) { }
+        maxReward_(DBL_MIN), minCost_(DBL_MAX), isRewardBased_(false),
+        initialBelief_(0) { }
     virtual ~Model() { }
 
     int numActions() const { return numActions_; }
     int numStates() const { return numStates_; }
     int numObs() const { return numObs_; }
     double underlyingDiscount() const { return underlyingDiscount_; }
+    bool isRewardBased() const { return isRewardBased_; }
     double maxReward() const { return maxReward_; }
+    double minCost() const { return minCost_; }
     const Belief* getInitialBelief() const { return initialBelief_; }
     void statistics(std::ostream &os, const char *prefix = 0) const {
         os << (prefix?prefix:"%model ") << "numberActions " << numActions_ << std::endl

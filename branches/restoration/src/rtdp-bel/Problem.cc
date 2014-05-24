@@ -635,7 +635,8 @@ void Problem::solveCASSANDRA() {
                     ivalue = result->initialValue_;
                     result->clean();
                 }
-                ivalue = (1+model_->maxReward_) / (1-model_->underlyingDiscount()) - ivalue;
+                if( model_->isRewardBased() )
+                    ivalue = (1 + model_->maxReward_) / (1 - model_->underlyingDiscount()) - ivalue;
                 lratio = 100 * (double)gfound / (double)glookups;
                 glookups = 0;
                 gfound = 0;
@@ -682,7 +683,8 @@ void Problem::solveCASSANDRA() {
                     totalSumDisReward2 += result->accDiscountedReward_ * result->accDiscountedReward_;
                     result->clean();
                 }
-                ivalue = (1+model_->maxReward_) / (1-model_->underlyingDiscount()) - ivalue;
+                if( model_->isRewardBased() )
+                    ivalue = (1 + model_->maxReward_) / (1 - model_->underlyingDiscount()) - ivalue;
                 double avg = totalSumDisReward / (double)ntrials, dev = 0, conf = 0, tv = 0;
                 if( ntrials >= 2 ) {
                     dev = sqrt((totalSumDisReward2 / (ntrials-1)) -
@@ -708,7 +710,7 @@ void Problem::solveCASSANDRA() {
                 if( model_->numGoals() > 0 ) {
                     *outputFile_ << " goalRatio " << ngoals / (double)ntrials;
                 }
-                *outputFile_ << " rewardAvg " << avg
+                *outputFile_ << (model_->isRewardBased() ? " rewardAvg " : " costAvg ") << avg
                              << " confInterval " << conf
                              << " hashRatio " << cratio;
                 if( sondik_ ) {
