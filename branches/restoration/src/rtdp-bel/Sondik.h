@@ -234,7 +234,6 @@ class Sondik {
         assert(index == hash.nentries());
         qsort(&sortable[0], hash.nentries(), sizeof(void*), (method == 0 ? &timestampCmp : &updateCmp));
         for( unsigned i = 0; (i < size) && (i < hash.nentries()); ++i ) {
-            //std::cout << "rank[" << i << "]=" << (method == 0 ? sortable[i]->data_.timestamp_ : sortable[i]->data_.updates_) << std::endl;
             const QBelief *qbelief = sortable[i]->key_;
             StandardBelief *belief = new StandardBelief;
             for( QBelief::const_iterator bi = qbelief->begin(); bi != qbelief->end(); ++bi ) {

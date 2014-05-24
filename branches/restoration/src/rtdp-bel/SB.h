@@ -11,7 +11,7 @@
 #include "Hash.h"
 #include "StandardModel.h"
 #include "Problem.h"
-#include "Utils.h"
+#include "Random.h"
 
 #include <iostream>
 #include <strings.h>
@@ -138,7 +138,7 @@ class StandardBelief : public Belief {
         return (Belief::Constructor)&StandardBelief::constructor;
     }
     virtual int sampleState() const {
-        return ::randomSampling(vec_, size_);
+        return Random::sample(vec_, size_);
     }
 
     virtual void nextPossibleObservations(const Model *model, int action, double *nextobs) const {

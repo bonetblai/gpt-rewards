@@ -17,6 +17,10 @@
 #include <set>
 #include <vector>
 
+using namespace std;
+
+namespace Utils {
+
 inline double getTime() {
     struct rusage ru;
     getrusage(RUSAGE_SELF, &ru);
@@ -30,43 +34,6 @@ inline void fill(std::map<int, double> &m, const double *array, int dimension) {
         else if( m.find(i) != m.end() )
             m.erase(i);
     }
-}
-
-inline double realRandomSampling() {
-    return drand48();
-}
-
-inline unsigned unifRandomSampling(unsigned max) {
-    return lrand48() % max;
-}
-
-template<typename T, class Alloc>
-inline T randomSampling(const std::vector<std::pair<T, double>, Alloc> &v) {
-    register double d = realRandomSampling();
-    for( typename std::vector<std::pair<T, double>, Alloc>::const_iterator it = v.begin(); it != v.end(); ++it ) {
-        if( d <= (*it).second ) return (*it).first;
-        d -= (*it).second;
-    }
-    return v[unifRandomSampling(v.size())].first;
-}
-
-template<typename T>
-inline T randomSampling(const std::pair<T, double> *vec, unsigned size) {
-    register double d = realRandomSampling();
-    for( unsigned i = 0; i < size; ++i ) {
-        if( d <= vec[i].second ) return vec[i].first;
-        d -= vec[i].second;
-    }
-    return vec[unifRandomSampling(size)].first;
-}
-
-inline int randomSampling(double *vec, unsigned size) {
-    register double d = realRandomSampling();
-    for( unsigned i = 0; i < size; ++i ) {
-        if( d <= vec[i] ) return i;
-        d -= vec[i];
-    }
-    return unifRandomSampling(size);
 }
 
 template<class T, class Comp, class Alloc>
@@ -157,6 +124,8 @@ typename std::vector<T,Alloc>::const_iterator find_in_vector(const std::vector<T
     }
     return v.end();
 }
+
+}; // namespace
 
 #endif // _Utils_INCLUDE
 

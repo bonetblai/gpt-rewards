@@ -418,14 +418,14 @@ static int parseFunction(int nargs, char** args) {
     sprintf(cmdline, "%s/bin/parser %s %s", sys.gpthome_, args[2], args[4]);
 
     // parse
-    double time1 = getTime();
+    double time1 = Utils::getTime();
     *terminal << "-------" << endl
               << "$GPTHOME/bin/parser " << args[2] << " " << args[4]
               << endl;
     int rv = system(cmdline);
     *terminal << "-------" << endl;
     if( !rv ) { // print elapsed time
-        double time2 = getTime();
+        double time2 = Utils::getTime();
         *terminal << time2 - time1 << " seconds." << endl;
     }
 
@@ -785,7 +785,7 @@ static int compileFunction(int nargs, char** args) {
             include, sys.lib_, (PD.linkmap_ ? PD.linkmap_ : ""));
 
     // compile
-    double time1 = getTime();
+    double time1 = Utils::getTime();
     *terminal << "-------" << endl << cmdline << endl;
     int rv = system(cmdline);
     *terminal << "-------" << endl;
@@ -796,7 +796,7 @@ static int compileFunction(int nargs, char** args) {
     }
 
     // register final time & print elapsed time
-    double time2 = getTime();
+    double time2 = Utils::getTime();
     *terminal << time2-time1 << " seconds." << endl;
 
     // clean & return
@@ -851,7 +851,7 @@ static int solveFunction(int nargs, char** args) {
     }
 
     // bootstrap it
-    double time1 = getTime();
+    double time1 = Utils::getTime();
     if( !loadedObject && !bootstrap() ) return 1;
     PD.print(*PD.outputFile_, "%call ");
     *terminal << "Solving... " << endl;
@@ -871,7 +871,7 @@ static int solveFunction(int nargs, char** args) {
         PD.pomdp_->cleanHash();
         throw;
     }
-    double time2 = getTime();
+    double time2 = Utils::getTime();
 
     // print the model data
     //if( !stdOutput ) PD.model_->printData(*PD.outputFile_);

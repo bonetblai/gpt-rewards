@@ -106,7 +106,7 @@ void Problem::parseArguments(int argc, const char **argv, void (*helpFunction)()
 
     // set random seed using time
     if( randomSeed_ == -1 ) {
-        float time = getTime();
+        float time = Utils::getTime();
         int *ptr = reinterpret_cast<int*>(&time);
         randomSeed_ = *ptr;
     }
@@ -549,7 +549,7 @@ bootstrapCONFORMANT( ProblemHandle *handle )
 
 void Problem::bootstrapCASSANDRA() {
     // model creation: use setup for cassandra's format
-    double time1 = getTime();
+    double time1 = Utils::getTime();
     const StandardModel *model = new StandardModel(problemFile_);
     model_ = model;
     belief_ = new StandardBelief;
@@ -563,7 +563,7 @@ void Problem::bootstrapCASSANDRA() {
     pomdp_->setCutoff(cutoff_);
 
     // timing
-    double time2 = getTime();
+    double time2 = Utils::getTime();
     *outputFile_ << "%boot setupTime " << time2 - time1 << endl;
     time1 = time2;
 
@@ -575,7 +575,7 @@ void Problem::bootstrapCASSANDRA() {
     }
 
     // timing
-    time2 = getTime();
+    time2 = Utils::getTime();
     *outputFile_ << "%boot computeHeuristicTime " << time2 - time1 << endl;
     time1 = time2;
 }
@@ -652,7 +652,7 @@ void Problem::solveCASSANDRA() {
             Sondik *sondik = 0;
             double sondik_time = 0;
             if( sondik_ ) {
-                double start_time = getTime();
+                double start_time = Utils::getTime();
                 // For point-based operation need:
                 //   1. collect last used beliefs
                 //   2. transform collection of belief/values into Sondik's representation
@@ -662,7 +662,7 @@ void Problem::solveCASSANDRA() {
                 for( int i = 0; i < sondikIterations_; ++i ) {
                     sondik->update(epsilon_);
                 }
-                sondik_time = getTime() - start_time;
+                sondik_time = Utils::getTime() - start_time;
             }
             pomdp_->incLearningTime(sondik_time);
 

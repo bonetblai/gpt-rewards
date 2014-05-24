@@ -30,8 +30,8 @@ class Result {
         solved_(false), goalReached_(true), startTime_(0), stopTime_(0) { }
     virtual ~Result() { }
 
-    void startTimer() { startTime_ = getTime(); }
-    void stopTimer() { stopTime_ = getTime(); }
+    void startTimer() { startTime_ = Utils::getTime(); }
+    void stopTimer() { stopTime_ = Utils::getTime(); }
     double elapsedTime() const {
         return stopTime_ - startTime_;
     }

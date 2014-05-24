@@ -8,7 +8,7 @@
 #define _StandardModel_INCLUDE_
 
 #include "Model.h"
-#include "Utils.h"
+#include "Random.h"
 
 #include <strings.h>
 #include <iostream>
@@ -122,10 +122,10 @@ class StandardModel : public Model {
         return numGoals_;
     }
     virtual int sampleNextState(int state, int action) const {
-        return ::randomSampling(*transition_[state*numActions_ + action]);
+        return Random::sample(*transition_[state*numActions_ + action]);
     }
     virtual int sampleNextObservation(int nstate, int action) const {
-        return ::randomSampling(observation_[nstate*numActions_ + action], numObs_);
+        return Random::sample(observation_[nstate*numActions_ + action], numObs_);
     }
     virtual int newState() {
         return numStates_++;
