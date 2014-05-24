@@ -92,9 +92,9 @@ class StandardModel : public Model {
     }
 #endif
 
-    virtual double cost(int state, int action, int nstate) const {
-        double reward = getEntryMatrix(EQ[action], state, nstate);
-        return reward;
+    virtual double reward(int state, int action, int nstate) const {
+        double r = getEntryMatrix(EQ[action], state, nstate);
+        return r;
     }
     virtual double cost(int state, int action) const {
         if( cassandra_ && (state == numStates_ - 1) ) {

@@ -39,7 +39,7 @@ class Model : public Serializable {
            << (prefix?prefix:"%model ") << "numberObservations " << numObs_ << std::endl;
     }
 
-    virtual double cost(int state, int action, int nstate) const = 0;
+    virtual double reward(int state, int action, int nstate) const = 0;
     virtual double cost(int state, int action) const = 0;
     virtual bool applicable(int state, int action) const = 0;
     virtual bool isAbsorbing(int state) const = 0;

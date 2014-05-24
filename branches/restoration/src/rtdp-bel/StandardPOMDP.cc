@@ -24,8 +24,8 @@ void StandardPOMDP::learnAlgorithm(Result& result) {
     // initialize result
     result.runType_ = 1;
     result.numSteps_ = 0;
-    result.accCost_ = 0.0;
-    result.accDisCost_ = 0.0;
+    result.accReward_ = 0.0;
+    result.accDiscountedReward_ = 0.0;
     result.goalReached_ = false;
     result.startTimer();
 
@@ -154,8 +154,8 @@ void StandardPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const
     // initialize result
     result.runType_ = 0;
     result.numSteps_ = 0;
-    result.accCost_ = 0.0;
-    result.accDisCost_ = 0.0;
+    result.accReward_ = 0.0;
+    result.accDiscountedReward_ = 0.0;
     result.goalReached_ = false;
     result.startTimer();
 
@@ -219,9 +219,11 @@ void StandardPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const
             nstate = model_->sampleNextState(state, bestAction);
         }
         int observation = model_->sampleNextObservation(nstate, bestAction);
-        double realCost = model_->cost(state, bestAction, nstate);
-        result.accCost_ += realCost;
-        result.accDisCost_ += realCost * powf(model_->underlyingDiscount_, result.numSteps_);
+
+        // get real reward and update trajectory in result
+        double reward = model_->reward(state, bestAction, nstate);
+        result.accReward_ += reward;
+        result.accDiscountedReward_ += reward * powf(model_->underlyingDiscount_, result.numSteps_);
         result.push_back(state, bestAction, observation);
 
         // update belief (using cache)

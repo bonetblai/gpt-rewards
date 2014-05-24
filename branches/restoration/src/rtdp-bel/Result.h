@@ -15,8 +15,8 @@ class Result {
   public:
     int runType_;
     int numSteps_;
-    double accCost_;
-    double accDisCost_;
+    double accReward_;
+    double accDiscountedReward_;
     double initialValue_;
     bool solved_;
     bool goalReached_;
@@ -24,7 +24,7 @@ class Result {
     double stopTime_;
 
     Result()
-      : runType_(0), numSteps_(0), accCost_(0), accDisCost_(0), initialValue_(0),
+      : runType_(0), numSteps_(0), accReward_(0), accDiscountedReward_(0), initialValue_(0),
         solved_(false), goalReached_(true), startTime_(0), stopTime_(0) { }
     virtual ~Result() { }
 
@@ -93,7 +93,7 @@ class StandardResult : public Result {
                << "n=" << numSteps_;
     
             if( runType_ == 0 ) {
-                os << ",c=" << accCost_ << ",d=" << accDisCost_;
+                os << ",reward=" << accReward_ << ",dis-reward=" << accDiscountedReward_;
                 if( outputLevel > 1 ) {
                     os << ",trajectory=[";
                     if( numSteps_ != -1 ) {
