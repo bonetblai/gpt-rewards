@@ -19,6 +19,7 @@
 #include <iostream>
 #include <float.h>
 #include <map>
+#include <limits.h>
 #include <list>
 
 class Sondik;
@@ -48,7 +49,7 @@ class StandardPOMDP : public POMDP {
     }
 
     double QValue(const Belief &belief, int action, BeliefCache::Entry *cache_entry, const BeliefHash *hash) const {
-        double qvalue = DBL_MAX;
+        double qvalue = std::numeric_limits<double>::max();;
         if( applicable(belief,action) ) {
             qvalue = 0;
             const double *nextobs = 0;
@@ -86,7 +87,7 @@ class StandardPOMDP : public POMDP {
     void bestQValue(const Belief &belief, QResult &qresult, BeliefCache::Entry *cache_entry, const BeliefHash *hash) const {
         ++expansions_;
         qresult.numTies_ = 0;
-        qresult.value_ = DBL_MAX;
+        qresult.value_ = std::numeric_limits<double>::max();;
         for( int action = 0; action < numActions_; ++action ) {
             double qvalue = QValue(belief, action, cache_entry, hash);
             if( (qresult.numTies_ == 0) || (qvalue <= qresult.value_) ) {
@@ -108,9 +109,8 @@ class StandardPOMDP : public POMDP {
     virtual double cost(const Belief &belief, int action) const {
         double sum = 0;
         const StandardBelief &bel = static_cast<const StandardBelief&>(belief);
-        for( StandardBelief::const_iterator it = bel.begin(); it != bel.end(); ++it ) {
+        for( StandardBelief::const_iterator it = bel.begin(); it != bel.end(); ++it )
             sum += (*it).second * model_->cost((*it).first, action);
-        }
         return sum;
     }
     virtual bool isAbsorbing(const Belief &belief) const {
@@ -130,7 +130,7 @@ class StandardPOMDP : public POMDP {
     virtual bool applicable(const Belief &belief, int action) const {
         const StandardBelief &bel = static_cast<const StandardBelief&>(belief);
         for( StandardBelief::const_iterator it = bel.begin(); it != bel.end(); ++it ) {
-            if( !model_->applicable((*it).first,action) ) return false;
+            if( !model_->applicable((*it).first, action) ) return false;
         }
         return true;
     }

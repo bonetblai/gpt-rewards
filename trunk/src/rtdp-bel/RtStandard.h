@@ -69,7 +69,7 @@ struct stateListClass {
       : action(-1), cost(-1), probability(-1),
         state(0), observations(0),
         prev(0), next(0), last(this) { }
-    virtual ~stateListClass()  {
+    virtual ~stateListClass() {
         delete state; // only delete state, observations are deleted elsewhere
     }
 
@@ -95,7 +95,7 @@ struct ProblemHandle {
     int observationSize;
     observationClass *nullObservation;
 
-    stateListClass * (*bootstrap)();
+    stateListClass* (*bootstrap)();
     void (*cleanUp)();
     void (*printAction)(std::ostream &os, int action);
     void (*stateAllocFunction)(int number, stateClass **pool);
@@ -136,8 +136,8 @@ struct planningHeuristicClass {
 //stateClass::node_t* 
 void recover(const stateClass::node_t *node, stateClass *s);
 void printNodeTree(const stateClass::node_t *node);
-void concatLists(stateListClass* &list1, stateListClass *list2);
-void removeElement(stateListClass* &list, stateListClass *elem);
+void concatLists(stateListClass *&list1, stateListClass *list2);
+void removeElement(stateListClass *&list, stateListClass *elem);
 void printBits(std::ostream &os, unsigned pack);
 
 std::ostream& operator<<(std::ostream &os, const stateClass &s);

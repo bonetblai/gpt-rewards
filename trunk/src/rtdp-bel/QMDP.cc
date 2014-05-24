@@ -30,7 +30,7 @@ void QMDPHeuristic::compute() {
                 for( int action = 0; action < model_->numActions(); ++action ) {
                     if( model_->applicable(state, action) ) { // compute value for an action 
                         double sum = 0.0;
-                        const vector<pair<int,double> > *vec = model_->transition_[state*model_->numActions() + action];
+                        const vector<pair<int, double> > *vec = model_->transition_[state*model_->numActions() + action];
                         assert(vec != 0);
                         for( unsigned i = 0, sz = vec->size(); i < sz; ++i ) {
                             int nstate = (*vec)[i].first;

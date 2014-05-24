@@ -10,6 +10,7 @@
 #include "Hash.h"
 #include "StandardModel.h"
 #include "Problem.h"
+#include "HashFunction.h"
 
 #include <iostream>
 #include <strings.h>
@@ -90,7 +91,7 @@ class QBelief : public Belief {
     }
 
     virtual Belief* clone() const { return new QBelief(*this); }
-    virtual size_t hash() const {
+    virtual unsigned hash() const {
         return HashFunction::hash(vec_, size_);
     }
 
@@ -104,7 +105,7 @@ class QBelief : public Belief {
         os << "]";
     }
 
-    const QBelief& operator=(const QBelief& belief) {
+    const QBelief& operator=(const QBelief &belief) {
         resize(belief.size_);
         size_ = belief.size_;
         bcopy(belief.vec_, vec_, size_ * sizeof(unsigned));
@@ -113,7 +114,7 @@ class QBelief : public Belief {
     virtual const Belief& operator=(const Belief &belief) {
         return operator=(static_cast<const QBelief&>(belief));
     }
-    bool operator==(const QBelief& belief) const {
+    bool operator==(const QBelief &belief) const {
         if( size_ != belief.size_ ) return false;
         for( unsigned i = 0; i < size_; ++i ) {
             if( vec_[i] != belief.vec_[i] ) return false;
@@ -191,8 +192,7 @@ class QBeliefHash : public BeliefHash, public Hash<const QBelief, BeliefHash::Da
         return HashType::nfound();
     }
     virtual double heuristic(const Belief &belief) const {
-        //std::cout << "CHECK3" << std::endl;
-        return !heuristic_ ? 0 : heuristic_->value(dynamic_cast<const StandardBelief&>(belief));
+        return !heuristic_ ? 0 : heuristic_->value(static_cast<const StandardBelief&>(belief));
     }
     virtual BeliefHash::const_Entry fetch(const Belief &belief) const {
         const HashType::Entry *entry = HashType::lookup(static_cast<const QBelief&>(belief));
@@ -226,7 +226,7 @@ class QBeliefHash : public BeliefHash, public Hash<const QBelief, BeliefHash::Da
         }
     }
  
-    virtual void print(std::ostream & os) const { HashType::print(os); }
+    virtual void print(std::ostream &os) const { HashType::print(os); }
     virtual void statistics(std::ostream &os) const { HashType::statistics(os); }
     virtual void clean() { HashType::clean(); }
     virtual unsigned numEntries() const { return HashType::nentries(); }

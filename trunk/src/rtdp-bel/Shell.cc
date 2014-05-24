@@ -1,4 +1,5 @@
 //  Shell.cc -- main GPT shell
+//
 //  Blai Bonet, Hector Geffner (c)
 
 #include "Exception.h"
@@ -58,7 +59,7 @@ class Command {
     int subexprs_;
     regex_t regex_;
     int (*commandFunction_)(int, char**);
-    Command(const char* name, const char* pattern, int subexprs, int (*commandFunction)(int, char**) )
+    Command(const char* name, const char* pattern, int subexprs, int (*commandFunction)(int, char**))
       : name_(name), pattern_(pattern), subexprs_(subexprs), commandFunction_(commandFunction) {
         // compile the regular expression for command
         if( regcomp(&regex_, pattern_, REG_EXTENDED | REG_ICASE) ) {
@@ -256,7 +257,7 @@ int main(int argc, const char **argv) {
     PD.parseArguments(argc, argv, &help);
     //internalInitialization();
     commandRegistration();
-    *terminal << "Welcome to GPT, Version " << PD.softwareRevision_ << " (cassandra)."
+    *terminal << "Welcome to GPT, Version " << PD.softwareRevision_ << "."
               << endl;
 
     // bootstrap problem
@@ -284,7 +285,7 @@ int main(int argc, const char **argv) {
     delete[] PD.linkmap_;
     commandCleanup();
     //internalFinalization();
-    return 0;
+    exit(0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -309,11 +310,6 @@ static void setAllDefaultValues() {
     defaultValues.insert(make_pair("max-update", "off"));
     defaultValues.insert(make_pair("cutoff", "250"));
     defaultValues.insert(make_pair("control-updates", "off"));
-    defaultValues.insert(make_pair("rollout", "off"));
-    defaultValues.insert(make_pair("depth", "20"));
-    defaultValues.insert(make_pair("width", "1"));
-    defaultValues.insert(make_pair("nesting", "1"));
-    defaultValues.insert(make_pair("num-particles", "1"));
     defaultValues.insert(make_pair("sondik", "off"));
     defaultValues.insert(make_pair("sondik-method", "timestamps"));
     defaultValues.insert(make_pair("sondik-max-planes", "16"));
@@ -388,7 +384,7 @@ static int clearFunction(int nargs, char **args) {
 
 static const char* cdPattern = "cd( ([[:print:]]+)){0,1}";
 static int cdSubexprs = 2;
-static int cdFunction(int nargs, char**  args) {
+static int cdFunction(int nargs, char** args) {
     if( args[1] ) {
         if( chdir(args[2]) )
             cerr << "Error: " << args[2] << ": " << strerror(errno) << "." << endl;
@@ -663,7 +659,7 @@ static int printFunction(int nargs, char** args) {
                 int action = atoi(tok);
                 if( (action < 0) || (action >= PD.pomdp_->numActions()) ) {
                     *terminal << "Invalid action." << endl;
-                } else if( !PD.model_->applicable(state,action) ) {
+                } else if( !PD.model_->applicable(state, action) ) {
                     *terminal << "Action not applicable in state." << endl;
                 } else { // we are ok ..
 #if 0
@@ -750,8 +746,7 @@ static int loadFunction(int nargs, char** args) {
         // load core
         readcore(coreFilename);
         delete[] coreFilename;
-    }
-    else if( !strcasecmp(args[1], "problem") ) {
+    } else if( !strcasecmp(args[1], "problem") ) {
         setCurrentProblem(0);
         bootstrap();
     }
@@ -816,7 +811,7 @@ static int solveFunction(int nargs, char** args) {
 
     // set problem
     if( !loadedObject || (args[2] && strcmp(args[2],currentProblem)) )
-      setCurrentProblem(args[2]);
+        setCurrentProblem(args[2]);
 
     // open outputFile
     bool stdOutput = false;
@@ -900,7 +895,7 @@ static int solveFunction(int nargs, char** args) {
     return 1;
 }
 
-static const char* setPattern = "set( (defaults|problem|stoprule|epsilon|epsilon-greedy|max-update|cutoff|control-updates|rollout|depth|width|nesting|num-particles|sondik|sondik-method|sondik-max-planes|sondik-iterations|pims|qmdp-discount|heuristic-lookahead|qmethod|qlevels|qbase|zero-heuristic|hash-all|random-ties|random-seed|output-level|verbose-level|precision|action-cache|obs-cache|other-cache|cc|ccflags|ld|ldflags|include-dir|lib-dir|entry-point)( (.+)){0,1}){0,1}";
+static const char* setPattern = "set( (defaults|problem|stoprule|epsilon|epsilon-greedy|max-update|cutoff|control-updates|sondik|sondik-method|sondik-max-planes|sondik-iterations|pims|qmdp-discount|heuristic-lookahead|qmethod|qlevels|qbase|zero-heuristic|hash-all|random-ties|random-seed|output-level|verbose-level|precision|action-cache|obs-cache|other-cache|cc|ccflags|ld|ldflags|include-dir|lib-dir|entry-point)( (.+)){0,1}){0,1}";
 static int setSubexprs = 4;
 static void setValue(const char* var, const char* value);
 static void invalidSetValue(const char* var, const char* value);
@@ -928,11 +923,6 @@ static int setFunction(int nargs, char** args) {
         }
         *terminal << endl;
         *terminal << "  cutoff                = " << PD.cutoff_ << endl
-                  << "  rollout               = " << (PD.rollout_ ? "on" : "off") << endl
-                  << "  depth                 = " << PD.depth_ << endl
-                  << "  width                 = " << PD.width_ << endl
-                  << "  nesting               = " << PD.nesting_ << endl
-                  << "  num-particles         = " << PD.numParticles_ << endl
                   << "  qmdp-discount         = " << PD.QMDPdiscount_ << endl
                   << "  heuristic-lookahead   = " << PD.lookahead_ << endl
                   << "  zero-heuristic        = " << (PD.zeroHeuristic_ ? "on" : "off") << endl
@@ -979,8 +969,7 @@ static int setFunction(int nargs, char** args) {
             setDefaultValue(0, false);
         else
             setDefaultValue(args[2], false);
-    }
-    else {
+    } else {
         setValue(args[2], args[4]);
     }
     return 1;
@@ -1035,38 +1024,7 @@ static void setValue(const char* var, const char* value) {
             PD.controlUpdates_ = false;
         else
             invalidSetValue(var, value);
-    } else if( !strcasecmp(var, "rollout") ) {
-        if( !strcasecmp(value, "on") || !strcasecmp(value, "1") )
-            PD.rollout_ = true;
-        else if( !strcasecmp(value, "off") || !strcasecmp(value, "0") )
-            PD.rollout_ = false;
-        else
-            invalidSetValue(var, value);
-    } else if( !strcasecmp(var, "depth") ) {
-        int arg = atoi(value);
-        if( arg < 0 )
-            invalidSetValue(var, value);
-        else
-            PD.depth_ = arg;
-    } else if( !strcasecmp(var, "width") ) {
-        int arg = atoi(value);
-        if( arg < 0 )
-            invalidSetValue(var, value);
-        else
-            PD.width_ = arg;
-    } else if( !strcasecmp(var, "nesting") ) {
-        int arg = atoi(value);
-        if( arg < 0 )
-            invalidSetValue(var, value);
-        else
-            PD.nesting_ = arg;
-    } else if( !strcasecmp(var, "num-particles") ) {
-        int arg = atoi(value);
-        if( arg < 0 )
-            invalidSetValue(var, value);
-        else
-            PD.numParticles_ = arg;
-    } else if( !strcasecmp(var,"sondik") ) {
+    } else if( !strcasecmp(var, "sondik") ) {
         if( !strcasecmp(value, "on") || !strcasecmp(value, "1") )
             PD.sondik_ = true;
         else if( !strcasecmp(value, "off") || !strcasecmp(value, "0") )
@@ -1220,7 +1178,7 @@ static void setValue(const char* var, const char* value) {
     } else if( !strcasecmp(var, "include-dir") ) {
         delete[] sys.include_;
         char *tmp = new char[1 + strlen(value)];
-        strcpy(tmp,value);
+        strcpy(tmp, value);
         sys.include_ = tmp;
     } else if( !strcasecmp(var, "lib-dir") ) {
         delete[] sys.lib_;
@@ -1358,7 +1316,7 @@ static int generateFunction(int nargs, char** args) {
     } else if( !strcasecmp(args[2], "graph") ||
                !strcasecmp(args[2], "hash") ||
                !strcasecmp(args[2], "table") ) {
-    // read problem name and core name (if necessary)
+        // read problem name and core name (if necessary)
         char *filename = 0, *tmp = 0;
         ofstream *outputFile = 0;
 
@@ -1569,7 +1527,6 @@ static const char* loadList[] = { "core", "problem", 0 };
 static const char* linkmapList[] = { "+", "-", 0 };
 static const char* setList[] = { "defaults", "problem", "stoprule", "epsilon", "epsilon-greedy",
                                  "max-update", "cutoff", "control-updates",
-                                 "rollout", "depth", "width", "nesting", "num-particles",
                                  "sondik", "sondik-method", "sondik-max-planes", "sondik-iterations",
                                  "pims", "qmdp-discount",
 				 "heuristic-lookahead", "qmethod", "qlevels", "qbase", "zero-heuristic",
@@ -1638,11 +1595,6 @@ static completionInfo_t completionInfo[] = {
     { "set max-update", 0, emptyList },
     { "set cutoff", 0, emptyList },
     { "set control-updates", 0, emptyList },
-    { "set rollout", 0, emptyList },
-    { "set depth", 0, emptyList },
-    { "set width", 0, emptyList },
-    { "set nesting", 0, emptyList },
-    { "set num-particles", 0, emptyList },
     { "set sondik", 0, sondikList },
     { "set sondik-method", 0, emptyList },
     { "set sondik-max-planes", 0, emptyList },

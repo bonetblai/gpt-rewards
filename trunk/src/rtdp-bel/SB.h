@@ -28,6 +28,7 @@ class StandardBelief : public Belief {
     static int *state_heap_;
     static int state_heapsz_;
     static double *state_table_;
+
   public:
     StandardBelief(const StandardBelief &belief)
       : vec_(0), capacity_(0), size_(0) {
@@ -65,7 +66,7 @@ class StandardBelief : public Belief {
         if( capacity_ < capacity ) {
             capacity_ = capacity;
             std::pair<int, double> *oldvec = vec_;
-            vec_ = new std::pair<int ,double>[capacity_];
+            vec_ = new std::pair<int, double>[capacity_];
             bcopy(oldvec, vec_, size_ * sizeof(std::pair<int, double>));
             if( oldvec ) delete[] oldvec;
         }
@@ -74,9 +75,9 @@ class StandardBelief : public Belief {
     void normalize() {
         double sum = 0;
         for( iterator it = begin(); it != end(); ++it )
-          sum += (*it).second;
+            sum += (*it).second;
         for( iterator it = begin(); it != end(); ++it )
-          (*it).second /= sum;
+            (*it).second /= sum;
     }
     void push_back(int state, double probability) {
         resize(size_ + 1);
@@ -190,7 +191,7 @@ class StandardBelief : public Belief {
         return new StandardBelief(*this);
     }
 
-    virtual size_t hash() const {
+    virtual unsigned hash() const {
         return HashFunction::hash(&vec_[0], size_);
     }
 

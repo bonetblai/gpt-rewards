@@ -232,15 +232,15 @@ class Sondik {
         assert(index == hash.nentries());
         qsort(&sortable[0], hash.nentries(), sizeof(void*), (method == 0 ? &timestampCmp : &updateCmp));
         for( unsigned i = 0; (i < size) && (i < hash.nentries()); ++i ) {
-          const QBelief *qbelief = sortable[i]->key_;
-          StandardBelief *belief = new StandardBelief;
-          for( QBelief::const_iterator bi = qbelief->begin(); bi != qbelief->end(); ++bi ) {
-              int state = (*bi) >> 8;
-              int rank = (*bi) & 0xFF;
-              belief->push_back(state, (double)rank);
-          }
-          belief->normalize();
-          beliefSet_.push_back(belief);
+            const QBelief *qbelief = sortable[i]->key_;
+            StandardBelief *belief = new StandardBelief;
+            for( QBelief::const_iterator bi = qbelief->begin(); bi != qbelief->end(); ++bi ) {
+                int state = (*bi) >> 8;
+                int rank = (*bi) & 0xFF;
+                belief->push_back(state, (double)rank);
+            }
+            belief->normalize();
+            beliefSet_.push_back(belief);
         }
         delete[] sortable;
 
@@ -275,7 +275,7 @@ static int timestampCmp(const void *p1, const void *p2) {
     return t2 - t1;
 }
 
-static int updateCmp(const void *p1, const void *p2 ) {
+static int updateCmp(const void *p1, const void *p2) {
     const Hash<const QBelief, BeliefHash::Data>::Entry **e1, **e2;
     e1 = reinterpret_cast<const Hash<const QBelief, BeliefHash::Data>::Entry**>((const void**)p1);
     e2 = reinterpret_cast<const Hash<const QBelief, BeliefHash::Data>::Entry**>((const void**)p2);
