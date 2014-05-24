@@ -34,6 +34,7 @@ StandardModel::StandardModel(const char *cassandraFilename)
     numObs_ = gNumObservations;
     underlyingDiscount_ = gDiscount;
 
+    // allocating space for model
     application_ = new unsigned[(numActions_ * (1+numStates_) + 32) / 32];
     cost_ = new double[numActions_ * (1+numStates_)];
     bzero(cost_, numActions_ * (1+numStates_) * sizeof(double));
@@ -48,6 +49,7 @@ StandardModel::StandardModel(const char *cassandraFilename)
     }
 
     // compute rewards and maxReward
+    cout << "extracting and translating costs ... " << flush;
     for( int state = 0; state < numStates_; ++state ) {
         for( int action = 0; action < numActions_; ++action ) {
             double r = getEntryMatrix(Q, action, state);
@@ -62,6 +64,7 @@ StandardModel::StandardModel(const char *cassandraFilename)
             minCost_ = minCost_ > c ? c : minCost_;
         }
     }
+    cout << "done" << endl;
     //destroyMatrix(Q);
 
     // compute model
