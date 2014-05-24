@@ -96,8 +96,16 @@ class StandardModel : public Model {
         double r = getEntryMatrix(EQ[action], state, nstate);
         return r;
     }
+    virtual double cost(int state, int action, int nstate) const {
+        if( cassandra_ && (state == absorbing_) ) {
+            return 0;
+        } else {
+            double c = 1.0 + maxReward_ - reward(state, action, nstate);
+            return c;
+        }
+    }
     virtual double cost(int state, int action) const {
-        if( cassandra_ && (state == numStates_ - 1) ) {
+        if( cassandra_ && (state == absorbing_) ) {
             return 0;
         } else {
             return cost_[state*numActions_ + action];
@@ -140,17 +148,6 @@ class StandardModel : public Model {
         }
     }
     void outputCASSANDRA(std::ostream &os) const;
-
-    // serialization
-    static StandardModel* constructor() {
-        return new StandardModel;
-    }
-    virtual void write(std::ostream &os) const {
-        Model::write(os);
-    }
-    static void read(std::istream &is, StandardModel &model) {
-        Model::read(is, model);
-    }
 };
 
 #endif // _StandardModel_INCLUDE

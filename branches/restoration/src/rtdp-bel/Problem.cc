@@ -17,6 +17,7 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <math.h>
+#include <limits>
 #include <errno.h>
 #include <iostream>
 #include <fstream>
@@ -153,8 +154,6 @@ void Problem::print(ostream &os, const char *prefix) const {
 static void
 classRegistration()
 {
-  // registration of all serializable classes
-
   // for POMDP
   StandardPOMDP::checkIn();
   StandardBeliefHash::checkIn();
@@ -185,7 +184,6 @@ classRegistration()
 static void
 classCleanup()
 {
-  // registration of all serializable classes
   POMDP::cleanup();
   Belief::cleanup();
   Model::cleanup();
@@ -698,8 +696,10 @@ void Problem::solveCASSANDRA() {
                     } else { // for df > 1000, use infinity value
                         tv = tValues[102];
                     }
+                    conf = tv * dev / sqrt(ntrials);
+                } else {
+                    conf = numeric_limits<double>::infinity();
                 }
-                conf = tv * dev / sqrt(ntrials);
                 cratio = 100 * (double)gfound / (double)glookups;
                 glookups = 0;
                 gfound = 0;

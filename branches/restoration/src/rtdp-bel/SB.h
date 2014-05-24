@@ -10,33 +10,13 @@
 #include "StandardModel.h"
 #include "Problem.h"
 #include "Random.h"
+#include "HashFunction.h"
 
 #include <iostream>
 #include <strings.h>
 #include <math.h>
 #include <algorithm>
 #include <vector>
-
-#define HASH_ROT(x,k) (((x)<<(k))|((x)>>(32-(k))))
-#define HASH_MIX(a,b,c) \
-{ \
-  a -= c; a ^= HASH_ROT(c, 4); c += b; \
-  b -= a; b ^= HASH_ROT(a, 6); a += c; \
-  c -= b; c ^= HASH_ROT(b, 8); b += a; \
-  a -= c; a ^= HASH_ROT(c,16); c += b; \
-  b -= a; b ^= HASH_ROT(a,19); a += c; \
-  c -= b; c ^= HASH_ROT(b, 4); b += a; \
-}
-#define HASH_FINAL(a,b,c) \
-{ \
-  c ^= b; c -= HASH_ROT(b,14); \
-  a ^= c; a -= HASH_ROT(c,11); \
-  b ^= a; b -= HASH_ROT(a,25); \
-  c ^= b; c -= HASH_ROT(b,16); \
-  a ^= c; a -= HASH_ROT(c,4);  \
-  b ^= a; b -= HASH_ROT(a,14); \
-  c ^= b; c -= HASH_ROT(b,24); \
-}
 
 class StandardBelief : public Belief {
   protected:
@@ -132,9 +112,6 @@ class StandardBelief : public Belief {
         }
     }
 
-    virtual Belief::Constructor getConstructor() const {
-        return (Belief::Constructor)&StandardBelief::constructor;
-    }
     virtual int sampleState() const {
         return Random::sample(vec_, size_);
     }
@@ -215,52 +192,7 @@ class StandardBelief : public Belief {
     }
 
     virtual unsigned hash() const {
-        register unsigned i = 0;
-        register unsigned length = size_ << 1;
-        register unsigned a, b, c;
-        a = b = c = 0xdeadbeef + (length << 2) + 0;
-        if( length == 0 ) return c;
-
-        unsigned *ptr;
-        while( length > 6 ) {
-            ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-            a += (unsigned)vec_[i].first;
-            b += ptr[0] + ptr[1];
-            ++i;
-            c += (unsigned)vec_[i].first;
-            HASH_MIX(a, b, c);
-            ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-            a += ptr[0] + ptr[1];
-            ++i;
-            ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-            b += (unsigned)vec_[i].first;
-            c += ptr[0] + ptr[1];
-            HASH_MIX(a, b, c);
-            ++i;
-            length -= 6;
-        }
-        assert((length==6) || (length==4) || (length==2));
-
-        ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-        a += (unsigned)vec_[i].first;
-        b += ptr[0] + ptr[1];
-        if( length == 2 ) goto final;
-
-        ++i;
-        c += (unsigned)vec_[i].first;
-        HASH_MIX(a, b, c);
-        ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-        a += ptr[0] + ptr[1];
-        if( length == 4 ) goto final;
-
-        ++i;
-        ptr = reinterpret_cast<unsigned*>(&vec_[i].second);
-        b += (unsigned)vec_[i].first;
-        c += ptr[0] + ptr[1];
-
-      final:
-        HASH_FINAL(a, b, c);
-        return c; 
+        return HashFunction::hash(&vec_[0], size_);
     }
 
     virtual void print(std::ostream &os) const {
@@ -291,32 +223,7 @@ class StandardBelief : public Belief {
         return operator==(static_cast<const StandardBelief&>(belief));
     }
 
-    // serialization
-    static StandardBelief* constructor() {
-        return new StandardBelief;
-    }
-    virtual void write(std::ostream &os) const {
-        Belief::write(os);
-        Serialize::safeWrite(&size_, sizeof(unsigned), 1, os);
-        for( unsigned i = 0; i < size_; ++i ) {
-            Serialize::safeWrite(&vec_[i].first, sizeof(int), 1, os);
-            Serialize::safeWrite(&vec_[i].second, sizeof(double), 1, os);
-        }
-    }
-    static void read(std::istream &is, StandardBelief &belief) {
-        Belief::read(is,belief);
-        belief.clear();
-        unsigned size = 0;
-        Serialize::safeRead(&size, sizeof(unsigned), 1, is);
-        for( unsigned i = 0; i < size; ++i ) {
-            int s = 0;
-            double p = 0;
-            Serialize::safeRead(&s, sizeof(int), 1, is);
-            Serialize::safeRead(&p, sizeof(double), 1, is);
-            belief.push_back(s, p);
-        }
-    }
-
+    // iterators
     struct iterator {
         std::pair<int, double> *p_;
         iterator(std::pair<int, double> *p) : p_(p) { }

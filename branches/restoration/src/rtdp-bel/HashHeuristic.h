@@ -29,16 +29,13 @@ class HashHeuristic : public Heuristic {
             return p.second.value_;
         }
     }
+
+    virtual int action(int state) const { return 0; }
     virtual double value(int state) const { return 0; }
     virtual double value(const Belief &belief) const {
         const StandardBelief *bel = dynamic_cast<const StandardBelief*>(&belief);
         return bel != 0 ? value(*bel) : 0;
     }
-
-    // serialization
-    static HashHeuristic* constructor() { return new HashHeuristic; }
-    virtual void write(std::ostream &os) const { Heuristic::write(os); }
-    static void read(std::istream &is, HashHeuristic &h) { Heuristic::read(is, h); }
 };
 
 #endif // _HashHeuristic_INCLUDE

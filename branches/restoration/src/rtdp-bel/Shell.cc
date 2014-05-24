@@ -214,7 +214,7 @@ static int bootstrap() {
         free(cwd);
         return 0;
     }
-    loadedObject = true;
+    //loadedObject = true;
     loadedCore = false;
     free(cwd);
     return 1;

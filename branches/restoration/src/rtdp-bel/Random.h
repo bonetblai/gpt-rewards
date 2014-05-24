@@ -5,17 +5,16 @@
 #ifndef _Random_INCLUDE_
 #define _Random_INCLUDE_
 
-#include "Serialization.h"
-
 #include <iostream>
-#include <assert.h>
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#include <cassert>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <map>
 #include <set>
 #include <vector>
-
-using namespace std;
 
 namespace Random {
 

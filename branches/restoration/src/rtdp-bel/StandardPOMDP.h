@@ -14,12 +14,12 @@
 #include "BeliefCache.h"
 #include "Quantization.h"
 #include "StandardModel.h"
-#include "Serialization.h"
 #include "Utils.h"
 
 #include <iostream>
 #include <float.h>
 #include <map>
+#include <limits.h>
 #include <list>
 
 class Sondik;
@@ -49,7 +49,7 @@ class StandardPOMDP : public POMDP {
     }
 
     double QValue(const Belief &belief, int action, BeliefCache::Entry *cache_entry, const BeliefHash *hash) const {
-        double qvalue = DBL_MAX;
+        double qvalue = std::numeric_limits<double>::max();;
         if( applicable(belief,action) ) {
             qvalue = 0;
             const double *nextobs = 0;
@@ -87,6 +87,7 @@ class StandardPOMDP : public POMDP {
     void bestQValue(const Belief &belief, QResult &qresult, BeliefCache::Entry *cache_entry, const BeliefHash *hash) const {
         ++expansions_;
         qresult.numTies_ = 0;
+        qresult.value_ = std::numeric_limits<double>::max();;
         for( int action = 0; action < numActions_; ++action ) {
             double qvalue = QValue(belief, action, cache_entry, hash);
             if( (qresult.numTies_ == 0) || (qvalue <= qresult.value_) ) {
@@ -141,15 +142,6 @@ class StandardPOMDP : public POMDP {
     }
     virtual const Belief& getInitialBelief() const {
         return *model_->initialBelief_;
-    }
-
-    // serialization
-    StandardPOMDP* constructor() const { return new StandardPOMDP; }
-    virtual void write(std::ostream& os) const {
-        POMDP::write(os);
-    }
-    static void read(std::istream& is, StandardPOMDP &pomdp) {
-        POMDP::read(is, pomdp);
     }
 };
 

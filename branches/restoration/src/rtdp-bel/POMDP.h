@@ -7,7 +7,6 @@
 
 #include "Belief.h"
 #include "Model.h"
-#include "Serialization.h"
 #include "Utils.h"
 
 #include <iostream>
@@ -27,7 +26,7 @@ struct QResult {
     }
 };
 
-class POMDP : public Serializable {
+class POMDP {
   protected:
     int numActions_;
     int numObs_;
@@ -35,6 +34,7 @@ class POMDP : public Serializable {
     bool randomTies_;
     double epsilonGreedy_;
     mutable unsigned expansions_;
+    const Heuristic *heuristic_;
     BeliefHash* beliefHash_;
     const Model *model_;
     double learningTime_;
@@ -44,12 +44,23 @@ class POMDP : public Serializable {
     POMDP(const Model *model)
       : numActions_(model->numActions()), numObs_(model->numObs()),
         cutoff_(100), randomTies_(true), epsilonGreedy_(0), expansions_(0),
-        beliefHash_(0), model_(model), learningTime_(0), controlTime_(0) { }
+        heuristic_(0), beliefHash_(0),
+        model_(model), learningTime_(0), controlTime_(0) { }
     virtual ~POMDP() { }
 
-    const BeliefHash* beliefHash() const { return beliefHash_; }
-    void printHash(std::ostream &os) const { beliefHash_->print(os); }
-    void cleanHash() { beliefHash_->clean(); } 
+    const BeliefHash* beliefHash() const {
+        return beliefHash_;
+    }
+    void printHash(std::ostream &os) const {
+        if( beliefHash_ == 0 )
+            os << "(null)";
+        else
+            beliefHash_->print(os);
+    }
+    void cleanHash() {
+        if( beliefHash_ == 0 )
+            beliefHash_->clean();
+    } 
     const Model* model() const { return model_; }
     int numActions() const { return numActions_; } 
     int numObs() const { return numObs_; }
@@ -57,10 +68,13 @@ class POMDP : public Serializable {
     void setRandomTies(bool randomTies) { randomTies_ = randomTies; }
     double epsilonGreedy() const { return epsilonGreedy_; }
     void setEpsilonGreedy(double epsilonGreedy) { epsilonGreedy_ = epsilonGreedy; }
-    bool emptyBeliefHash() const { return beliefHash_->numEntries() == 0; }
+    bool emptyBeliefHash() const {
+        return (beliefHash_ == 0) || (beliefHash_->numEntries() == 0);
+    }
     void setHeuristic(const Heuristic *heuristic) {
+        heuristic_ = heuristic;
         if( beliefHash_ != 0 )
-            beliefHash_->setHeuristic(heuristic);
+            beliefHash_->setHeuristic(heuristic_);
     }
     void incLearningTime(double time) { learningTime_ += time; }
     void incControlTime(double time) { controlTime_ += time; }
@@ -73,12 +87,14 @@ class POMDP : public Serializable {
 
     // virtual methods
     virtual void statistics(std::ostream &os) const {
-        BeliefHash::Data data = beliefHash_->lookup(getInitialBelief(), false, false).second;
-        os << "%pomdp initialBeliefValue " << data.value_ << std::endl
-           << "%pomdp expansions " << expansions_ << std::endl
-           << "%pomdp learningTime " << learningTime_ << std::endl
-           << "%pomdp controlTime " << controlTime_ << std::endl;
-        beliefHash_->statistics(os);
+        if( beliefHash_ != 0 ) {
+            BeliefHash::Data data = beliefHash_->lookup(getInitialBelief(), false, false).second;
+            os << "%pomdp initialBeliefValue " << data.value_ << std::endl
+               << "%pomdp expansions " << expansions_ << std::endl
+               << "%pomdp learningTime " << learningTime_ << std::endl
+               << "%pomdp controlTime " << controlTime_ << std::endl;
+            beliefHash_->statistics(os);
+        }
     }
 
     virtual double cost(const Belief &belief, int action) const = 0;
@@ -89,22 +105,6 @@ class POMDP : public Serializable {
     virtual void bestQValue(const Belief &belief, QResult &qresult) const = 0;
     virtual int getBestAction(const Belief &belief) const = 0;
     virtual const Belief& getInitialBelief() const = 0;
-
-    // serialization
-    virtual void write(std::ostream &os) const {
-        Serialize::safeWrite(&numActions_, sizeof(int), 1, os);
-        Serialize::safeWrite(&cutoff_, sizeof(int), 1, os);
-        Serialize::safeWrite(&randomTies_, sizeof(bool), 1, os);
-        Serialize::safeWrite(&expansions_, sizeof(unsigned), 1, os);
-        Serialize::write(beliefHash_, os);
-    }
-    static void read(std::istream &is, POMDP &pomdp) {
-        Serialize::safeRead(&pomdp.numActions_, sizeof(int), 1, is);
-        Serialize::safeRead(&pomdp.cutoff_, sizeof(int), 1, is);
-        Serialize::safeRead(&pomdp.randomTies_, sizeof(bool), 1, is);
-        Serialize::safeRead(&pomdp.expansions_, sizeof(unsigned), 1, is);
-        pomdp.beliefHash_ = static_cast<BeliefHash*>(Serialize::read(is));
-    }
 };
 
 #endif // _POMDP_INCLUDE
