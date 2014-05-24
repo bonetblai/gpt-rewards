@@ -82,7 +82,7 @@ class StandardPOMDP : public POMDP {
                     }
                 }
             }
-            qvalue += cost(belief, action);
+            qvalue = cost(belief, action) + qvalue;
         }
         return qvalue;
     }
