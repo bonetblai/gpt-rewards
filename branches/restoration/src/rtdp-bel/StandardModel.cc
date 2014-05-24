@@ -1,8 +1,8 @@
-//  Theseus
-//  StandardModel.cc -- Standard Model Implementation
+//  StandardModel.cc -- Standard POMDP models and translation from
+//                      reward-based discounted POMDPs into Goal POMDPs.
+//                      Parsing of POMDPs given in Cassandra's format.
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #include "StandardModel.h"
 #include "SB.h"

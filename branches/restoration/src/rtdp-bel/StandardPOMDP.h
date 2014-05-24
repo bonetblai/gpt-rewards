@@ -1,8 +1,6 @@
-//  Theseus
-//  StandardPOMDP.h -- Standard POMDP Implementation
+//  StandardPOMDP.h -- Standard POMDPs
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _StandardPOMDP_INCLUDE_
 #define _StandardPOMDP_INCLUDE_

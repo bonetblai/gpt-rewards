@@ -1,8 +1,6 @@
-//  Theseus
 //  Random.h -- Functions for random numbers and sampling
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _Random_INCLUDE_
 #define _Random_INCLUDE_

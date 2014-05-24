@@ -1,8 +1,6 @@
-//  Theseus
-//  HashHeuristic.h -- Hash Heuristic for Beliefs
+//  HashHeuristic.h -- Hash heuristic for beliefs
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _HashHeuristic_INCLUDE_
 #define _HashHeuristic_INCLUDE_

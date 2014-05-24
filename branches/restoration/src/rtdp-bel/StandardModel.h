@@ -1,8 +1,6 @@
-//  Theseus
-//  StandardModel.h -- Standard Model Implementation
+//  StandardModel.h -- POMDP standard model 
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _StandardModel_INCLUDE_
 #define _StandardModel_INCLUDE_

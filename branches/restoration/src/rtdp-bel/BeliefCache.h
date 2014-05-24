@@ -1,8 +1,6 @@
-//  Theseus
-//  BeliefCache.h -- Belief Cache classes
+//  BeliefCache.h -- Caching of standard beliefs
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _BeliefCache_INCLUDE_
 #define _BeliefCache_INCLUDE_

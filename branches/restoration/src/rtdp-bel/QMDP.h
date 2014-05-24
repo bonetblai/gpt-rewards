@@ -1,8 +1,6 @@
-//  Theseus
-//  QMDP.h -- QMDP Heuristic for Beliefs
+//  QMDP.h -- The QMDP heuristic for beliefs
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _QMDP_INCLUDE_
 #define _QMDP_INCLUDE_

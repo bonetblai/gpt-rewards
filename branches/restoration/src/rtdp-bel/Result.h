@@ -1,8 +1,6 @@
-//  Theseus
-//  Result.cc -- Result Implementation
+//  Result.cc -- Result for a single trial.
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _Result_INCLUDE_
 #define _Result_INCLUDE_

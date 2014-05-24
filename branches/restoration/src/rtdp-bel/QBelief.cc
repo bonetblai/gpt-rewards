@@ -1,8 +1,6 @@
-//  Theseus
-//  QBelief.h -- Quantizied Belief Implementation
+//  QBelief.h -- Quantization of standard beliefs
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #include "QBelief.h"
 #include "Quantization.h"

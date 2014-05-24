@@ -1,8 +1,6 @@
-//  Theseus
 //  Exceptions.h -- Exceptions 
 //
-//  Blai Bonet, Hector Geffner
-//  Universidad Simon Bolivar (c) 1998-2008
+//  Blai Bonet, Hector Geffner (c)
 
 #ifndef _Exceptions_INCLUDE_
 #define _Exceptions_INCLUDE_
