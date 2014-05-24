@@ -6,9 +6,9 @@
 #define _HashHeuristic_INCLUDE_
 
 #include "Belief.h"
+#include "SB.h"
 #include "Hash.h"
 #include "Heuristic.h"
-#include "SB.h"
 #include "Utils.h"
 
 #include <iostream>
@@ -16,6 +16,7 @@
 class HashHeuristic : public Heuristic {
   protected:
     BeliefHash *hash_;
+
   public:
     HashHeuristic(BeliefHash *hash = 0) : hash_(hash) { }
     virtual ~HashHeuristic() { }
@@ -32,7 +33,6 @@ class HashHeuristic : public Heuristic {
     virtual int action(int state) const { return 0; }
     virtual double value(int state) const { return 0; }
     virtual double value(const Belief &belief) const {
-        std::cout << "CHECK1" << std::endl;
         const StandardBelief *bel = dynamic_cast<const StandardBelief*>(&belief);
         return bel != 0 ? value(*bel) : 0;
     }

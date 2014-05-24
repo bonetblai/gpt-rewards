@@ -114,7 +114,7 @@ template<typename Key, typename Data> class Hash {
         freeslots_ = size_;
     }
 
-    void statistics(std::ostream& os) const {
+    void statistics(std::ostream &os) const {
         int slots = 0, diam = 0;
         for( unsigned i = 0; i < size_; ++i ) {
             int n = 0;
@@ -131,7 +131,7 @@ template<typename Key, typename Data> class Hash {
            << "%hash nfound " << nfound_ << std::endl;
     }
 
-    void print(std::ostream& os) const {
+    void print(std::ostream &os) const {
         for( unsigned i = 0; i < size_; ++i ) {
             if( table_[i] != 0 ) {
                 os << "[SLOT " << i << "]" << std::endl;
@@ -179,7 +179,7 @@ template<typename Key, typename Data> class Hash {
         Entry *entry = table_[bucket];
         while( !entry && (++bucket < size_) )
             entry = table_[bucket];
-        return iterator(bucket, entry, table_,size_);
+        return iterator(bucket, entry, table_, size_);
     }
     iterator end() { return iterator(size_, 0); }
 

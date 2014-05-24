@@ -31,7 +31,7 @@ class Result {
     void startTimer() { startTime_ = Utils::getTime(); }
     void stopTimer() { stopTime_ = Utils::getTime(); }
     double elapsedTime() const {
-        return stopTime_-startTime_;
+        return stopTime_ - startTime_;
     }
 
     virtual void clean() = 0;
@@ -50,9 +50,9 @@ class StandardResult : public Result {
         int observation_;
         Step(int state, int action, int observation)
           : state_(state), action_(action), observation_(observation) { }
-  };
+    };
 
-  std::list<Step> steps_;
+    std::list<Step> steps_;
 
   public:
     StandardResult() { }
@@ -61,7 +61,7 @@ class StandardResult : public Result {
         startTime_ = 0;
         stopTime_ = 0;
         steps_.clear();
-     }
+    }
     virtual void push_back(int state, int action, int observation) {
         Step step(state, action, observation);
         steps_.push_back(step);

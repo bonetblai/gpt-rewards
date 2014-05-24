@@ -219,12 +219,12 @@ void StandardPOMDP::controlAlgorithm(Result& result, const Sondik *sondik) const
             nstate = model_->sampleNextState(state, bestAction);
         }
         int observation = model_->sampleNextObservation(nstate, bestAction);
-        result.push_back(state, bestAction, observation);
 
-        // get real reward
+        // get real reward and update trajectory in result
         double reward = model_->reward(state, bestAction, nstate);
         result.accReward_ += reward;
         result.accDiscountedReward_ += reward * powf(model_->underlyingDiscount_, result.numSteps_);
+        result.push_back(state, bestAction, observation);
 
         // update belief (using cache)
         if( !sondik ) {

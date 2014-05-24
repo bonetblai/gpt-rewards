@@ -51,7 +51,7 @@ class LookAheadHeuristic : public Heuristic {
                         double prob = nextobs_[obs];
                         if( prob > 0 ) {
                             const Belief &belief_ao = belief_a.update(pomdp_->model(), action, obs);
-                            double hval = value(level - 1 ,belief_ao);
+                            double hval = value(level - 1, belief_ao);
                             sum += prob * hval;
                         }
                     }

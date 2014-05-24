@@ -7,8 +7,6 @@
 #include "QMDP.h"
 #include "Result.h"
 #include "StandardPOMDP.h"
-#include "RLPOMDP.h"
-#include "RolloutPOMDP.h"
 #include "Sondik.h"
 #include "Utils.h"
 
@@ -46,7 +44,6 @@ Problem::Problem()
     pddlProblem_(false), linkmap_(0), verboseLevel_(0), precision_(6), signal_(-1),
     useStopRule_(false), SREpsilon_(0), epsilon_(.000001), epsilonGreedy_(0),
     maxUpdate_(false), cutoff_(100), controlUpdates_(false),
-    rollout_(false), depth_(20), width_(1), nesting_(1), numParticles_(1),
     sondik_(false), sondikMethod_(0), sondikMaxPlanes_(16), sondikIterations_(100),
     qmethod_(0), qlevels_(20), qbase_(0.95),
     zeroHeuristic_(false), hashAll_(false), lookahead_(0), QMDPdiscount_(1),
@@ -127,11 +124,6 @@ void Problem::print(ostream &os, const char *prefix) const {
     }
     os << endl
        << prefix << "cutoff " << cutoff_ << endl
-       << prefix << "rollout " << (rollout_ ? "on" : "off") << endl
-       << prefix << "depth " << depth_ << endl
-       << prefix << "width " << width_ << endl
-       << prefix << "nesting " << nesting_ << endl
-       << prefix << "num-particles " << numParticles_ << endl
        << prefix << "qmdp-discount " << QMDPdiscount_ << endl
        << prefix << "heuristic-lookahead " << lookahead_ << endl
        << prefix << "zero-heuristic " << (zeroHeuristic_ ? "on" : "off") << endl
@@ -560,16 +552,9 @@ void Problem::bootstrapCASSANDRA() {
 
     // initialization of beliefs and others
     StandardBelief::initialize(model->numStates_, model->numActions_, model->numObs_);
-    HistoryBelief::initialize(model->numActions_, model->numObs_);
-    HistoryAndSampleBelief::initialize(model->numStates_, model->numActions_, model->numObs_, PD.numParticles_);
-    SampleBelief::initialize(PD.numParticles_);
 
     // POMDP creation & setup
-    if( rollout_ ) {
-        pomdp_ = new RolloutPOMDP(model, PD.depth_, PD.width_, PD.nesting_, PD.numParticles_);
-    } else {
-        pomdp_ = new StandardPOMDP(model, qlevels_, qbase_);
-    }
+    pomdp_ = new StandardPOMDP(model, qlevels_, qbase_);
     pomdp_->setEpsilonGreedy(epsilonGreedy_);
     pomdp_->setCutoff(cutoff_);
 
@@ -669,7 +654,7 @@ void Problem::solveCASSANDRA() {
                 //   1. collect last used beliefs
                 //   2. transform collection of belief/values into Sondik's representation
                 //   3. perform point-based updates over them
-                sondik = new Sondik(dynamic_cast<const StandardPOMDP&>(*pomdp_));
+                sondik = new Sondik(static_cast<const StandardPOMDP&>(*pomdp_));
                 sondik->bootstrap(sondikMaxPlanes_, sondikMethod_);
                 for( int i = 0; i < sondikIterations_; ++i ) {
                     sondik->update(epsilon_);

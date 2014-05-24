@@ -43,7 +43,7 @@ std::ostream& operator<<(std::ostream &os, const std::map<T1, T2, Comp, Alloc> &
 }
 
 template<class T, class Alloc>
-std::ostream& operator<<(std::ostream &os, const std::vector<T,Alloc> &v) {
+std::ostream& operator<<(std::ostream &os, const std::vector<T, Alloc> &v) {
     return os;
 }
 

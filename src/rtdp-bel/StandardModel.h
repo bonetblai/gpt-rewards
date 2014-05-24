@@ -76,7 +76,7 @@ class StandardModel : public Model {
 
 #if 0
     int P_row_start(int action, int state) const {
-        return P[action]->row_start[state]);
+        return P[action]->row_start[state];
     }
     int P_row_length(int action, int state) const {
         return P[action]->row_length[state]);
@@ -117,16 +117,16 @@ class StandardModel : public Model {
     }
     virtual bool isAbsorbing(int state) const {
         return state == absorbing_;
-     }
+    }
     virtual bool isGoal(int state) const {
         return state >= goalSize_ ? false : goal_[state >> 3] & (1 << (state & 0x7));
-     }
+    }
     virtual int numGoals() const {
         return numGoals_;
     }
     virtual int sampleNextState(int state, int action) const {
         return Random::sample(*transition_[state*numActions_ + action]);
-     }
+    }
     virtual int sampleNextObservation(int nstate, int action) const {
         return Random::sample(observation_[nstate*numActions_ + action], numObs_);
     }

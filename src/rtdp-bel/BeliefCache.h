@@ -1,4 +1,4 @@
-//  BeliefCache.h -- Cahcing of standard beliefs
+//  BeliefCache.h -- Caching of standard beliefs
 //
 //  Blai Bonet, Hector Geffner (c)
 

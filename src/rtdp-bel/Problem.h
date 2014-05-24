@@ -58,11 +58,6 @@ class Problem {
     bool maxUpdate_;
     int cutoff_;
     bool controlUpdates_;
-    bool rollout_;
-    int depth_;
-    int width_;
-    int nesting_;
-    int numParticles_;
     bool sondik_;
     int sondikMethod_;
     int sondikMaxPlanes_;
