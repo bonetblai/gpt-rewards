@@ -32,33 +32,41 @@ inline void fill(std::map<int, double> &m, const double *array, int dimension) {
     }
 }
 
+inline double realRandomSampling() {
+    return drand48();
+}
+
+inline unsigned unifRandomSampling(unsigned max) {
+    return lrand48() % max;
+}
+
 template<typename T, class Alloc>
 inline T randomSampling(const std::vector<std::pair<T, double>, Alloc> &v) {
-    register double d = drand48();
+    register double d = realRandomSampling();
     for( typename std::vector<std::pair<T, double>, Alloc>::const_iterator it = v.begin(); it != v.end(); ++it ) {
         if( d <= (*it).second ) return (*it).first;
         d -= (*it).second;
     }
-    return v[lrand48() % v.size()].first;
+    return v[unifRandomSampling(v.size())].first;
 }
 
 template<typename T>
 inline T randomSampling(const std::pair<T, double> *vec, unsigned size) {
-    register double d = drand48();
+    register double d = realRandomSampling();
     for( unsigned i = 0; i < size; ++i ) {
         if( d <= vec[i].second ) return vec[i].first;
         d -= vec[i].second;
     }
-    return vec[lrand48() % size].first;
+    return vec[unifRandomSampling(size)].first;
 }
 
 inline int randomSampling(double *vec, unsigned size) {
-    register double d = drand48();
+    register double d = realRandomSampling();
     for( unsigned i = 0; i < size; ++i ) {
         if( d <= vec[i] ) return i;
         d -= vec[i];
     }
-    return lrand48() % size;
+    return unifRandomSampling(size);
 }
 
 template<class T, class Comp, class Alloc>
