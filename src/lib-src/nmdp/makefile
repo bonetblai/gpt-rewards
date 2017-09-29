@@ -39,7 +39,7 @@ RM = /bin/rm -f
 # Archiver name and flags
 AR = ar -crv
 
-MKDIR = ../scripts/mkdir-if-noexist
+MKDIR = mkdir -p 
 
 CP = /bin/cp
 
@@ -51,10 +51,11 @@ SYS_FLAGS = -DSYSSOLARIS
 #DEBUG_FLAGS = -g
 #PROFILE_FLAGS = -pg
 OPTIMIZE_FLAGS = -O3 -msse -mfpmath=sse -msse2 -mmmx -pipe
+OTHER_FLAGS = -Wdeprecated
 
 # Compile time flags
 CFLAGS = $(DEBUG_FLAGS) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) \
-	$(SYS_FLAGS)
+	$(SYS_FLAGS) $(OTHER_FLAGS)
 
 # Load time flags
 CLDFLAGS =  $(DEBUG_FLAGS) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS)
@@ -79,7 +80,7 @@ all:
 
 compile:	$(LIB_NAME)
 $(LIB_NAME):	$(LIB_OBJS)
-	@$(CP) *.h ../../include/mdp
+	$(CP) *.h ../../include/mdp
 	$(AR) ../../lib/lib$(LIB_NAME).a $(LIB_OBJS)
 
 ############################################################
@@ -134,7 +135,7 @@ parser.tab.c:	parser.y  parse_err.h mdp.h \
 
 clean:
 	@echo "*** Cleaning `pwd`"
-	@$(RM) *.o lex.yy.c y.tab.c parser.tab.c parser.tab.h *~
+	$(RM) *.o lex.yy.c y.tab.c parser.tab.c parser.tab.h *~
 
 ######################################################################
 

@@ -62,7 +62,7 @@ file (in Cassandra's format) and the name of a file to redirect
 the output. If the latter is '-', then the output is redirected
 to the standard output.
 
-For any questions or comments, please email me <bonet@ldc.usb.ve>.
+For any questions or comments, please email me <bonetblai@gmail.com>.
 
 Blai Bonet
 
