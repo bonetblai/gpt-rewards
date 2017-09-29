@@ -26,7 +26,7 @@ using namespace std;
 
 long long glookups = 0, gfound = 0;
 
-static const double tValues[] = { // 101 values for student-t distribution
+static const double tValues[] = { // 101 values for student-t distribution 0.975
     12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.201, 2.179, 2.160, 2.145, 2.131,
      2.120, 2.110, 2.101, 2.093, 2.086, 2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048, 2.045, 2.042,
      2.040, 2.037, 2.035, 2.032, 2.030, 2.028, 2.026, 2.024, 2.023, 2.021, 2.020, 2.018, 2.017, 2.015, 2.014,
